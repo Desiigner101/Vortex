@@ -15,7 +15,7 @@ public class VortexMain extends ApplicationAdapter {
     @Override
     public void create() {
         batch = new SpriteBatch();
-        image = new Texture("libgdx.png");
+        image = new Texture("Pictures/nova'sLab.jpg");
     }
 
     @Override
