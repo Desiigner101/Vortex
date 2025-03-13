@@ -1,17 +1,16 @@
 package com.vortex.game.lwjgl3;
 
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.vortex.game.GameTransitions;
 
 /** Launches the desktop (LWJGL3) application. */
 public class VortexApplication {
     public static void main(String[] args) {
         if (StartupHelper.startNewJvmIfRequired()) return; // This handles macOS support and helps on Windows.
-        createApplication();
+        new Lwjgl3Application(new GameTransitions(), getDefaultConfiguration());
     }
 
-    private static com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application createApplication() {
-        return new com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application(new com.vortex.game.VortexMain(), getDefaultConfiguration());
-    }
 
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
