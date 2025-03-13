@@ -4,7 +4,9 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
@@ -16,6 +18,11 @@ public class GameMenu implements Screen {
     private Vector2[] optionPositions;
     private int selectedIndex = -1; // No selection initially
     private final GameTransitions game;
+    private Texture background; // Background image
+    private float screenWidth, screenHeight;
+    private float textScale = 2f;
+    private float hoverScale = 2.5f;
+    private float fadeInAlpha = 0f;
 
     public GameMenu(GameTransitions game) {
         this.game = game;
@@ -24,43 +31,66 @@ public class GameMenu implements Screen {
     @Override
     public void show() {
         batch = new SpriteBatch();
-        font = new BitmapFont();
-        font.getData().setScale(2);
+        font = new BitmapFont(); // Font initialized
+        font.getData().setScale(textScale);
+
+        screenWidth = Gdx.graphics.getWidth();
+        screenHeight = Gdx.graphics.getHeight();
+        background = new Texture(Gdx.files.internal("Backgrounds/background.jpg")); // Sci-fi themed background
+
         optionPositions = new Vector2[menuOptions.length];
 
-        // Positioning menu options
+        // Center the menu on the screen
+        float startY = screenHeight * 0.6f;
         for (int i = 0; i < menuOptions.length; i++) {
-            optionPositions[i] = new Vector2(400, 500 - (i * 50));
+            float textWidth = getTextWidth(menuOptions[i], textScale);
+            optionPositions[i] = new Vector2((screenWidth - textWidth) / 2, startY - (i * 80));
         }
     }
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(0.1f, 0.1f, 0.1f, 1);
-
-        // Check for mouse hover and update selectedIndex
-        updateMouseSelection();
+        ScreenUtils.clear(0, 0, 0, 1);
+        fadeInAlpha = Math.min(fadeInAlpha + delta * 0.5f, 1); // Smooth fade-in effect
 
         batch.begin();
-        for (int i = 0; i < menuOptions.length; i++) {
-            font.setColor(i == selectedIndex ? Color.YELLOW : Color.WHITE);
-            font.draw(batch, menuOptions[i], optionPositions[i].x, optionPositions[i].y);
-        }
-        batch.end();
+        batch.setColor(1, 1, 1, fadeInAlpha);
+        batch.draw(background, 0, 0, screenWidth, screenHeight); // Render background
 
+        updateMouseSelection(delta);
+
+        for (int i = 0; i < menuOptions.length; i++) {
+            float scale = (i == selectedIndex) ?
+                lerp(font.getData().scaleX, hoverScale, delta * 10) :
+                lerp(font.getData().scaleX, textScale, delta * 10);
+            font.getData().setScale(scale);
+
+            font.setColor(i == selectedIndex ? Color.CYAN : Color.WHITE);
+            float textWidth = getTextWidth(menuOptions[i], scale);
+            float adjustedX = (screenWidth - textWidth) / 2;
+
+            font.draw(batch, menuOptions[i], adjustedX, optionPositions[i].y);
+        }
+
+        batch.end();
         handleInput();
     }
 
-    private void updateMouseSelection() {
+    private float getTextWidth(String text, float scale) {
+        font.getData().setScale(scale);
+        GlyphLayout layout = new GlyphLayout(font, text);
+        return layout.width;
+    }
+
+    private void updateMouseSelection(float delta) {
         float mouseX = Gdx.input.getX();
-        float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY(); // Convert to world coordinates
+        float mouseY = screenHeight - Gdx.input.getY(); // Convert to world coordinates
 
         selectedIndex = -1; // Reset selection
         for (int i = 0; i < menuOptions.length; i++) {
-            float textWidth = font.getScaleX() * menuOptions[i].length() * 10; // Approximate width
-            float textHeight = font.getScaleY() * 20; // Approximate height
-
-            float optionX = optionPositions[i].x;
+            float textWidth = getTextWidth(menuOptions[i], textScale);
+            float textHeight = font.getLineHeight() * textScale;
+            float optionX = (screenWidth - textWidth) / 2;
             float optionY = optionPositions[i].y;
 
             if (mouseX >= optionX && mouseX <= optionX + textWidth &&
@@ -72,20 +102,15 @@ public class GameMenu implements Screen {
     }
 
     private void handleInput() {
-        // Keyboard navigation
         if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
             selectedIndex = (selectedIndex + 1) % menuOptions.length;
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
             selectedIndex = (selectedIndex - 1 + menuOptions.length) % menuOptions.length;
         }
-
-        // Enter key selection
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER) && selectedIndex != -1) {
             executeAction(selectedIndex);
         }
-
-        // Mouse click selection
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT) && selectedIndex != -1) {
             executeAction(selectedIndex);
         }
@@ -94,9 +119,9 @@ public class GameMenu implements Screen {
     private void executeAction(int index) {
         switch (index) {
             case 0: game.newGame(); break;
-            //case 1: game.loadGame(); break;
+            // case 1: game.loadGame(); break; (Implement if needed)
             case 2: game.displayCharacters(); break;
-            //case 3: game.openSettings(); break;
+            // case 3: game.openSettings(); break; (Implement if needed)
             case 4: Gdx.app.exit(); break;
         }
     }
@@ -105,5 +130,18 @@ public class GameMenu implements Screen {
     @Override public void pause() {}
     @Override public void resume() {}
     @Override public void hide() {}
-    @Override public void dispose() { batch.dispose(); font.dispose(); }
+
+    @Override
+    public void dispose() {
+        batch.dispose();
+        font.dispose();
+        background.dispose();
+    }
+
+    /**
+     * Linear interpolation function to smoothly transition between values.
+     */
+    private float lerp(float start, float end, float alpha) {
+        return start + alpha * (end - start);
+    }
 }
