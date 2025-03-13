@@ -1,16 +1,16 @@
 package com.vortex.game.lwjgl3;
 
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
-import com.vortex.game.GameMenu;
-import com.vortex.game.GameTransitions;
-
 
 /** Launches the desktop (LWJGL3) application. */
 public class VortexApplication {
     public static void main(String[] args) {
-        if (StartupHelper.startNewJvmIfRequired()) return;
-        new Lwjgl3Application(new GameTransitions(), getDefaultConfiguration());
+        if (StartupHelper.startNewJvmIfRequired()) return; // This handles macOS support and helps on Windows.
+        createApplication();
+    }
+
+    private static com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application createApplication() {
+        return new com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application(new com.vortex.game.VortexMain(), getDefaultConfiguration());
     }
 
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
@@ -27,12 +27,9 @@ public class VortexApplication {
         //// useful for testing performance, but can also be very stressful to some hardware.
         //// You may also need to configure GPU drivers to fully disable Vsync; this can cause screen tearing.
 
-        configuration.setWindowedMode(1200, 660);// Or your desired resolution
-        configuration.setDecorated(true); // Keeps the top bar visible
-
+        configuration.setWindowedMode(1200, 660);
         //// You can change these files; they are in lwjgl3/src/main/resources/ .
         configuration.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");
         return configuration;
     }
-
 }
