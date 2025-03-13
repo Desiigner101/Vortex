@@ -3,11 +3,13 @@ package com.vortex.game;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 
@@ -31,8 +33,7 @@ public class GameMenu implements Screen {
     @Override
     public void show() {
         batch = new SpriteBatch();
-        font = new BitmapFont(); // Font initialized
-        font.getData().setScale(textScale);
+        font = generateFont("fonts/Poppins-Thin.ttf", 15); // Generate Poppins font at 48px size
 
         screenWidth = Gdx.graphics.getWidth();
         screenHeight = Gdx.graphics.getHeight();
@@ -143,5 +144,24 @@ public class GameMenu implements Screen {
      */
     private float lerp(float start, float end, float alpha) {
         return start + alpha * (end - start);
+    }
+
+    /**
+     * Generates a BitmapFont from a TTF file.
+     */
+    private BitmapFont generateFont(String fontPath, int size) {
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(fontPath));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = size;
+        parameter.color = Color.WHITE;
+        parameter.borderColor = Color.BLACK;
+        parameter.borderWidth = 2f;
+        parameter.shadowOffsetX = 2;
+        parameter.shadowOffsetY = 2;
+        parameter.shadowColor = new Color(0, 0, 0, 0.75f); // Semi-transparent black shadow
+
+        BitmapFont font = generator.generateFont(parameter);
+        generator.dispose();
+        return font;
     }
 }
