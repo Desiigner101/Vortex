@@ -2,7 +2,11 @@
 buildscript {
   repositories {
     gradlePluginPortal()
+    maven { url "https://jitpack.io" }
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    maven { url "https://maven.badlogicgames.com/" }
   }
+
   dependencies {
     classpath "io.github.fourlastor:construo:1.6.1"
     if(enableGraalNative == 'true') {
@@ -29,6 +33,7 @@ if (JavaVersion.current().isJava9Compatible()) {
 }
 
 dependencies {
+  implementation fileTree(dir: 'libs', include: ['*.jar'])
   implementation "com.badlogicgames.gdx-controllers:gdx-controllers-desktop:$gdxControllersVersion"
   implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
   implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
@@ -38,7 +43,10 @@ dependencies {
   implementation project(':core')
   implementation("com.badlogicgames.gdx:gdx-tools:$gdxVersion"){exclude group: 'com.badlogicgames.gdx', module: 'gdx-backend-lwjgl'}
 
+
+
   if(enableGraalNative == 'true') {
+    implementation "com.badlogicgames.gdx-video:gdx-video-lwjgl3:$gdxVideoVersion"
     implementation "io.github.berstanio:gdx-svmhelper-backend-lwjgl3:$graalHelperVersion"
     implementation "io.github.berstanio:gdx-svmhelper-extension-box2d:$graalHelperVersion"
     implementation "io.github.berstanio:gdx-svmhelper-extension-bullet:$graalHelperVersion"
@@ -142,3 +150,5 @@ startScripts.classpath = project.tasks.jar.outputs.files
 if(enableGraalNative == 'true') {
   apply from: file("nativeimage.gradle")
 }
+
+
