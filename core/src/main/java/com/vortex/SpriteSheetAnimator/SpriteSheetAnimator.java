@@ -1,48 +1,58 @@
 package com.vortex.SpriteSheetAnimator;
 
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.Disposable;
 
-public class SpriteSheetAnimator implements Animatable {
-    private Animation<TextureRegion> animation;
-    private float stateTime;
-    private Texture spriteSheet;
-    private TextureRegion[] animationFrames; // Store frames here
+public class SpriteSheetAnimator implements Disposable {
+    private TextureRegion[] frames;
+    private int frameCount;
+    private int currentFrameIndex;
+    private float frameDuration;
+    private float elapsedTime;
 
-    public SpriteSheetAnimator(String spriteSheetPath, int frameCols, int frameRows, float frameDuration) {
-        spriteSheet = new Texture(Gdx.files.internal(spriteSheetPath));
+    public SpriteSheetAnimator(String spriteSheetPath, int cols, int rows, float frameDuration) {
+        this.frameDuration = frameDuration;
+        this.elapsedTime = 0;
 
-        // Split the sprite sheet into frames
-        TextureRegion[][] tmpFrames = TextureRegion.split(spriteSheet,
-            64,64
-        );
+        // Load the sprite sheet and split it into frames
+        TextureAtlas atlas = new TextureAtlas(spriteSheetPath);
+        int frameWidth = atlas.getRegions().get(0).getRegionWidth();
+        int frameHeight = atlas.getRegions().get(0).getRegionHeight();
 
-        animationFrames = new TextureRegion[frameCols * frameRows];
-        int index = 0;
-        for (int row = 0; row < frameRows; row++) {
-            for (int col = 0; col < frameCols; col++) {
-                animationFrames[index++] = tmpFrames[row][col];
+        frames = new TextureRegion[cols * rows];
+        frameCount = frames.length;
+
+        // Populate the frames array
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                frames[row * cols + col] = new TextureRegion(atlas.getRegions().get(row * cols + col).getTexture(), frameWidth, frameHeight);
             }
         }
-
-        animation = new Animation<>(frameDuration, animationFrames);
-        stateTime = 0f;
     }
 
-    @Override
+    // Get the current frame of the animation
     public TextureRegion getCurrentFrame(float deltaTime) {
-        stateTime += deltaTime;
-        return animation.getKeyFrame(stateTime, true);
+        elapsedTime += deltaTime;
+
+        if (elapsedTime >= frameDuration) {
+            elapsedTime -= frameDuration;
+            currentFrameIndex = (currentFrameIndex + 1) % frameCount; // Loop the frames
+        }
+
+        return frames[currentFrameIndex];
     }
 
-    public TextureRegion[] getFrames() { // Add this method
-        return animationFrames;
+    // Get all frames in the sprite sheet
+    public TextureRegion[] getFrames() {
+        return frames;
     }
 
+    // Dispose the resources
     @Override
     public void dispose() {
-        spriteSheet.dispose();
+        for (TextureRegion frame : frames) {
+            frame.getTexture().dispose();
+        }
     }
 }
