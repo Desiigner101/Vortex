@@ -33,11 +33,11 @@ public class GameMenu implements Screen {
     @Override
     public void show() {
         batch = new SpriteBatch();
-        font = generateFont("fonts/Poppins-Thin.ttf", 15); // Generate Poppins font at 48px size
+        font = generateFont("fonts/Poppins-Regular.ttf", 15); // Generate Poppins font at 48px size
 
         screenWidth = Gdx.graphics.getWidth();
         screenHeight = Gdx.graphics.getHeight();
-        background = new Texture(Gdx.files.internal("Backgrounds/background.jpg")); // Sci-fi themed background
+        background = new Texture(Gdx.files.internal("Backgrounds/Lab.png")); // Sci-fi themed background
 
         optionPositions = new Vector2[menuOptions.length];
 

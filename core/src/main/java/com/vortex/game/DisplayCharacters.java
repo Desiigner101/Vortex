@@ -40,10 +40,11 @@ public class DisplayCharacters extends ScreenAdapter {
     private void initialize() {
         batch = new SpriteBatch();
 
-        // ✅ Load images (Jina uses Umbra as a placeholder)
+        // ✅ Load image
         novaImage = new ImageHandler("Pictures/Nova/CharacterView/Nova_CharView.png");
+        jinaImage = new ImageHandler("Pictures/Jina/CharacterView/Jina_CharView.png");
         umbraImage = new ImageHandler("Pictures/Umbra/CharacterView/Umbra_CharView.png");
-        jinaImage = new ImageHandler("Pictures/Umbra/CharacterView/Umbra_CharView.png"); // Placeholder for Jina
+         // Placeholder for Jina
 
         screenWidth = Gdx.graphics.getWidth();
         screenHeight = Gdx.graphics.getHeight();
@@ -53,8 +54,10 @@ public class DisplayCharacters extends ScreenAdapter {
         float centerX = screenWidth * 0.5f;
 
         novaPosition = new Vector2(centerX - spacing - characterWidth / 2, screenHeight * 0.5f - characterHeight / 2);
-        umbraPosition = new Vector2(centerX - characterWidth / 2, screenHeight * 0.5f - characterHeight / 2);
-        jinaPosition = new Vector2(centerX + spacing - characterWidth / 2, screenHeight * 0.5f - characterHeight / 2);
+        jinaPosition = new Vector2(centerX - characterWidth / 2, screenHeight * 0.5f - characterHeight / 2);
+        umbraPosition = new Vector2(centerX + spacing - characterWidth / 2, screenHeight * 0.5f - characterHeight / 2);
+
+
 
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
@@ -76,12 +79,17 @@ public class DisplayCharacters extends ScreenAdapter {
         stage.addActor(backButton);
     }
 
-    private boolean isHovered(Vector2 position) {
+    private boolean isHovered(Vector2 position, float scale) {
+        float scaledWidth = characterWidth * scale;
+        float scaledHeight = characterHeight * scale;
+
+        float hoverHeightMargin = 150f; // Increase hover detection height by 30 pixels
+
         float mouseX = Gdx.input.getX();
         float mouseY = screenHeight - Gdx.input.getY(); // Flip Y-axis for LibGDX
 
-        return mouseX >= position.x && mouseX <= position.x + characterWidth &&
-            mouseY >= position.y && mouseY <= position.y + characterHeight;
+        return mouseX >= position.x && mouseX <= position.x + scaledWidth &&
+            mouseY >= position.y - hoverHeightMargin && mouseY <= position.y + scaledHeight + hoverHeightMargin;
     }
 
     @Override
@@ -106,9 +114,9 @@ public class DisplayCharacters extends ScreenAdapter {
     private float maxScale = 1.2f; // Maximum allowed scale when hovered
 
     private void updateCharacterEffects(float delta) {
-        boolean novaHovered = isHovered(novaPosition);
-        boolean umbraHovered = isHovered(umbraPosition);
-        boolean jinaHovered = isHovered(jinaPosition);
+        boolean novaHovered = isHovered(novaPosition, novaScale);
+        boolean umbraHovered = isHovered(umbraPosition, umbraScale);
+        boolean jinaHovered = isHovered(jinaPosition, jinaScale);
 
         // Smooth scaling transition but with an upper limit
         novaScale += (novaHovered ? hoverScale : defaultScale - novaScale) * delta * transitionSpeed;
