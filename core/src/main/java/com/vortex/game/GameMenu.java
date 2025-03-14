@@ -20,11 +20,13 @@ public class GameMenu implements Screen {
     private Vector2[] optionPositions;
     private int selectedIndex = -1; // No selection initially
     private final GameTransitions game;
-    private Texture background; // Background image
+    private Texture background;
     private float screenWidth, screenHeight;
     private float textScale = 2f;
     private float hoverScale = 2.5f;
-    private float fadeInAlpha = 0f;
+    private Texture highlightTexture;
+    private float glowAlpha = 0.5f;
+    private boolean glowIncreasing = true;
 
     public GameMenu(GameTransitions game) {
         this.game = game;
@@ -33,48 +35,59 @@ public class GameMenu implements Screen {
     @Override
     public void show() {
         batch = new SpriteBatch();
-        font = generateFont("fonts/Poppins-Regular.ttf", 15); // Generate Poppins font at 48px size
+        font = generateFont("fonts/PressStart-Regular.ttf", 15);
 
         screenWidth = Gdx.graphics.getWidth();
         screenHeight = Gdx.graphics.getHeight();
-        background = new Texture(Gdx.files.internal("Backgrounds/Lab.png")); // Sci-fi themed background
+        background = new Texture(Gdx.files.internal("Backgrounds/Lab.png"));
+        highlightTexture = new Texture(Gdx.files.internal("UI/highlight.png"));
 
         optionPositions = new Vector2[menuOptions.length];
 
-        // Center the menu on the screen
-        float startY = screenHeight * 0.6f;
+        // Left-aligned menu positioning
+        float startX = screenWidth * 0.15f; // Left side
+        float startY = screenHeight * 0.7f; // Start higher
         for (int i = 0; i < menuOptions.length; i++) {
-            float textWidth = getTextWidth(menuOptions[i], textScale);
-            optionPositions[i] = new Vector2((screenWidth - textWidth) / 2, startY - (i * 80));
+            optionPositions[i] = new Vector2(startX, startY - (i * 80));
         }
     }
 
     @Override
     public void render(float delta) {
         ScreenUtils.clear(0, 0, 0, 1);
-        fadeInAlpha = Math.min(fadeInAlpha + delta * 0.5f, 1); // Smooth fade-in effect
 
         batch.begin();
-        batch.setColor(1, 1, 1, fadeInAlpha);
-        batch.draw(background, 0, 0, screenWidth, screenHeight); // Render background
+        batch.draw(background, 0, 0, screenWidth, screenHeight);
 
         updateMouseSelection(delta);
+        updateGlowEffect(delta);
 
         for (int i = 0; i < menuOptions.length; i++) {
-            float scale = (i == selectedIndex) ?
-                lerp(font.getData().scaleX, hoverScale, delta * 10) :
-                lerp(font.getData().scaleX, textScale, delta * 10);
-            font.getData().setScale(scale);
+            boolean isSelected = (i == selectedIndex);
+            float textWidth = getTextWidth(menuOptions[i], textScale);
+            float textHeight = font.getLineHeight() * textScale;
 
-            font.setColor(i == selectedIndex ? Color.CYAN : Color.WHITE);
-            float textWidth = getTextWidth(menuOptions[i], scale);
-            float adjustedX = (screenWidth - textWidth) / 2;
+            if (isSelected) {
+                batch.setColor(1, 1, 0.5f, 0.7f);
+                batch.draw(highlightTexture, optionPositions[i].x - 20, optionPositions[i].y - (textHeight * 0.85f), textWidth + 40, textHeight + 20);
+            }
 
-            font.draw(batch, menuOptions[i], adjustedX, optionPositions[i].y);
+            font.setColor(isSelected ? new Color(0, 1, 1, glowAlpha) : Color.LIGHT_GRAY);
+            font.draw(batch, menuOptions[i], optionPositions[i].x, optionPositions[i].y);
         }
 
         batch.end();
         handleInput();
+    }
+
+    private void updateGlowEffect(float delta) {
+        if (glowIncreasing) {
+            glowAlpha += delta;
+            if (glowAlpha >= 1) glowIncreasing = false;
+        } else {
+            glowAlpha -= delta;
+            if (glowAlpha <= 0.5f) glowIncreasing = true;
+        }
     }
 
     private float getTextWidth(String text, float scale) {
@@ -85,13 +98,13 @@ public class GameMenu implements Screen {
 
     private void updateMouseSelection(float delta) {
         float mouseX = Gdx.input.getX();
-        float mouseY = screenHeight - Gdx.input.getY(); // Convert to world coordinates
+        float mouseY = screenHeight - Gdx.input.getY();
 
-        selectedIndex = -1; // Reset selection
+        selectedIndex = -1;
         for (int i = 0; i < menuOptions.length; i++) {
             float textWidth = getTextWidth(menuOptions[i], textScale);
             float textHeight = font.getLineHeight() * textScale;
-            float optionX = (screenWidth - textWidth) / 2;
+            float optionX = optionPositions[i].x;
             float optionY = optionPositions[i].y;
 
             if (mouseX >= optionX && mouseX <= optionX + textWidth &&
@@ -120,9 +133,7 @@ public class GameMenu implements Screen {
     private void executeAction(int index) {
         switch (index) {
             case 0: game.newGame(); break;
-            // case 1: game.loadGame(); break; (Implement if needed)
             case 2: game.displayCharacters(); break;
-            // case 3: game.openSettings(); break; (Implement if needed)
             case 4: Gdx.app.exit(); break;
         }
     }
@@ -137,18 +148,9 @@ public class GameMenu implements Screen {
         batch.dispose();
         font.dispose();
         background.dispose();
+        highlightTexture.dispose();
     }
 
-    /**
-     * Linear interpolation function to smoothly transition between values.
-     */
-    private float lerp(float start, float end, float alpha) {
-        return start + alpha * (end - start);
-    }
-
-    /**
-     * Generates a BitmapFont from a TTF file.
-     */
     private BitmapFont generateFont(String fontPath, int size) {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(fontPath));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -158,10 +160,11 @@ public class GameMenu implements Screen {
         parameter.borderWidth = 2f;
         parameter.shadowOffsetX = 2;
         parameter.shadowOffsetY = 2;
-        parameter.shadowColor = new Color(0, 0, 0, 0.75f); // Semi-transparent black shadow
+        parameter.shadowColor = new Color(0, 0, 0, 0.75f);
 
         BitmapFont font = generator.generateFont(parameter);
         generator.dispose();
         return font;
     }
 }
+
