@@ -9,6 +9,7 @@ public class VortexApplication {
     public static void main(String[] args) {
         if (StartupHelper.startNewJvmIfRequired()) return; // This handles macOS support and helps on Windows.
         new Lwjgl3Application(new GameTransitions(), getDefaultConfiguration());
+        //fdfdfdfffdf
     }
 
 
