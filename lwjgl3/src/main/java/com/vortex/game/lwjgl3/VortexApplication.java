@@ -27,7 +27,7 @@ public class VortexApplication {
         //// useful for testing performance, but can also be very stressful to some hardware.
         //// You may also need to configure GPU drivers to fully disable Vsync; this can cause screen tearing.
 
-        configuration.setWindowedMode(1000, 600);
+        configuration.setWindowedMode(1600, 900);
         //// You can change these files; they are in lwjgl3/src/main/resources/ .
         configuration.setWindowIcon("libgdx128.png");
         return configuration;

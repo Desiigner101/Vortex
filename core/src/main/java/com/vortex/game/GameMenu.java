@@ -35,14 +35,14 @@ public class GameMenu implements Screen {
     @Override
     public void show() {
         batch = new SpriteBatch();
-        font = generateFont("fonts/PressStart-Regular.ttf", 15);
+        font = generateFont("fonts/PressStart-Regular.ttf", 12);
         screenWidth = Gdx.graphics.getWidth();
         screenHeight = Gdx.graphics.getHeight();
         background = new Texture(Gdx.files.internal("Backgrounds/LabMenu_temp.png"));
         highlightTexture = new Texture(Gdx.files.internal("UI/highlight.png"));
         optionPositions = new Vector2[menuOptions.length];
         float startX = screenWidth * 0.15f;
-        float startY = screenHeight * 0.7f;
+        float startY = screenHeight * 0.5f;
 
         for (int i = 0; i < menuOptions.length; i++) {
             optionPositions[i] = new Vector2(startX, startY - (i * 80));

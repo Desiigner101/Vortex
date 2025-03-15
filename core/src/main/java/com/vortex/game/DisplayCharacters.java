@@ -40,16 +40,14 @@ public class DisplayCharacters extends ScreenAdapter {
     private void initialize() {
         batch = new SpriteBatch();
 
-        // ✅ Load image
         novaImage = new ImageHandler("Pictures/Nova/CharacterView/Nova_CharView.png");
         jinaImage = new ImageHandler("Pictures/Jina/CharacterView/Jina_CharView.png");
         umbraImage = new ImageHandler("Pictures/Umbra/CharacterView/Umbra_CharView.png");
-         // Placeholder for Jina
 
         screenWidth = Gdx.graphics.getWidth();
         screenHeight = Gdx.graphics.getHeight();
 
-        // ✅ Properly spacing characters (Nova - Left, Umbra - Center, Jina - Right)
+        // Properly spacing characters
         float spacing = screenWidth * 0.2f; // Adjusted spacing
         float centerX = screenWidth * 0.5f;
 
@@ -98,12 +96,13 @@ public class DisplayCharacters extends ScreenAdapter {
 
         batch.begin();
 
-        // ✅ Smooth hover effects with transitions
+        // Smooth hover effects with transitions
         updateCharacterEffects(delta);
 
-        renderCharacter(novaImage, novaPosition, novaScale, novaAlpha);
-        renderCharacter(umbraImage, umbraPosition, umbraScale, umbraAlpha);
-        renderCharacter(jinaImage, jinaPosition, jinaScale, jinaAlpha);
+        //added the names on the last part
+        renderCharacter(novaImage, novaPosition, novaScale, novaAlpha, "Nova");
+        renderCharacter(umbraImage, umbraPosition, umbraScale, umbraAlpha, "Umbra");
+        renderCharacter(jinaImage, jinaPosition, jinaScale, jinaAlpha, "Jina");
 
         batch.end();
 
@@ -118,12 +117,10 @@ public class DisplayCharacters extends ScreenAdapter {
         boolean umbraHovered = isHovered(umbraPosition, umbraScale);
         boolean jinaHovered = isHovered(jinaPosition, jinaScale);
 
-        // Smooth scaling transition but with an upper limit
         novaScale += (novaHovered ? hoverScale : defaultScale - novaScale) * delta * transitionSpeed;
         umbraScale += (umbraHovered ? hoverScale : defaultScale - umbraScale) * delta * transitionSpeed;
         jinaScale += (jinaHovered ? hoverScale : defaultScale - jinaScale) * delta * transitionSpeed;
 
-        // **Apply scaling limit**
         novaScale = Math.min(novaScale, maxScale);
         umbraScale = Math.min(umbraScale, maxScale);
         jinaScale = Math.min(jinaScale, maxScale);
@@ -133,18 +130,42 @@ public class DisplayCharacters extends ScreenAdapter {
         jinaAlpha += (jinaHovered ? 1f : 0.6f - jinaAlpha) * delta * transitionSpeed;
     }
 
-    private void renderCharacter(ImageHandler image, Vector2 position, float scale, float alpha) {
+    private void renderCharacter(ImageHandler image, Vector2 position, float scale, float alpha, String characterName) {
         float scaledWidth = characterWidth * scale;
         float scaledHeight = characterHeight * scale;
 
-        // ✅ Adjust positioning so scaling happens inward, not outward
         float adjustedX = position.x + (characterWidth - scaledWidth) / 2;
         float adjustedY = position.y + (characterHeight - scaledHeight) / 2;
 
-        // Apply transparency (highlight effect)
         batch.setColor(1, 1, 1, alpha);
         image.render(batch, adjustedX, adjustedY, scaledWidth, scaledHeight);
-        batch.setColor(Color.WHITE); // Reset color to avoid affecting other elements
+        batch.setColor(Color.WHITE);
+
+        //Added
+        // Detect Click
+        if (Gdx.input.justTouched()) {
+            float mouseX = Gdx.input.getX();
+            float mouseY = screenHeight - Gdx.input.getY(); // Adjust for Y-axis flip
+
+            if (mouseX >= position.x && mouseX <= position.x + scaledWidth &&
+                mouseY >= position.y && mouseY <= position.y + scaledHeight) {
+
+                // Transition to CharacterDetailScreen with selected character details
+                if (characterName.equals("Nova")) {
+                    game.setScreen(new CharacterDetailScreen(game, "Kaia 'Nova' Novere",
+                        "Pictures/Nova/CharacterView/nova_chardeets.png",
+                        "Energy Punch", "Energy Blaster", "Multidimensional Blast"));
+                } else if (characterName.equals("Umbra")) {
+                    game.setScreen(new CharacterDetailScreen(game, "Umbra",
+                        "Pictures/Umbra/CharacterView/umbra_chardeets.png",
+                        "Shadow Strike", "Distracting Illusions", "Veil of Shadows"));
+                } else if (characterName.equals("Jina")) {
+                    game.setScreen(new CharacterDetailScreen(game, "Jina Melody",
+                        "Pictures/Jina/CharacterView/jina_chardeets.png",
+                        "Sledge Strike", "Precision Shot", "Vanguard's Resolve"));
+                }
+            }
+        } //Until here ^
     }
 
     @Override
