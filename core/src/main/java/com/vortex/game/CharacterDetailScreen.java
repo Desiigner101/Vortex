@@ -21,13 +21,16 @@ import com.badlogic.gdx.graphics.Color;
 public class CharacterDetailScreen extends ScreenAdapter{
     private final GameTransitions game;
     private SpriteBatch batch;
-    private Texture background;
+    private Texture nova_background;
+    private Texture jina_background;
+    private Texture umbra_background;
     private ImageHandler characterImage;
     private Vector2 characterPosition;
     private Stage stage;
     private Skin skin;
     private TextButton backButton;
     private Label nameLabel, attackLabel, skillLabel, ultimateLabel;
+    private String backgroundIdentifier;
 
     private float screenWidth, screenHeight;
     private float characterWidth = 350, characterHeight = 500; // Enlarged character size
@@ -36,12 +39,16 @@ public class CharacterDetailScreen extends ScreenAdapter{
         this.game = game;
         batch = new SpriteBatch();
         characterImage = new ImageHandler(imagePath);
+        backgroundIdentifier=characterName;
 
         screenWidth = Gdx.graphics.getWidth();
         screenHeight = Gdx.graphics.getHeight();
 
         // Load background texture
-        background = new Texture(Gdx.files.internal("Backgrounds/chardeetsbg.jpg"));
+        nova_background = new Texture(Gdx.files.internal("Backgrounds/Nova_CharViewBackground.png"));
+        jina_background = new Texture(Gdx.files.internal("Backgrounds/Jina_CharViewBackground.png"));
+        umbra_background = new Texture(Gdx.files.internal("Backgrounds/Umbra_CharViewBackground.png"));
+
 
         // Center character image
         characterPosition = new Vector2(screenWidth * 0.2f, screenHeight * 0.6f - characterHeight / 2 + 50);
@@ -110,7 +117,14 @@ public class CharacterDetailScreen extends ScreenAdapter{
         batch.begin();
 
         // Draw the background
-        batch.draw(background, 0, 0, screenWidth, screenHeight);
+        if(backgroundIdentifier.equals("Kaia 'Nova' Novere")){
+            batch.draw(nova_background, 0, 0, screenWidth, screenHeight);
+        }else if(backgroundIdentifier.equals("Jina Melody")){
+            batch.draw(jina_background, 0, 0, screenWidth, screenHeight);
+        }else{
+            batch.draw(umbra_background, 0, 0, screenWidth, screenHeight);
+        }
+
 
         // Draw the character image
         characterImage.render(batch, characterPosition.x, characterPosition.y, characterWidth, characterHeight);
@@ -123,7 +137,9 @@ public class CharacterDetailScreen extends ScreenAdapter{
     @Override
     public void dispose() {
         batch.dispose();
-        background.dispose();
+        nova_background.dispose();
+        umbra_background.dispose();
+        jina_background.dispose();
         characterImage.dispose();
         stage.dispose();
         skin.dispose();

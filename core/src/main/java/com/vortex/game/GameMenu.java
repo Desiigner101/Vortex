@@ -3,17 +3,13 @@ package com.vortex.game;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.vortex.SpriteSheetAnimator.SpriteSheetAnimator;
-
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 
 public class GameMenu implements Screen {
     private SpriteBatch batch;
@@ -22,11 +18,12 @@ public class GameMenu implements Screen {
     private Vector2[] optionPositions;
     private int selectedIndex = -1;
     private final GameTransitions game;
-    private Texture background, highlightTexture;
     private float screenWidth, screenHeight;
     private float textScale = 2f;
     private float glowAlpha = 0.5f;
     private boolean glowIncreasing = true;
+
+    private MainMenuAnimator mainMenuAnimator; // 🔥 Add Animated Background
 
     public GameMenu(GameTransitions game) {
         this.game = game;
@@ -35,11 +32,9 @@ public class GameMenu implements Screen {
     @Override
     public void show() {
         batch = new SpriteBatch();
-        font = generateFont("fonts/PressStart-Regular.ttf", 12);
+        font = generateFont("fonts/PressStart-Regular.ttf", 32); // ✅ Custom font
         screenWidth = Gdx.graphics.getWidth();
         screenHeight = Gdx.graphics.getHeight();
-        background = new Texture(Gdx.files.internal("Backgrounds/LabMenu_temp.png"));
-        highlightTexture = new Texture(Gdx.files.internal("UI/highlight.png"));
         optionPositions = new Vector2[menuOptions.length];
         float startX = screenWidth * 0.15f;
         float startY = screenHeight * 0.5f;
@@ -47,42 +42,65 @@ public class GameMenu implements Screen {
         for (int i = 0; i < menuOptions.length; i++) {
             optionPositions[i] = new Vector2(startX, startY - (i * 80));
         }
+
+        mainMenuAnimator = new MainMenuAnimator(); // ✅ Initialize animator
     }
 
     @Override
     public void render(float delta) {
         ScreenUtils.clear(0, 0, 0, 1);
+
+        // 🔄 Update the background animation
+        mainMenuAnimator.update(delta);
+
         batch.begin();
-        batch.draw(background, 0, 0, screenWidth, screenHeight);
+        mainMenuAnimator.render(); // ✅ Render the looping animated background
+        batch.end();
+
+        batch.begin();
         updateGlowEffect(delta);
         updateMouseSelection();
 
         for (int i = 0; i < menuOptions.length; i++) {
-            float textWidth = getTextWidth(menuOptions[i], textScale);
-            float textHeight = font.getLineHeight() * textScale;
             boolean isSelected = (i == selectedIndex);
-
-            if (isSelected) {
-                batch.setColor(1, 1, 0.5f, 0.7f);
-                batch.draw(highlightTexture, optionPositions[i].x - 20, optionPositions[i].y - (textHeight * 0.85f), textWidth + 40, textHeight + 20);
-            }
-
             font.setColor(isSelected ? new Color(0, 1, 1, glowAlpha) : Color.LIGHT_GRAY);
             font.draw(batch, menuOptions[i], optionPositions[i].x, optionPositions[i].y);
         }
         batch.end();
+
         handleInput();
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        mainMenuAnimator.resize(width, height);
+    }
+
+    @Override
+    public void pause() {
+
+    }
+
+    @Override
+    public void resume() {
+
+    }
+
+    @Override
+    public void hide() {
+
+    }
+
+    @Override
+    public void dispose() {
+        batch.dispose();
+        font.dispose();
+        mainMenuAnimator.dispose(); // ✅ Dispose resources properly
     }
 
     private void updateGlowEffect(float delta) {
         glowAlpha += (glowIncreasing ? delta : -delta);
         if (glowAlpha >= 1 || glowAlpha <= 0.5f) glowIncreasing = !glowIncreasing;
-    }
-
-    private float getTextWidth(String text, float scale) {
-        font.getData().setScale(scale);
-        GlyphLayout layout = new GlyphLayout(font, text);
-        return layout.width;
     }
 
     private void updateMouseSelection() {
@@ -91,7 +109,7 @@ public class GameMenu implements Screen {
         selectedIndex = -1;
 
         for (int i = 0; i < menuOptions.length; i++) {
-            float textWidth = getTextWidth(menuOptions[i], textScale);
+            float textWidth = font.getRegion().getRegionWidth() * textScale;
             float textHeight = font.getLineHeight() * textScale;
             if (mouseX >= optionPositions[i].x && mouseX <= optionPositions[i].x + textWidth &&
                 mouseY >= optionPositions[i].y - textHeight && mouseY <= optionPositions[i].y) {
@@ -121,27 +139,16 @@ public class GameMenu implements Screen {
         }
     }
 
-    @Override
-    public void resize(int width, int height) {}
-    @Override public void pause() {}
-    @Override public void resume() {}
-    @Override public void hide() {}
-
-    @Override
-    public void dispose() {
-        batch.dispose();
-        font.dispose();
-        background.dispose();
-        highlightTexture.dispose();
-    }
-
-    private BitmapFont generateFont(String fontPath, int size) {
+    /**
+     * ✅ Generates a custom font using a TTF file.
+     */
+    private BitmapFont generateFont(String fontPath, int fontSize) {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(fontPath));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = size;
+        FreeTypeFontParameter parameter = new FreeTypeFontParameter();
+        parameter.size = fontSize;
         parameter.color = Color.WHITE;
         parameter.borderColor = Color.BLACK;
-        parameter.borderWidth = 2f;
+        parameter.borderWidth = 2;
         parameter.shadowOffsetX = 2;
         parameter.shadowOffsetY = 2;
         parameter.shadowColor = new Color(0, 0, 0, 0.75f);
