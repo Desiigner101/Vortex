@@ -14,13 +14,17 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
 public class VortexMain implements Screen {
-    private final GameTransitions game; // Reference to the main game manager
-    private SpriteBatch batch; // Used for rendering textures
-    private Texture backgroundImage; // Background image of the scene
-    private Viewport viewport; // Manages screen scaling
-    private Stage stage; // Handles UI elements
-    private Skin skin; // UI skin for buttons
-    private TextButton backButton; // Button to return to the main menu
+    private final GameTransitions game;
+    private SpriteBatch batch;
+    private Texture backgroundImage;
+    private Viewport viewport;
+    private Stage stage;
+    private Skin skin;
+    private TextButton backButton;
+    private BorderedTextBox dialogueBox;
+
+    private String[][] storyData;
+    private int dialogueIndex = 0;
 
     public VortexMain(GameTransitions game) {
         this.game = game;
@@ -28,59 +32,94 @@ public class VortexMain implements Screen {
 
     @Override
     public void show() {
-        // Initialize rendering batch
         batch = new SpriteBatch();
-
-        // Load the background image
-        backgroundImage = new Texture("Pictures/nova'sLab.jpg");
-
-        // Create a viewport that stretches to fit the screen
-        viewport = new StretchViewport(backgroundImage.getWidth(), backgroundImage.getHeight());
+        viewport = new StretchViewport(1920, 1080);
         viewport.apply();
 
-        // Set up the stage for UI elements
         stage = new Stage(viewport);
         Gdx.input.setInputProcessor(stage);
-
-        // Load UI skin (make sure "uiskin.json" exists in the assets folder)
         skin = new Skin(Gdx.files.internal("uiskin.json"));
 
-        // Create and configure the back button
         backButton = new TextButton("Back", skin);
-        backButton.setSize(120, 50); // Button dimensions
-        backButton.setPosition(20, 20); // Position in the bottom-left corner
-
-        // Add functionality to return to the main menu when clicked
+        backButton.setSize(120, 50);
+        backButton.setPosition(20, Gdx.graphics.getHeight() - 70);
         backButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.create(); // Switch back to the main menu
+                game.create();
             }
         });
-
-        // Add the button to the stage
         stage.addActor(backButton);
+
+        // Define the story using the easy format (Character, Dialogue, Background, Text Color)
+        story(
+            "Nova", "Hmm... doesn't seem to work well..?", "Lab", "#FFFFFF",
+            "Nova", "Maybe I should try another approach...", "Lab", "#FFFFFF",
+            "AI", "Analyzing... please wait.", "Lab", "#00FF00",
+            "Nova", "Alright, let’s see what’s next.", "LabMenu_temp", "#FFFFFF"
+        );
+    }
+
+    public void story(String... data) {
+        if (data.length % 4 != 0) {
+            throw new IllegalArgumentException("Each entry must have exactly 4 values: Character, Dialogue, Background, TextColor.");
+        }
+
+        int length = data.length / 4;
+        storyData = new String[length][4];
+        for (int i = 0; i < length; i++) {
+            storyData[i][0] = data[i * 4];     // Character name
+            storyData[i][1] = data[i * 4 + 1]; // Dialogue text
+            storyData[i][2] = data[i * 4 + 2]; // Background
+            storyData[i][3] = data[i * 4 + 3]; // Text color (Hex)
+        }
+        dialogueIndex = 0;
+        updateScene();
+    }
+
+    private void updateScene() {
+        if (dialogueIndex < storyData.length) {
+            if (dialogueBox != null) {
+                dialogueBox.dispose();
+            }
+            backgroundImage = new Texture(Gdx.files.internal("Backgrounds/" + storyData[dialogueIndex][2] + ".png"));
+            dialogueBox = new BorderedTextBox(
+                "testBorder",
+                false,
+                storyData[dialogueIndex][0],  // Speaker
+                storyData[dialogueIndex][1],  // Dialogue
+                200,                          // Box height
+                1500,                         // Box width
+                storyData[dialogueIndex][3]   // Text color (Hex)
+            );
+        } else {
+            dialogueBox = null;
+        }
     }
 
     @Override
     public void render(float delta) {
-        // Clear the screen with a dark background color
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
-
-        // Update the viewport to match the window size
         viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
-
-        // Set up the camera for rendering
         batch.setProjectionMatrix(viewport.getCamera().combined);
 
-        // Draw the background image to fit the screen
         batch.begin();
-        batch.draw(backgroundImage, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
+        if (backgroundImage != null) {
+            batch.draw(backgroundImage, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
+        }
         batch.end();
 
-        // Update and render UI elements
+        if (dialogueBox != null) {
+            dialogueBox.render(delta);
+        }
+
         stage.act(delta);
         stage.draw();
+
+        if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.SPACE)) {
+            dialogueIndex++;
+            updateScene();
+        }
     }
 
     @Override
@@ -94,10 +133,10 @@ public class VortexMain implements Screen {
 
     @Override
     public void dispose() {
-        // Clean up resources to avoid memory leaks
         batch.dispose();
-        backgroundImage.dispose();
+        if (backgroundImage != null) backgroundImage.dispose();
         stage.dispose();
         skin.dispose();
+        if (dialogueBox != null) dialogueBox.dispose();
     }
 }
