@@ -23,7 +23,7 @@ public class GameMenu implements Screen {
     private float glowAlpha = 0.5f;
     private boolean glowIncreasing = true;
 
-    private MainMenuAnimator mainMenuAnimator; // 🔥 Add Animated Background
+    private MainMenuAnimator mainMenuAnimator; // Handles the animated background
 
     public GameMenu(GameTransitions game) {
         this.game = game;
@@ -32,35 +32,36 @@ public class GameMenu implements Screen {
     @Override
     public void show() {
         batch = new SpriteBatch();
-        font = generateFont("fonts/PressStart-Regular.ttf", 32); // ✅ Custom font
+        font = generateFont("fonts/PressStart-Regular.ttf", 32); // Load custom font
         screenWidth = Gdx.graphics.getWidth();
         screenHeight = Gdx.graphics.getHeight();
         optionPositions = new Vector2[menuOptions.length];
         float startX = screenWidth * 0.15f;
         float startY = screenHeight * 0.5f;
 
+        // Calculate menu item positions
         for (int i = 0; i < menuOptions.length; i++) {
             optionPositions[i] = new Vector2(startX, startY - (i * 80));
         }
 
-        mainMenuAnimator = new MainMenuAnimator(); // ✅ Initialize animator
+        mainMenuAnimator = new MainMenuAnimator(); // Initialize animated background
     }
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(0, 0, 0, 1);
+        ScreenUtils.clear(0, 0, 0, 1); // Clear screen with black color
 
-        // 🔄 Update the background animation
-        mainMenuAnimator.update(delta);
+        mainMenuAnimator.update(delta); // Update background animation
 
         batch.begin();
-        mainMenuAnimator.render(); // ✅ Render the looping animated background
+        mainMenuAnimator.render(); // Render animated background
         batch.end();
 
         batch.begin();
-        updateGlowEffect(delta);
-        updateMouseSelection();
+        updateGlowEffect(delta); // Update glow effect on selected text
+        updateMouseSelection(); // Check if mouse is hovering over an option
 
+        // Render menu options
         for (int i = 0; i < menuOptions.length; i++) {
             boolean isSelected = (i == selectedIndex);
             font.setColor(isSelected ? new Color(0, 1, 1, glowAlpha) : Color.LIGHT_GRAY);
@@ -68,44 +69,44 @@ public class GameMenu implements Screen {
         }
         batch.end();
 
-        handleInput();
+        handleInput(); // Handle user input
     }
 
     @Override
     public void resize(int width, int height) {
-        mainMenuAnimator.resize(width, height);
+        mainMenuAnimator.resize(width, height); // Adjust background on resize
     }
 
     @Override
-    public void pause() {
-
-    }
+    public void pause() {}
 
     @Override
-    public void resume() {
-
-    }
+    public void resume() {}
 
     @Override
-    public void hide() {
-
-    }
+    public void hide() {}
 
     @Override
     public void dispose() {
         batch.dispose();
         font.dispose();
-        mainMenuAnimator.dispose(); // ✅ Dispose resources properly
+        mainMenuAnimator.dispose(); // Free resources
     }
 
+    /**
+     * Handles a pulsing glow effect on the selected menu option.
+     */
     private void updateGlowEffect(float delta) {
         glowAlpha += (glowIncreasing ? delta : -delta);
         if (glowAlpha >= 1 || glowAlpha <= 0.5f) glowIncreasing = !glowIncreasing;
     }
 
+    /**
+     * Detects if the mouse is hovering over any menu option and updates selection.
+     */
     private void updateMouseSelection() {
         float mouseX = Gdx.input.getX();
-        float mouseY = screenHeight - Gdx.input.getY();
+        float mouseY = screenHeight - Gdx.input.getY(); // Flip Y axis for LibGDX
         selectedIndex = -1;
 
         for (int i = 0; i < menuOptions.length; i++) {
@@ -119,6 +120,9 @@ public class GameMenu implements Screen {
         }
     }
 
+    /**
+     * Handles keyboard and mouse input for menu navigation.
+     */
     private void handleInput() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
             selectedIndex = (selectedIndex + 1) % menuOptions.length;
@@ -126,21 +130,25 @@ public class GameMenu implements Screen {
             selectedIndex = (selectedIndex - 1 + menuOptions.length) % menuOptions.length;
         }
 
+        // Select option on Enter key or left mouse click
         if ((Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) && selectedIndex != -1) {
             executeAction(selectedIndex);
         }
     }
 
+    /**
+     * Executes an action based on the selected menu option.
+     */
     private void executeAction(int index) {
         switch (index) {
-            case 0: game.newGame(); break;
-            case 2: game.displayCharacters(); break;
-            case 4: Gdx.app.exit(); break;
+            case 0: game.newGame(); break; // Start a new game
+            case 2: game.displayCharacters(); break; // Open character selection
+            case 4: Gdx.app.exit(); break; // Exit game
         }
     }
 
     /**
-     * ✅ Generates a custom font using a TTF file.
+     * Generates a custom font from a TTF file.
      */
     private BitmapFont generateFont(String fontPath, int fontSize) {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(fontPath));
@@ -154,7 +162,7 @@ public class GameMenu implements Screen {
         parameter.shadowColor = new Color(0, 0, 0, 0.75f);
 
         BitmapFont font = generator.generateFont(parameter);
-        generator.dispose();
+        generator.dispose(); // Free font generator
         return font;
     }
 }

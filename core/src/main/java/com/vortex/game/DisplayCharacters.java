@@ -23,10 +23,10 @@ public class DisplayCharacters extends ScreenAdapter {
     private TextButton backButton;
 
     private float screenWidth, screenHeight;
-    private float characterWidth = 128, characterHeight = 128; // Character size
-    private float hoverScale = .5f; // Increased scale effect when hovered
-    private float defaultScale = 1.0f;
-    private float transitionSpeed = 5f; // Smooth transition speed
+    private float characterWidth = 128, characterHeight = 128; // Default character size
+    private float hoverScale = .5f; // Scale increase effect on hover
+    private float defaultScale = 1.0f; // Default scale
+    private float transitionSpeed = 5f; // Speed for smooth scaling transitions
 
     // Hover animation variables
     private float novaScale = defaultScale, umbraScale = defaultScale, jinaScale = defaultScale;
@@ -40,6 +40,7 @@ public class DisplayCharacters extends ScreenAdapter {
     private void initialize() {
         batch = new SpriteBatch();
 
+        // Load character images
         novaImage = new ImageHandler("Pictures/Nova/CharacterView/Nova_CharView.png");
         jinaImage = new ImageHandler("Pictures/Jina/CharacterView/Jina_CharView.png");
         umbraImage = new ImageHandler("Pictures/Umbra/CharacterView/Umbra_CharView.png");
@@ -47,7 +48,7 @@ public class DisplayCharacters extends ScreenAdapter {
         screenWidth = Gdx.graphics.getWidth();
         screenHeight = Gdx.graphics.getHeight();
 
-        // Properly spacing characters
+        // Set character positions with even spacing
         float spacing = screenWidth * 0.2f; // Adjusted spacing
         float centerX = screenWidth * 0.5f;
 
@@ -55,8 +56,7 @@ public class DisplayCharacters extends ScreenAdapter {
         jinaPosition = new Vector2(centerX - characterWidth / 2, screenHeight * 0.5f - characterHeight / 2);
         umbraPosition = new Vector2(centerX + spacing - characterWidth / 2, screenHeight * 0.5f - characterHeight / 2);
 
-
-
+        // Initialize UI stage and set input processor
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
         skin = new Skin(Gdx.files.internal("uiskin.json"));
@@ -64,6 +64,7 @@ public class DisplayCharacters extends ScreenAdapter {
         createBackButton();
     }
 
+    // Creates a back button that returns to the main screen
     private void createBackButton() {
         backButton = new TextButton("Back", skin);
         backButton.setSize(100, 50);
@@ -77,14 +78,14 @@ public class DisplayCharacters extends ScreenAdapter {
         stage.addActor(backButton);
     }
 
+    // Checks if the mouse is hovering over a character
     private boolean isHovered(Vector2 position, float scale) {
         float scaledWidth = characterWidth * scale;
         float scaledHeight = characterHeight * scale;
-
-        float hoverHeightMargin = 150f; // Increase hover detection height by 30 pixels
+        float hoverHeightMargin = 150f; // Extend hover detection vertically
 
         float mouseX = Gdx.input.getX();
-        float mouseY = screenHeight - Gdx.input.getY(); // Flip Y-axis for LibGDX
+        float mouseY = screenHeight - Gdx.input.getY(); // Adjust Y-axis for LibGDX
 
         return mouseX >= position.x && mouseX <= position.x + scaledWidth &&
             mouseY >= position.y - hoverHeightMargin && mouseY <= position.y + scaledHeight + hoverHeightMargin;
@@ -93,13 +94,11 @@ public class DisplayCharacters extends ScreenAdapter {
     @Override
     public void render(float delta) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
         batch.begin();
 
-        // Smooth hover effects with transitions
-        updateCharacterEffects(delta);
+        updateCharacterEffects(delta); // Smooth hover effect updates
 
-        //added the names on the last part
+        // Render characters with names
         renderCharacter(novaImage, novaPosition, novaScale, novaAlpha, "Nova");
         renderCharacter(umbraImage, umbraPosition, umbraScale, umbraAlpha, "Umbra");
         renderCharacter(jinaImage, jinaPosition, jinaScale, jinaAlpha, "Jina");
@@ -110,26 +109,31 @@ public class DisplayCharacters extends ScreenAdapter {
         stage.draw();
     }
 
-    private float maxScale = 1.2f; // Maximum allowed scale when hovered
+    private float maxScale = 1.2f; // Maximum scale on hover
 
     private void updateCharacterEffects(float delta) {
+        // Detect hover for each character
         boolean novaHovered = isHovered(novaPosition, novaScale);
         boolean umbraHovered = isHovered(umbraPosition, umbraScale);
         boolean jinaHovered = isHovered(jinaPosition, jinaScale);
 
+        // Apply smooth scaling effect
         novaScale += (novaHovered ? hoverScale : defaultScale - novaScale) * delta * transitionSpeed;
         umbraScale += (umbraHovered ? hoverScale : defaultScale - umbraScale) * delta * transitionSpeed;
         jinaScale += (jinaHovered ? hoverScale : defaultScale - jinaScale) * delta * transitionSpeed;
 
+        // Limit scaling to max allowed value
         novaScale = Math.min(novaScale, maxScale);
         umbraScale = Math.min(umbraScale, maxScale);
         jinaScale = Math.min(jinaScale, maxScale);
 
+        // Apply transparency effects
         novaAlpha += (novaHovered ? 1f : 0.6f - novaAlpha) * delta * transitionSpeed;
         umbraAlpha += (umbraHovered ? 1f : 0.6f - umbraAlpha) * delta * transitionSpeed;
         jinaAlpha += (jinaHovered ? 1f : 0.6f - jinaAlpha) * delta * transitionSpeed;
     }
 
+    // Renders the character image, applies effects, and detects selection
     private void renderCharacter(ImageHandler image, Vector2 position, float scale, float alpha, String characterName) {
         float scaledWidth = characterWidth * scale;
         float scaledHeight = characterHeight * scale;
@@ -141,31 +145,20 @@ public class DisplayCharacters extends ScreenAdapter {
         image.render(batch, adjustedX, adjustedY, scaledWidth, scaledHeight);
         batch.setColor(Color.WHITE);
 
-        //Added
-        // Detect Click
+        // Detect Click for character selection
         if (Gdx.input.justTouched()) {
             float mouseX = Gdx.input.getX();
-            float mouseY = screenHeight - Gdx.input.getY(); // Adjust for Y-axis flip
+            float mouseY = screenHeight - Gdx.input.getY();
 
             if (mouseX >= position.x && mouseX <= position.x + scaledWidth &&
                 mouseY >= position.y && mouseY <= position.y + scaledHeight) {
 
-                // Transition to CharacterDetailScreen with selected character details
-                if (characterName.equals("Nova")) {
-                    game.setScreen(new CharacterDetailScreen(game, "Kaia 'Nova' Novere",
-                        "Pictures/Nova/CharacterView/nova_chardeets.png",
-                        "Energy Punch", "Energy Blaster", "Multidimensional Blast"));
-                } else if (characterName.equals("Umbra")) {
-                    game.setScreen(new CharacterDetailScreen(game, "Umbra",
-                        "Pictures/Umbra/CharacterView/umbra_chardeets.png",
-                        "Shadow Strike", "Distracting Illusions", "Veil of Shadows"));
-                } else if (characterName.equals("Jina")) {
-                    game.setScreen(new CharacterDetailScreen(game, "Jina Melody",
-                        "Pictures/Jina/CharacterView/jina_chardeets.png",
-                        "Sledge Strike", "Precision Shot", "Vanguard's Resolve"));
-                }
+                // Open character detail screen
+                game.setScreen(new CharacterDetailScreen(game, characterName,
+                    "Pictures/" + characterName + "/CharacterView/" + characterName.toLowerCase() + "_chardeets.png",
+                    "Skill 1", "Skill 2", "Skill 3"));
             }
-        } //Until here ^
+        }
     }
 
     @Override

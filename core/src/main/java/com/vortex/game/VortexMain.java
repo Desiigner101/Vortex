@@ -14,13 +14,13 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
 public class VortexMain implements Screen {
-    private SpriteBatch batch;
-    private Texture image;
-    private Viewport viewport;
-    private final GameTransitions game;
-    private Stage stage;
-    private Skin skin;
-    private TextButton backButton;
+    private final GameTransitions game; // Reference to the main game manager
+    private SpriteBatch batch; // Used for rendering textures
+    private Texture backgroundImage; // Background image of the scene
+    private Viewport viewport; // Manages screen scaling
+    private Stage stage; // Handles UI elements
+    private Skin skin; // UI skin for buttons
+    private TextButton backButton; // Button to return to the main menu
 
     public VortexMain(GameTransitions game) {
         this.game = game;
@@ -28,41 +28,57 @@ public class VortexMain implements Screen {
 
     @Override
     public void show() {
+        // Initialize rendering batch
         batch = new SpriteBatch();
-        image = new Texture("Pictures/nova'sLab.jpg");
-        viewport = new StretchViewport(image.getWidth(), image.getHeight());
+
+        // Load the background image
+        backgroundImage = new Texture("Pictures/nova'sLab.jpg");
+
+        // Create a viewport that stretches to fit the screen
+        viewport = new StretchViewport(backgroundImage.getWidth(), backgroundImage.getHeight());
         viewport.apply();
 
-        // Initialize Stage and Skin
+        // Set up the stage for UI elements
         stage = new Stage(viewport);
         Gdx.input.setInputProcessor(stage);
-        skin = new Skin(Gdx.files.internal("uiskin.json")); // Ensure "uiskin.json" exists in assets
 
-        // Create Back Button
+        // Load UI skin (make sure "uiskin.json" exists in the assets folder)
+        skin = new Skin(Gdx.files.internal("uiskin.json"));
+
+        // Create and configure the back button
         backButton = new TextButton("Back", skin);
-        backButton.setSize(120, 50);
-        backButton.setPosition(20, 20); // Bottom-left corner
+        backButton.setSize(120, 50); // Button dimensions
+        backButton.setPosition(20, 20); // Position in the bottom-left corner
+
+        // Add functionality to return to the main menu when clicked
         backButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.create(); // Return to the main menu
+                game.create(); // Switch back to the main menu
             }
         });
 
+        // Add the button to the stage
         stage.addActor(backButton);
     }
 
     @Override
     public void render(float delta) {
+        // Clear the screen with a dark background color
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
+
+        // Update the viewport to match the window size
         viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
 
+        // Set up the camera for rendering
         batch.setProjectionMatrix(viewport.getCamera().combined);
+
+        // Draw the background image to fit the screen
         batch.begin();
-        batch.draw(image, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
+        batch.draw(backgroundImage, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
         batch.end();
 
-        // Update and render stage (for the back button)
+        // Update and render UI elements
         stage.act(delta);
         stage.draw();
     }
@@ -78,8 +94,9 @@ public class VortexMain implements Screen {
 
     @Override
     public void dispose() {
+        // Clean up resources to avoid memory leaks
         batch.dispose();
-        image.dispose();
+        backgroundImage.dispose();
         stage.dispose();
         skin.dispose();
     }
