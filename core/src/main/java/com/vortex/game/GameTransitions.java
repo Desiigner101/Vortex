@@ -3,10 +3,16 @@ package com.vortex.game;
 import com.badlogic.gdx.Game;
 
 public class GameTransitions extends Game {
+    private static boolean introPlayed = false; // Temporary flag (resets when app restarts)
+
     @Override
     public void create() {
-        // Start with the VideoIntro screen
-        this.setScreen(new VideoIntro(this));
+        if (!introPlayed) {
+            introPlayed = true; // Mark intro as played for this session
+            this.setScreen(new VideoIntro(this));
+        } else {
+            this.setScreen(new GameMenu(this));
+        }
     }
 
     public void startGameMenu() {
