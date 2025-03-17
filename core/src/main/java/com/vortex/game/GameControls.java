@@ -1,0 +1,455 @@
+package com.vortex.game;
+
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.Align;
+
+public class GameControls implements Screen {
+    private final GameTransitions game;
+    private SpriteBatch batch;
+    private BitmapFont font, titleFont, buttonFont;
+    private ShapeRenderer shapeRenderer;
+    private GlyphLayout layout;
+
+    // Settings
+    private float musicVolume = 1.0f;
+    private float soundVolume = 1.0f;
+    private float brightness = 1.0f;
+
+    // UI elements
+    private Rectangle musicSlider, soundSlider, brightnessSlider;
+    private Rectangle backButton, restartButton, quitButton;
+    private boolean isDraggingMusic = false;
+    private boolean isDraggingSound = false;
+    private boolean isDraggingBrightness = false;
+
+    // Animation
+    private float[] buttonAnimations = new float[3]; // For back, restart, quit
+    private float animationSpeed = 5f;
+    private float pulseAmount = 0.05f;
+    private float pulse = 0f;
+    private float pulseSpeed = 2f;
+
+    // Colors
+    private Color backgroundColor = new Color(0.05f, 0.07f, 0.15f, 1f);
+    private Color accentColor = new Color(0f, 0.8f, 0.8f, 1f);
+    private Color secondAccentColor = new Color(0.9f, 0.6f, 0.1f, 1f);
+    private Color sliderBgColor = new Color(0.12f, 0.14f, 0.2f, 1f);
+    private Color buttonColor = new Color(0.18f, 0.2f, 0.3f, 1f);
+    private Color buttonHoverColor = new Color(0.22f, 0.25f, 0.35f, 1f);
+
+    // Slider properties
+    private float sliderWidth = 300f;
+    private float sliderHeight = 30f;
+    private float knobSize = 20f;
+    private float knobRadius = 12f;
+
+    // Screen dimensions
+    private float screenWidth;
+    private float screenHeight;
+
+    // Preferences for saving settings
+    private Preferences prefs;
+
+    public GameControls(GameTransitions game) {
+        this.game = game;
+        prefs = Gdx.app.getPreferences("game_settings");
+        loadSettings();
+    }
+
+    @Override
+    public void show() {
+        batch = new SpriteBatch();
+        shapeRenderer = new ShapeRenderer();
+        layout = new GlyphLayout();
+
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Fonts/Poppins-Bold.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+
+        // Title font
+        parameter.size = 42;
+        parameter.borderWidth = 2f;
+        parameter.borderColor = new Color(0.1f, 0.1f, 0.2f, 1f);
+        parameter.color = secondAccentColor;
+        titleFont = generator.generateFont(parameter);
+
+        // Regular font for labels
+        parameter.size = 24;
+        parameter.borderWidth = 1.5f;
+        parameter.borderColor = new Color(0.05f, 0.05f, 0.1f, 1f);
+        parameter.color = Color.WHITE;
+        font = generator.generateFont(parameter);
+
+        // Button font
+        parameter.size = 28;
+        parameter.color = Color.WHITE;
+        parameter.borderWidth = 1.5f;
+        buttonFont = generator.generateFont(parameter);
+
+        generator.dispose();
+
+        screenWidth = Gdx.graphics.getWidth();
+        screenHeight = Gdx.graphics.getHeight();
+
+        // Initialize UI elements with better positioning
+        float centerX = screenWidth / 2 - sliderWidth / 2;
+        float startY = screenHeight * 0.7f;
+        float spacing = 80f;
+
+        musicSlider = new Rectangle(centerX, startY, sliderWidth, sliderHeight);
+        soundSlider = new Rectangle(centerX, startY - spacing, sliderWidth, sliderHeight);
+        brightnessSlider = new Rectangle(centerX, startY - spacing * 2, sliderWidth, sliderHeight);
+
+        float buttonWidth = 180f;
+        float buttonHeight = 60f;
+        float buttonY = startY - spacing * 3.5f;
+
+        backButton = new Rectangle(screenWidth / 4 - buttonWidth / 2, buttonY, buttonWidth, buttonHeight);
+        restartButton = new Rectangle(screenWidth / 2 - buttonWidth / 2, buttonY, buttonWidth, buttonHeight);
+        quitButton = new Rectangle(screenWidth * 3/4 - buttonWidth / 2, buttonY, buttonWidth, buttonHeight);
+    }
+
+    @Override
+    public void render(float delta) {
+        // Apply brightness to background
+        Color bgWithBrightness = backgroundColor.cpy().mul(brightness * 0.5f + 0.5f);
+        ScreenUtils.clear(bgWithBrightness.r, bgWithBrightness.g, bgWithBrightness.b, 1);
+
+        // Update animations
+        updateAnimations(delta);
+        handleInput();
+
+        // Begin shape rendering
+        Gdx.gl.glEnable(GL20.GL_BLEND);
+        Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+
+        // Draw decorative background elements
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(accentColor.r, accentColor.g, accentColor.b, 0.05f);
+        shapeRenderer.rect(0, screenHeight * 0.4f, screenWidth, screenHeight * 0.2f);
+        shapeRenderer.end();
+
+        // Draw sliders and buttons with shading
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        drawSliders();
+        drawButtons();
+        shapeRenderer.end();
+
+        // Draw outlines
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        drawSliderOutlines();
+        drawButtonOutlines();
+        shapeRenderer.end();
+
+        // Draw text
+        batch.begin();
+        drawText();
+        batch.end();
+
+        // Save settings if they changed
+        saveSettings();
+    }
+
+    private void drawText() {
+        // Draw title with shadow
+        layout.setText(titleFont, "VORTEX CONTROLS");
+        titleFont.draw(batch, "VORTEX CONTROLS",
+            screenWidth / 2 - layout.width / 2,
+            screenHeight * 0.9f);
+
+        // Draw slider labels
+        font.setColor(Color.WHITE);
+        font.draw(batch, "MUSIC VOLUME", musicSlider.x - 220, musicSlider.y + sliderHeight * 1.5f);
+        font.draw(batch, String.format("%.0f%%", musicVolume * 100),
+            musicSlider.x + sliderWidth + 30, musicSlider.y + sliderHeight * 0.8f);
+
+        font.draw(batch, "SOUND EFFECTS", soundSlider.x - 220, soundSlider.y + sliderHeight * 1.5f);
+        font.draw(batch, String.format("%.0f%%", soundVolume * 100),
+            soundSlider.x + sliderWidth + 30, soundSlider.y + sliderHeight * 0.8f);
+
+        font.draw(batch, "BRIGHTNESS", brightnessSlider.x - 220, brightnessSlider.y + sliderHeight * 1.5f);
+        font.draw(batch, String.format("%.0f%%", brightness * 100),
+            brightnessSlider.x + sliderWidth + 30, brightnessSlider.y + sliderHeight * 0.8f);
+
+        // Draw button text (centered properly)
+        drawCenteredButtonText(batch, backButton, "BACK", 0);
+        drawCenteredButtonText(batch, restartButton, "RESTART", 1);
+        drawCenteredButtonText(batch, quitButton, "QUIT", 2);
+    }
+
+    private void drawCenteredButtonText(SpriteBatch batch, Rectangle button, String text, int buttonIndex) {
+        layout.setText(buttonFont, text);
+        float scale = 1.0f + buttonAnimations[buttonIndex] * 0.1f;
+
+        buttonFont.setColor(Color.WHITE);
+        buttonFont.draw(batch, text,
+            button.x + button.width / 2 - layout.width / 2,
+            button.y + button.height / 2 + layout.height / 2);
+    }
+
+    private void drawSliders() {
+        // Draw music slider
+        shapeRenderer.setColor(sliderBgColor);
+        shapeRenderer.rect(musicSlider.x, musicSlider.y, musicSlider.width, musicSlider.height,
+            new Color(0.2f, 0.2f, 0.3f, 1f), new Color(0.2f, 0.2f, 0.3f, 1f),
+            sliderBgColor, sliderBgColor);
+
+        shapeRenderer.setColor(accentColor);
+        shapeRenderer.rect(musicSlider.x, musicSlider.y, musicSlider.width * musicVolume, musicSlider.height);
+
+        // Draw sound slider
+        shapeRenderer.setColor(sliderBgColor);
+        shapeRenderer.rect(soundSlider.x, soundSlider.y, soundSlider.width, soundSlider.height);
+
+        shapeRenderer.setColor(accentColor);
+        shapeRenderer.rect(soundSlider.x, soundSlider.y, soundSlider.width * soundVolume, soundSlider.height);
+
+        // Draw brightness slider
+        shapeRenderer.setColor(sliderBgColor);
+        shapeRenderer.rect(brightnessSlider.x, brightnessSlider.y, brightnessSlider.width, brightnessSlider.height);
+
+        shapeRenderer.setColor(secondAccentColor);
+        shapeRenderer.rect(brightnessSlider.x, brightnessSlider.y, brightnessSlider.width * brightness, brightnessSlider.height);
+
+        // Draw knobs
+        drawKnob(musicSlider.x + musicSlider.width * musicVolume, musicSlider.y + musicSlider.height / 2, accentColor);
+        drawKnob(soundSlider.x + soundSlider.width * soundVolume, soundSlider.y + soundSlider.height / 2, accentColor);
+        drawKnob(brightnessSlider.x + brightnessSlider.width * brightness, brightnessSlider.y + brightnessSlider.height / 2, secondAccentColor);
+    }
+
+    private void drawKnob(float x, float y, Color color) {
+        // Inner circle (main knob)
+        shapeRenderer.setColor(color);
+        shapeRenderer.circle(x, y, knobRadius);
+
+        // Outer circle (shadow/highlight)
+        shapeRenderer.setColor(color.r * 1.2f, color.g * 1.2f, color.b * 1.2f, 0.5f);
+        shapeRenderer.circle(x, y, knobRadius + 4);
+    }
+
+    private void drawSliderOutlines() {
+        shapeRenderer.setColor(accentColor.r, accentColor.g, accentColor.b, 0.5f);
+        shapeRenderer.rect(musicSlider.x, musicSlider.y, musicSlider.width, musicSlider.height);
+        shapeRenderer.rect(soundSlider.x, soundSlider.y, soundSlider.width, soundSlider.height);
+
+        shapeRenderer.setColor(secondAccentColor.r, secondAccentColor.g, secondAccentColor.b, 0.5f);
+        shapeRenderer.rect(brightnessSlider.x, brightnessSlider.y, brightnessSlider.width, brightnessSlider.height);
+    }
+
+    private void drawButtons() {
+        // Draw back button with animation
+        drawAnimatedButton(backButton, buttonColor, buttonHoverColor, 0);
+
+        // Draw restart button with animation
+        drawAnimatedButton(restartButton, buttonColor, buttonHoverColor, 1);
+
+        // Draw quit button with animation
+        drawAnimatedButton(quitButton, buttonColor, buttonHoverColor, 2);
+    }
+
+    private void drawAnimatedButton(Rectangle button, Color baseColor, Color hoverColor, int buttonIndex) {
+        float animation = buttonAnimations[buttonIndex];
+        Color renderColor = baseColor.cpy().lerp(hoverColor, animation);
+
+        // Button with rounded corners effect
+        shapeRenderer.setColor(renderColor);
+        shapeRenderer.rect(button.x, button.y, button.width, button.height);
+
+        // Button highlight/glow based on animation
+        if (animation > 0) {
+            shapeRenderer.setColor(accentColor.r, accentColor.g, accentColor.b, animation * 0.3f);
+            shapeRenderer.rect(button.x - 2, button.y - 2, button.width + 4, button.height + 4);
+        }
+    }
+
+    private void drawButtonOutlines() {
+        shapeRenderer.setColor(accentColor.r, accentColor.g, accentColor.b, 0.8f + pulse * 0.2f);
+        shapeRenderer.rect(backButton.x, backButton.y, backButton.width, backButton.height);
+        shapeRenderer.rect(restartButton.x, restartButton.y, restartButton.width, restartButton.height);
+        shapeRenderer.rect(quitButton.x, quitButton.y, quitButton.width, quitButton.height);
+    }
+
+    private void updateAnimations(float delta) {
+        // Update button hover animations
+        updateButtonAnimation(backButton, 0, delta);
+        updateButtonAnimation(restartButton, 1, delta);
+        updateButtonAnimation(quitButton, 2, delta);
+
+        // Update pulsing effect
+        pulse = (float)Math.sin(Gdx.graphics.getFrameId() * 0.05f) * pulseAmount;
+    }
+    private void updateButtonAnimation(Rectangle button, int buttonIndex, float delta) {
+        boolean isHovered = button.contains(Gdx.input.getX(), screenHeight - Gdx.input.getY());
+
+        if (isHovered) {
+            buttonAnimations[buttonIndex] = Math.min(1.0f, buttonAnimations[buttonIndex] + delta * animationSpeed);
+        } else {
+            buttonAnimations[buttonIndex] = Math.max(0.0f, buttonAnimations[buttonIndex] - delta * animationSpeed);
+        }
+    }
+
+    private void handleInput() {
+        float mouseX = Gdx.input.getX();
+        float mouseY = screenHeight - Gdx.input.getY();
+
+        // Check for button clicks
+        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+            // Check buttons
+            if (backButton.contains(mouseX, mouseY)) {
+                saveSettings();
+                game.setScreen(new GameMenu(game));
+                return;
+            }
+            if (restartButton.contains(mouseX, mouseY)) {
+                saveSettings();
+                game.newGame();
+                return;
+            }
+            if (quitButton.contains(mouseX, mouseY)) {
+                saveSettings();
+                Gdx.app.exit();
+                return;
+            }
+
+            // Check slider interactions - start dragging
+            if (isPointNearSlider(musicSlider, mouseX, mouseY, musicVolume)) {
+                isDraggingMusic = true;
+            } else if (isPointNearSlider(soundSlider, mouseX, mouseY, soundVolume)) {
+                isDraggingSound = true;
+            } else if (isPointNearSlider(brightnessSlider, mouseX, mouseY, brightness)) {
+                isDraggingBrightness = true;
+            }
+        }
+
+        // Handle dragging (whether button is held or not)
+        if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+            // Update slider values when dragging
+            if (isDraggingMusic) {
+                musicVolume = calculateSliderValue(musicSlider, mouseX);
+            } else if (isDraggingSound) {
+                soundVolume = calculateSliderValue(soundSlider, mouseX);
+            } else if (isDraggingBrightness) {
+                brightness = calculateSliderValue(brightnessSlider, mouseX);
+            }
+        } else {
+            // Stop dragging when mouse button is released
+            isDraggingMusic = false;
+            isDraggingSound = false;
+            isDraggingBrightness = false;
+        }
+
+        // Also allow clicking directly on slider
+        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+            if (musicSlider.contains(mouseX, mouseY)) {
+                musicVolume = calculateSliderValue(musicSlider, mouseX);
+            } else if (soundSlider.contains(mouseX, mouseY)) {
+                soundVolume = calculateSliderValue(soundSlider, mouseX);
+            } else if (brightnessSlider.contains(mouseX, mouseY)) {
+                brightness = calculateSliderValue(brightnessSlider, mouseX);
+            }
+        }
+    }
+
+    private boolean isPointNearSlider(Rectangle slider, float x, float y, float value) {
+        float knobX = slider.x + slider.width * value;
+        float knobY = slider.y + slider.height / 2;
+        return Vector2.dst(knobX, knobY, x, y) <= knobRadius * 2;
+    }
+
+    private float calculateSliderValue(Rectangle slider, float mouseX) {
+        float relativeX = mouseX - slider.x;
+        float value = relativeX / slider.width;
+        return Math.max(0, Math.min(1, value));
+    }
+
+    private void loadSettings() {
+        musicVolume = prefs.getFloat("musicVolume", 1.0f);
+        soundVolume = prefs.getFloat("soundVolume", 1.0f);
+        brightness = prefs.getFloat("brightness", 1.0f);
+    }
+
+    private void saveSettings() {
+        prefs.putFloat("musicVolume", musicVolume);
+        prefs.putFloat("soundVolume", soundVolume);
+        prefs.putFloat("brightness", brightness);
+        prefs.flush();
+
+        // Here you would also apply the settings to your game
+        // For example: game.setMusicVolume(musicVolume);
+        // suresuresure
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        screenWidth = width;
+        screenHeight = height;
+
+        // Re-position UI elements
+        float centerX = screenWidth / 2 - sliderWidth / 2;
+        float startY = screenHeight * 0.7f;
+        float spacing = 80f;
+
+        musicSlider.x = centerX;
+        musicSlider.y = startY;
+        soundSlider.x = centerX;
+        soundSlider.y = startY - spacing;
+        brightnessSlider.x = centerX;
+        brightnessSlider.y = startY - spacing * 2;
+
+        float buttonWidth = 180f;
+        float buttonHeight = 60f;
+        float buttonY = startY - spacing * 3.5f;
+
+        backButton.x = screenWidth / 4 - buttonWidth / 2;
+        backButton.y = buttonY;
+        backButton.width = buttonWidth;
+        backButton.height = buttonHeight;
+
+        restartButton.x = screenWidth / 2 - buttonWidth / 2;
+        restartButton.y = buttonY;
+        restartButton.width = buttonWidth;
+        restartButton.height = buttonHeight;
+
+        quitButton.x = screenWidth * 3/4 - buttonWidth / 2;
+        quitButton.y = buttonY;
+        quitButton.width = buttonWidth;
+        quitButton.height = buttonHeight;
+    }
+
+    @Override
+    public void pause() {
+        saveSettings();
+    }
+
+    @Override
+    public void resume() {
+        loadSettings();
+    }
+
+    @Override
+    public void hide() {
+        saveSettings();
+    }
+
+    @Override
+    public void dispose() {
+        saveSettings();
+        batch.dispose();
+        font.dispose();
+        titleFont.dispose();
+        buttonFont.dispose();
+        shapeRenderer.dispose();
+    }
+}

@@ -56,7 +56,7 @@ public class VortexMain implements Screen {
             "Nova", "Hmm... doesn't seem to work well..?", "Lab", "#FFFFFF",
             "Nova", "Maybe I should try another approach...", "Lab", "#FFFFFF",
             "AI", "Analyzing... please wait.", "Lab", "#00FF00",
-            "Nova", "Alright, let’s see what’s next.", "LabMenu_temp", "#FFFFFF"
+            "Nova", "Alright, let’s see what’s next.", "Umbra_CharViewBackground", "#FFFFFF"
         );
     }
 

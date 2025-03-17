@@ -108,7 +108,7 @@ public class CharacterDetailScreen extends ScreenAdapter {
         backButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, com.badlogic.gdx.scenes.scene2d.Actor actor) {
-                game.setScreen(new DisplayCharacters(game)); // Navigate back
+                game.setScreen(new ViewCharacters(game)); // Navigate back
             }
         });
         stage.addActor(backButton);

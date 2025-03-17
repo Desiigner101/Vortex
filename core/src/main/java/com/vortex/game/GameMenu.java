@@ -143,6 +143,7 @@ public class GameMenu implements Screen {
         switch (index) {
             case 0: game.newGame(); break; // Start a new game
             case 2: game.displayCharacters(); break; // Open character selection
+            case 3: this.game.showControls(); break; // Open controls screen
             case 4: Gdx.app.exit(); break; // Exit game
         }
     }

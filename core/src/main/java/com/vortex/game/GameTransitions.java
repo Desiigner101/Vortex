@@ -29,6 +29,11 @@ public class GameTransitions extends Game {
 
     // Method to open the character selection screen
     public void displayCharacters() {
-        this.setScreen(new DisplayCharacters(this));
+        this.setScreen(new ViewCharacters(this));
+    }
+    public void showControls() {
+        setScreen(new GameControls(this));
     }
 }
+
+

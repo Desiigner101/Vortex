@@ -13,7 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.vortex.Images.ImageHandler;
 
-public class DisplayCharacters extends ScreenAdapter {
+public class ViewCharacters extends ScreenAdapter {
     private final GameTransitions game;
     private SpriteBatch batch;
     private ImageHandler novaImage, umbraImage, jinaImage;
@@ -32,7 +32,7 @@ public class DisplayCharacters extends ScreenAdapter {
     private float novaScale = defaultScale, umbraScale = defaultScale, jinaScale = defaultScale;
     private float novaAlpha = 1f, umbraAlpha = 1f, jinaAlpha = 1f;
 
-    public DisplayCharacters(GameTransitions game) {
+    public ViewCharacters(GameTransitions game) {
         this.game = game;
         initialize();
     }
