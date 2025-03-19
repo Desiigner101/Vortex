@@ -53,7 +53,7 @@ public class VideoIntro extends ScreenAdapter {
         camera.update();
 
         // Load each frame as an image file (total of 86 frames)
-        for (int i = 1; i <= 86; i++) {
+        for (int i = 1; i <= 90; i++) {
             String fileName = "VideoIntro/ezgif-frame-" + String.format("%03d", i) + ".png";
             assetManager.load(fileName, Texture.class); // Loads the frame into the asset manager
         }
@@ -61,7 +61,7 @@ public class VideoIntro extends ScreenAdapter {
         assetManager.finishLoading(); // Ensures all assets are loaded before proceeding
 
         // Retrieve all loaded frames and store them in the frames array
-        for (int i = 1; i <= 86; i++) {
+        for (int i = 1; i <= 90; i++) {
             String fileName = "VideoIntro/ezgif-frame-" + String.format("%03d", i) + ".png";
             frames.add(assetManager.get(fileName, Texture.class)); // Adds each frame to the array
         }

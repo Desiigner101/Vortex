@@ -6,12 +6,13 @@ public class GameTransitions extends Game {
 
     @Override
     public void create() {
-        // Check if the intro has already played
-        // if (!introPlayed) {
-        //introPlayed = true; // Mark the intro as played for this session
-        //this.setScreen(new VideoIntro(this)); // Show the intro video
-        // }// else {
-        this.setScreen(new GameMenu(this)); // Skip the intro and go straight to the menu
+        //Check if the intro has already played
+        if (!introPlayed) {
+            introPlayed = true; // Mark the intro as played for this session
+            this.setScreen(new VideoIntro(this)); // Show the intro video
+        } else {
+            this.setScreen(new GameMenu(this)); // Skip the intro and go straight to the menu
+        }
     }
 
     // }
