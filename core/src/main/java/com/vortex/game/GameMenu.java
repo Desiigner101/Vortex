@@ -37,7 +37,7 @@ public class GameMenu implements Screen {
     @Override
     public void show() {
         batch = new SpriteBatch();
-        font = generateFont("fonts/Poppins-ExtraBold.ttf", 32); // Load custom font
+        font = generateFont("fonts/Poppins-ExtraBold.ttf", 42); // Load custom font
         screenWidth = Gdx.graphics.getWidth();
         screenHeight = Gdx.graphics.getHeight();
         optionPositions = new Vector2[menuOptions.length];
@@ -164,6 +164,7 @@ public class GameMenu implements Screen {
         // Select option on Enter key or left mouse click
         if ((Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) && selectedIndex != -1) {
             executeAction(selectedIndex);
+            sfx.playSoundEffect("whenTextIsClicked.wav",0);
         }
     }
 
