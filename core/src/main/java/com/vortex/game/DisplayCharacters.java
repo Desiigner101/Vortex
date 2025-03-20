@@ -26,6 +26,7 @@ public class DisplayCharacters implements Screen {
     private ShapeRenderer shapeRenderer;
     private String[] characterNames = {"Umbra", "Nova", "Jina"};
     private String[][] characterInfo = {};
+    private Texture displayImage;
 
     public DisplayCharacters(GameTransitions game) {
         this.game = game;
@@ -59,6 +60,11 @@ public class DisplayCharacters implements Screen {
             new Color(0.2f, 0.4f, 1f, 1f),
             new Color(1f, 0.9f, 0.3f, 1f)
         };
+
+
+        // **NEW IMAGE LOADING**
+        displayImage = new Texture("Pictures/Umbra/CharacterView/Umbra_CharViewBackground.png"); // Update with correct path
+
         Gdx.input.setInputProcessor(new InputAdapter() {
             @Override
             public boolean touchDown(int screenX, int screenY, int pointer, int button) {
@@ -173,6 +179,24 @@ public class DisplayCharacters implements Screen {
             font.draw(batch, "A skilled acquaintance and", textXx, descriptionY - 30);
             font.draw(batch, "is knowledgeable in traversing", textXx, descriptionY - 60);
             font.draw(batch, "the multiverse.", textXx, descriptionY - 90);
+
+            // Load the image (Make sure displayImage is initialized in create())
+            float displayImageX = 90;  // Adjust X position
+            float displayImageY = screenHeight - 240;  // Adjust Y position
+            float displayImageWidth = 300;  // Adjust width
+            float displayImageHeight = 150;  // Adjust height
+
+            batch.draw(displayImage, displayImageX, displayImageY, displayImageWidth, displayImageHeight);
+
+            // Draw the text on top of the image
+            font.getData().setScale(2.0f);  // Adjust text size
+            font.setColor(Color.WHITE);  // Set text color
+
+            // Calculate text position (centered on the image)
+            float textX = displayImageX + (displayImageWidth / 2) - 125;  // Adjust for centering
+            float textY = displayImageY + (displayImageHeight / 2) - 30; // Adjust for centering
+
+            font.draw(batch, "THE VOID", textX, textY);
         }
         if (currentCharacterIndex == 0 && selectedSkill != -1) {
             float textX = screenWidth - 500;
@@ -208,6 +232,8 @@ public class DisplayCharacters implements Screen {
                 textY -= 30;
             }
      }
+
+
         for (int i = 0; i < leftSideIcons.length; i++) {
             float drawX = 90;
             float drawY = screenHeight - 350 - (i * 100);
@@ -272,7 +298,7 @@ public class DisplayCharacters implements Screen {
                 batch.begin();
             }
 
-    @Override
+            @Override
             public void resize(int width, int height) {}
             @Override
             public void pause() {}
@@ -288,5 +314,6 @@ public class DisplayCharacters implements Screen {
                 for (Texture texture : leftSideIcons) {
                     texture.dispose();
                 }
+                displayImage.dispose();
             }
         }
