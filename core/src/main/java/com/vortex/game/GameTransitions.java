@@ -23,7 +23,7 @@ public class GameTransitions extends Game {
 
     // Method to start a new game session
     public void newGame() {
-        this.setScreen(new VortexMain(this));
+        this.setScreen(new StoryScene(this));
     }
 
     // Method to open the character selection screen

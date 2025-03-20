@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
+import com.vortex.SFX.PlayAudio;
 
 public class GameMenu implements Screen {
     private SpriteBatch batch;
@@ -24,6 +25,7 @@ public class GameMenu implements Screen {
     private boolean glowIncreasing = true;
 
     private MainMenuAnimator mainMenuAnimator; // Handles the animated background
+    private PlayAudio sfx; // Handles music playback
 
     public GameMenu(GameTransitions game) {
         this.game = game;
@@ -45,6 +47,10 @@ public class GameMenu implements Screen {
         }
 
         mainMenuAnimator = new MainMenuAnimator(); // Initialize animated background
+        sfx = new PlayAudio(); // Initialize PlayAudio
+
+        // Play menu background music
+        sfx.playMusic("Boss-BattleMusic.wav");
     }
 
     @Override
@@ -84,13 +90,17 @@ public class GameMenu implements Screen {
     public void resume() {}
 
     @Override
-    public void hide() {}
+    public void hide() {
+        // Stop music when exiting the menu
+        sfx.stopMusic();
+    }
 
     @Override
     public void dispose() {
         batch.dispose();
         font.dispose();
         mainMenuAnimator.dispose(); // Free resources
+        sfx.stopMusic(); // Ensure music stops when disposing
     }
 
     /**
