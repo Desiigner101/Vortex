@@ -31,7 +31,6 @@ public class GameTransitions extends Game {
             "Umbra", "What the frick", "Jina_CharViewBackground", "#FFFFFF"
         }, ()->this.setScreen(new BattleClass("Nyxarion",true,true,true, "XyberiaBattleBackground.png", "RoadTile.png")))); //this triggers a battle after this story segment, just put null if it doesnt
 
-
     }
 
     // Method to open the character selection screen
