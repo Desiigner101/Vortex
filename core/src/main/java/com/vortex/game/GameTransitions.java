@@ -1,5 +1,7 @@
 package com.vortex.game;
 import com.badlogic.gdx.Game;
+import com.vortex.game.LoadGame;
+
 public class GameTransitions extends Game {
     // A flag to track if the intro video has been played (resets when the app restarts)
     private static boolean introPlayed = false;
@@ -33,6 +35,17 @@ public class GameTransitions extends Game {
 
     public void showControls() {
         setScreen(new GameControls(this));
+    }
+
+    // Method to open the Load Game screen
+    public void loadGame() {
+        this.setScreen(new LoadGame(this));
+    }
+
+    // Method to resume game from a loaded save slot
+    public void resumeGame(String slotName) {
+        System.out.println("Resuming game from: " + slotName);
+        this.setScreen(new StoryScene(this)); // Change to your actual game class
     }
 
 }
