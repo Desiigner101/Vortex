@@ -1,7 +1,5 @@
 package com.vortex.game;
 import com.badlogic.gdx.Game;
-import com.vortex.game.LoadGame;
-
 public class GameTransitions extends Game {
     // A flag to track if the intro video has been played (resets when the app restarts)
     private static boolean introPlayed = false;
@@ -33,6 +31,13 @@ public class GameTransitions extends Game {
             "Umbra", "What the frick", "Jina_CharViewBackground", "#FFFFFF"
         }, ()->this.setScreen(new BattleClass()))); //this triggers a battle after this story segment, just put null if it doesnt
 
+        this.setScreen(new StoryScene(this, new String[]{
+            "Nova", "Hmm... doesn't seem to work well..?", "Lab", "#FFFFFF",
+            "Nova", "Maybe I should try another approach...", "Lab", "#FFFFFF",
+            "AI", "Analyzing... please wait.", "Lab", "#00FF00",
+            "Nova", "Alright, let’s see what’s next.", "Umbra_CharViewBackground", "#FFFFFF",
+            "Umbra", "What the frick", "Jina_CharViewBackground", "#FFFFFF"
+        },  null));
     }
 
     // Method to open the character selection screen
@@ -42,17 +47,6 @@ public class GameTransitions extends Game {
 
     public void showControls() {
         setScreen(new GameControls(this));
-    }
-
-    // Method to open the Load Game screen
-    public void loadGame() {
-        this.setScreen(new LoadGame(this));
-    }
-
-    // Method to resume game from a loaded save slot
-    public void resumeGame(String slotName) {
-        System.out.println("Resuming game from: " + slotName);
-        this.setScreen(new StoryScene(this)); // Change to your actual game class
     }
 
 }
