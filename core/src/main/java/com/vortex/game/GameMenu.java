@@ -145,7 +145,7 @@ public class GameMenu implements Screen {
 
         // Play hover sound only if the hovered option changed
         if (selectedIndex != -1 && selectedIndex != lastHoveredIndex) {
-            sfx.playSoundEffect("hover-button.wav"); // Use sound effect instead of music
+            sfx.playSoundEffect("hover_button.wav",0); // Use sound effect instead of music
             lastHoveredIndex = selectedIndex;
         }
     }

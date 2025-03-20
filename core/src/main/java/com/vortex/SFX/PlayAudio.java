@@ -98,20 +98,6 @@ public class PlayAudio implements SoundEffects {
         Gdx.app.log("PlayAudio", "All audio resources disposed.");
     }
 
-    public void playSoundEffect(String musicFile) {
-
-        FileHandle file = Gdx.files.internal("MusicFolder/" + musicFile);
-        if (!file.exists()) {
-            Gdx.app.error("PlayAudio", "Music file not found: " + musicFile);
-            return;
-        }
-
-        musicClip = Gdx.audio.newMusic(file);
-        musicClip.setLooping(true);
-        musicClip.play();
-
-        Gdx.app.log("PlayAudio", "Music is playing: " + musicFile);
-    }
 
     public boolean isMusicPlaying() {
         return musicClip != null && musicClip.isPlaying();
