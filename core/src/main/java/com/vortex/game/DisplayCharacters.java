@@ -26,9 +26,11 @@ public class DisplayCharacters implements Screen {
     private ShapeRenderer shapeRenderer;
     private String[] characterNames = {"Umbra", "Nova", "Jina"};
     private String[][] characterInfo = {};
+
     public DisplayCharacters(GameTransitions game) {
         this.game = game;
     }
+
     @Override
     public void show() {
         batch = new SpriteBatch();

@@ -34,7 +34,7 @@ public class GameMenu implements Screen {
     @Override
     public void show() {
         batch = new SpriteBatch();
-        font = generateFont("fonts/PressStart-Regular.ttf", 32); // Load custom font
+        font = generateFont("fonts/Poppins-ExtraBold.ttf", 32); // Load custom font
         screenWidth = Gdx.graphics.getWidth();
         screenHeight = Gdx.graphics.getHeight();
         optionPositions = new Vector2[menuOptions.length];
