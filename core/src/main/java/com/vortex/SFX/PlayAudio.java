@@ -15,25 +15,20 @@ public class PlayAudio implements SoundEffects {
      * - playMusic(String) → Enter the music name as a parameter (with the .wav). It will continuously loop until the stopMusic() method is called.
      * - playSoundEffect(String, double) → Enter the SFX name as a parameter (with the .wav). It will automatically stop once the SFX finishes.
      * - stopMusic() → Stops the music loop.
-     * - stopSoundEffect() → Stops the sound effect currently playing.
-     * - stopAudio() → Stops both the music loop and sound effect currently playing.
+     * - stopSoundEffect() → Stops all sound effects currently playing.
+     * - stopAudio() → Stops both the music loop and sound effects.
      *
      * Requirements:
      * - You need to have 2 folders inside `assets/`:
      *   1. `MusicFolder` → Should contain your background music.
      *   2. `SoundEffectsFolder` → Should contain your SFX files.
-     *
-     * LEZGAW MU GANA NA JUD KAPOYA
      */
 
     private Music musicClip;
-    private Sound soundEffectClip;
     private final Map<String, Sound> soundCache = new HashMap<>(); // Stores sound effects to avoid reloading
 
     @Override
     public void playSoundEffect(String soundFile, double delay) {
-        int delayMs = (int) (delay * 1000); // Convert seconds to milliseconds
-
         Timer.schedule(new Timer.Task() {
             @Override
             public void run() {
@@ -43,15 +38,18 @@ public class PlayAudio implements SoundEffects {
                     return;
                 }
 
-                soundEffectClip = soundCache.computeIfAbsent(soundFile, key -> Gdx.audio.newSound(file));
-                long soundId = soundEffectClip.play();
+                // Load or retrieve from cache
+                Sound sound = soundCache.computeIfAbsent(soundFile, key -> Gdx.audio.newSound(file));
+
+                // Play sound effect
+                long soundId = sound.play();
                 Gdx.app.log("PlayAudio", "Playing sound effect: " + soundFile + " (ID: " + soundId + ")");
             }
         }, (float) delay);
     }
 
     @Override
-    public void playMusic(String musicFile) { // amp duagay nako na human ani bruhhhh basta mu gana na wtffff
+    public void playMusic(String musicFile) {
         stopMusic(); // Stop any currently playing music
 
         FileHandle file = Gdx.files.internal("MusicFolder/" + musicFile);
@@ -69,7 +67,6 @@ public class PlayAudio implements SoundEffects {
 
     @Override
     public void stopAudio() {
-        // Stops both sound effects and music
         stopMusic();
         stopSoundEffect();
     }
@@ -86,9 +83,18 @@ public class PlayAudio implements SoundEffects {
 
     @Override
     public void stopSoundEffect() {
-        if (soundEffectClip != null) {
-            soundEffectClip.stop();
-            Gdx.app.log("PlayAudio", "Sound effect stopped.");
+        for (Sound sound : soundCache.values()) {
+            sound.stop();
         }
+        Gdx.app.log("PlayAudio", "All sound effects stopped.");
+    }
+
+    public void dispose() {
+        stopMusic();
+        for (Sound sound : soundCache.values()) {
+            sound.dispose();
+        }
+        soundCache.clear();
+        Gdx.app.log("PlayAudio", "All audio resources disposed.");
     }
 }

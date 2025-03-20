@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.vortex.SFX.PlayAudio;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 
 public class GameMenu implements Screen {
     private SpriteBatch batch;
@@ -118,13 +119,17 @@ public class GameMenu implements Screen {
      */
     private void updateMouseSelection() {
         float mouseX = Gdx.input.getX();
-        float mouseY = screenHeight - Gdx.input.getY(); // Flip Y axis for LibGDX
-        int previousIndex = selectedIndex; // Store the previous selection
+        float mouseY = screenHeight - Gdx.input.getY(); // Convert to LibGDX coordinates
+        int previousIndex = selectedIndex;
         selectedIndex = -1;
 
+        GlyphLayout layout = new GlyphLayout();
+
         for (int i = 0; i < menuOptions.length; i++) {
-            float textWidth = font.getRegion().getRegionWidth() * textScale;
-            float textHeight = font.getLineHeight() * textScale;
+            layout.setText(font, menuOptions[i]); // Get actual text dimensions
+            float textWidth = layout.width;
+            float textHeight = font.getCapHeight();
+
             if (mouseX >= optionPositions[i].x && mouseX <= optionPositions[i].x + textWidth &&
                 mouseY >= optionPositions[i].y - textHeight && mouseY <= optionPositions[i].y) {
                 selectedIndex = i;
@@ -132,9 +137,9 @@ public class GameMenu implements Screen {
             }
         }
 
-        // Play sound only if hovered over a new menu option
+        // Play hover sound only if the hovered option changed
         if (selectedIndex != -1 && selectedIndex != lastHoveredIndex) {
-            sfx.playMusic("hover-button.wav"); // Replace with your actual hover sound file
+            sfx.playMusic("hover-button.wav"); // Use sound effect instead of music
             lastHoveredIndex = selectedIndex;
         }
     }
