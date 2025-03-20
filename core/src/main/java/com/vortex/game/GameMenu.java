@@ -52,7 +52,7 @@ public class GameMenu implements Screen {
         sfx = new PlayAudio(); // Initialize PlayAudio
 
         // Play menu background music
-        sfx.playMusic("Boss-BattleMusic.wav");
+        sfx.playMusic("MainMenuMusic.wav");
     }
 
     @Override

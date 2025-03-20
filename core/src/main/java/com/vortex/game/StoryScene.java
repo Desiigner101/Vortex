@@ -15,24 +15,28 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 
 public class StoryScene implements Screen {
     private final GameTransitions game;
-    private SpriteBatch batch;
+    private SpriteBatch spriteBatch;
     private Texture backgroundImage;
     private Viewport viewport;
     private Stage stage;
     private Skin skin;
     private TextButton backButton;
     private BorderedTextBox dialogueBox;
+    private Runnable nextSceneCallback;
 
     private String[][] storyData;
     private int dialogueIndex = 0;
 
-    public StoryScene(GameTransitions game) {
+    // Constructor now takes storyData and an optional nextSceneCallback
+    public StoryScene(GameTransitions game, String[] storyData, Runnable nextSceneCallback) {
         this.game = game;
+        this.nextSceneCallback = nextSceneCallback; // Store the next scene action
+        loadStoryData(storyData);
     }
 
     @Override
     public void show() {
-        batch = new SpriteBatch();
+        spriteBatch = new SpriteBatch();
         viewport = new StretchViewport(1920, 1080);
         viewport.apply();
 
@@ -46,21 +50,16 @@ public class StoryScene implements Screen {
         backButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                game.create();
+                game.setScreen(new GameMenu(game)); // Goes back to main menu
             }
         });
         stage.addActor(backButton);
 
-        // Define the story
-        story(
-            "Nova", "Hmm... doesn't seem to work well..?", "Lab", "#FFFFFF",
-            "Nova", "Maybe I should try another approach...", "Lab", "#FFFFFF",
-            "AI", "Analyzing... please wait.", "Lab", "#00FF00",
-            "Nova", "Alright, let’s see what’s next.", "Umbra_CharViewBackground", "#FFFFFF"
-        );
+        updateScene();
     }
 
-    public void story(String... data) {
+    // Parses storyData from array
+    private void loadStoryData(String... data) {
         if (data.length % 4 != 0) {
             throw new IllegalArgumentException("Each entry must have exactly 4 values: Character, Dialogue, Background, TextColor.");
         }
@@ -73,42 +72,52 @@ public class StoryScene implements Screen {
             storyData[i][2] = data[i * 4 + 2]; // Background
             storyData[i][3] = data[i * 4 + 3]; // Text color (Hex)
         }
-        dialogueIndex = 0;
-        updateScene();
     }
 
     private void updateScene() {
-        if (dialogueIndex < storyData.length) {
-            if (dialogueBox != null) {
-                dialogueBox.dispose();
+        if (dialogueIndex >= storyData.length) {
+            if (nextSceneCallback != null) {
+                nextSceneCallback.run(); // Execute the next scene if provided
+            } else {
+                game.startGameMenu(); // Default: Return to the main menu
             }
-            backgroundImage = new Texture(Gdx.files.internal("Backgrounds/" + storyData[dialogueIndex][2] + ".png"));
-            dialogueBox = new BorderedTextBox(
-                "testBorder",
-                false,
-                storyData[dialogueIndex][0],  // Speaker
-                storyData[dialogueIndex][1],  // Dialogue
-                200,                          // Box height
-                1500,                         // Box width
-                storyData[dialogueIndex][3]   // Text color (Hex)
-            );
-        } else {
-            // If dialogue is finished, switch to BattleClass
-            game.setScreen(new BattleClass(game, "far-buildings.png", "back-buildings.png", "foreground.png"));
+            return;
         }
+
+        if (dialogueBox != null) {
+            dialogueBox.dispose();
+        }
+
+        String backgroundPath = "Backgrounds/" + storyData[dialogueIndex][2] + ".png";
+        if (Gdx.files.internal(backgroundPath).exists()) {
+            backgroundImage = new Texture(Gdx.files.internal(backgroundPath));
+        } else {
+            Gdx.app.log("ERROR", "Missing background file: " + backgroundPath);
+            backgroundImage = new Texture(Gdx.files.internal("Backgrounds/default.png")); // Fallback image
+        }
+
+        dialogueBox = new BorderedTextBox(
+            "testBorder",
+            false,
+            storyData[dialogueIndex][0],  // Speaker
+            storyData[dialogueIndex][1],  // Dialogue
+            200,                          // Box height
+            1500,                         // Box width
+            storyData[dialogueIndex][3]   // Text color (Hex)
+        );
     }
 
     @Override
     public void render(float delta) {
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
         viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
-        batch.setProjectionMatrix(viewport.getCamera().combined);
+        spriteBatch.setProjectionMatrix(viewport.getCamera().combined);
 
-        batch.begin();
+        spriteBatch.begin();
         if (backgroundImage != null) {
-            batch.draw(backgroundImage, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
+            spriteBatch.draw(backgroundImage, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
         }
-        batch.end();
+        spriteBatch.end();
 
         if (dialogueBox != null) {
             dialogueBox.render(delta);
@@ -134,7 +143,7 @@ public class StoryScene implements Screen {
 
     @Override
     public void dispose() {
-        batch.dispose();
+        spriteBatch.dispose();
         if (backgroundImage != null) backgroundImage.dispose();
         stage.dispose();
         skin.dispose();
