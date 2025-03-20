@@ -52,8 +52,10 @@ public class GameMenu implements Screen {
         mainMenuAnimator = new MainMenuAnimator(); // Initialize animated background
         sfx = new PlayAudio(); // Initialize PlayAudio
 
-        // Play menu background music
-        sfx.playMusic("MainMenuMusic.wav");
+        // Play menu background music only if it's not already playing
+        if (!sfx.isMusicPlaying()) {
+            sfx.playMusic("MainMenuMusic.wav");
+        }
     }
 
     @Override
@@ -95,7 +97,9 @@ public class GameMenu implements Screen {
     @Override
     public void hide() {
         // Stop music when exiting the menu
-        sfx.stopMusic();
+        if (sfx != null) {
+            sfx.stopMusic();
+        }
     }
 
     @Override
@@ -103,7 +107,9 @@ public class GameMenu implements Screen {
         batch.dispose();
         font.dispose();
         mainMenuAnimator.dispose(); // Free resources
-        sfx.stopMusic(); // Ensure music stops when disposing
+        if (sfx != null) {
+            sfx.stopMusic(); // Ensure music stops when disposing
+        }
     }
 
     /**
@@ -139,7 +145,7 @@ public class GameMenu implements Screen {
 
         // Play hover sound only if the hovered option changed
         if (selectedIndex != -1 && selectedIndex != lastHoveredIndex) {
-            sfx.playMusic("hover-button.wav"); // Use sound effect instead of music
+            sfx.playSoundEffect("hover-button.wav"); // Use sound effect instead of music
             lastHoveredIndex = selectedIndex;
         }
     }
