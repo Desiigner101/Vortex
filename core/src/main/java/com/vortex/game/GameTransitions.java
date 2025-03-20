@@ -23,7 +23,14 @@ public class GameTransitions extends Game {
 
     // Method to start a new game session
     public void newGame() {
-        this.setScreen(new StoryScene(this));
+        this.setScreen(new StoryScene(this, new String[]{
+            "Nova", "Hmm... doesn't seem to work well..?", "Lab", "#FFFFFF",
+            "Nova", "Maybe I should try another approach...", "Lab", "#FFFFFF",
+            "AI", "Analyzing... please wait.", "Lab", "#00FF00",
+            "Nova", "Alright, let’s see what’s next.", "Umbra_CharViewBackground", "#FFFFFF",
+            "Umbra", "What the frick", "Jina_CharViewBackground", "#FFFFFF"
+        }, ()->this.setScreen(new BattleClass()))); //this triggers a battle after this story segment, just put null if it doesnt
+
     }
 
     // Method to open the character selection screen
