@@ -296,6 +296,7 @@ public class DisplayCharacters implements Screen {
                 }
             };
 
+
             for (String line : skillDescriptions[selectedSkill]) {
                 font.draw(batch, line, textX, textY);
                 textY -= 30;
