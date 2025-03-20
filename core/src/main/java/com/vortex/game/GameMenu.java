@@ -23,6 +23,8 @@ public class GameMenu implements Screen {
     private float textScale = 2f;
     private float glowAlpha = 0.5f;
     private boolean glowIncreasing = true;
+    private int lastHoveredIndex = -1; // Keeps track of the last hovered option
+
 
     private MainMenuAnimator mainMenuAnimator; // Handles the animated background
     private PlayAudio sfx; // Handles music playback
@@ -117,6 +119,7 @@ public class GameMenu implements Screen {
     private void updateMouseSelection() {
         float mouseX = Gdx.input.getX();
         float mouseY = screenHeight - Gdx.input.getY(); // Flip Y axis for LibGDX
+        int previousIndex = selectedIndex; // Store the previous selection
         selectedIndex = -1;
 
         for (int i = 0; i < menuOptions.length; i++) {
@@ -128,7 +131,14 @@ public class GameMenu implements Screen {
                 break;
             }
         }
+
+        // Play sound only if hovered over a new menu option
+        if (selectedIndex != -1 && selectedIndex != lastHoveredIndex) {
+            sfx.playMusic("hover-button.wav"); // Replace with your actual hover sound file
+            lastHoveredIndex = selectedIndex;
+        }
     }
+
 
     /**
      * Handles keyboard and mouse input for menu navigation.
