@@ -55,6 +55,7 @@ public class GameControls implements Screen {
     private float sliderHeight = 30f;
     private float knobSize = 20f;
     private float knobRadius = 12f;
+    private float sliderRadius = 15f; // Increased for more rounded corners
 
     // Screen dimensions
     private float screenWidth;
@@ -62,6 +63,9 @@ public class GameControls implements Screen {
 
     // Preferences for saving settings
     private Preferences prefs;
+
+    // Scale factor for UI elements
+    private float scaleFactor = 1.2f;
 
     public GameControls(GameTransitions game) {
         this.game = game;
@@ -79,23 +83,23 @@ public class GameControls implements Screen {
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 
         // Title font
-        parameter.size = 42;
-        parameter.borderWidth = 2f;
+        parameter.size = (int)(42 * scaleFactor);
+        parameter.borderWidth = 2f * scaleFactor;
         parameter.borderColor = new Color(0.1f, 0.1f, 0.2f, 1f);
         parameter.color = secondAccentColor;
         titleFont = generator.generateFont(parameter);
 
         // Regular font for labels
-        parameter.size = 24;
-        parameter.borderWidth = 1.5f;
+        parameter.size = (int)(24 * scaleFactor);
+        parameter.borderWidth = 1.5f * scaleFactor;
         parameter.borderColor = new Color(0.05f, 0.05f, 0.1f, 1f);
         parameter.color = Color.WHITE;
         font = generator.generateFont(parameter);
 
         // Button font
-        parameter.size = 28;
+        parameter.size = (int)(28 * scaleFactor);
         parameter.color = Color.WHITE;
-        parameter.borderWidth = 1.5f;
+        parameter.borderWidth = 1.5f * scaleFactor;
         buttonFont = generator.generateFont(parameter);
 
         generator.dispose();
@@ -103,22 +107,25 @@ public class GameControls implements Screen {
         screenWidth = Gdx.graphics.getWidth();
         screenHeight = Gdx.graphics.getHeight();
 
-        // Initialize UI elements with better positioning
-        float centerX = screenWidth / 2 - sliderWidth / 2;
+        // Initialize UI elements with scaling
+        float centerX = screenWidth / 2 - (sliderWidth * scaleFactor) / 2;
         float startY = screenHeight * 0.7f;
-        float spacing = 80f;
+        float spacing = 70f * scaleFactor;
 
-        musicSlider = new Rectangle(centerX, startY, sliderWidth, sliderHeight);
-        soundSlider = new Rectangle(centerX, startY - spacing, sliderWidth, sliderHeight);
-        brightnessSlider = new Rectangle(centerX, startY - spacing * 2, sliderWidth, sliderHeight);
+        musicSlider = new Rectangle(centerX, startY, sliderWidth * scaleFactor, sliderHeight * scaleFactor);
+        soundSlider = new Rectangle(centerX, startY - spacing, sliderWidth * scaleFactor, sliderHeight * scaleFactor);
+        brightnessSlider = new Rectangle(centerX, startY - spacing * 2, sliderWidth * scaleFactor, sliderHeight * scaleFactor);
 
-        float buttonWidth = 180f;
-        float buttonHeight = 60f;
-        float buttonY = startY - spacing * 3.5f;
+        float buttonWidth = 180f * scaleFactor; // Adjusted button width
+        float buttonHeight = 60f * scaleFactor; // Adjusted button height
+        float buttonSpacing = 15f * scaleFactor;
+        float totalButtonWidth = buttonWidth * 3 + buttonSpacing * 2;
+        float buttonsStartX = screenWidth / 2 - totalButtonWidth / 2 - 50 * scaleFactor + screenWidth * 0.02f - 10; // Shifted left by 10
+        float buttonY = startY - spacing * 3.5f - 30 * scaleFactor; // Increased spacing
 
-        backButton = new Rectangle(screenWidth / 4 - buttonWidth / 2, buttonY, buttonWidth, buttonHeight);
-        restartButton = new Rectangle(screenWidth / 2 - buttonWidth / 2, buttonY, buttonWidth, buttonHeight);
-        quitButton = new Rectangle(screenWidth * 3/4 - buttonWidth / 2, buttonY, buttonWidth, buttonHeight);
+        backButton = new Rectangle(buttonsStartX, buttonY, buttonWidth, buttonHeight);
+        restartButton = new Rectangle(buttonsStartX + buttonWidth + buttonSpacing, buttonY, buttonWidth, buttonHeight);
+        quitButton = new Rectangle(buttonsStartX + buttonWidth * 2 + buttonSpacing * 2, buttonY, buttonWidth, buttonHeight);
     }
 
     @Override
@@ -163,27 +170,48 @@ public class GameControls implements Screen {
     }
 
     private void drawText() {
-        // Draw title with shadow
+        // Draw title with shadow and added space above and below
         layout.setText(titleFont, "VORTEX CONTROLS");
         titleFont.draw(batch, "VORTEX CONTROLS",
             screenWidth / 2 - layout.width / 2,
-            screenHeight * 0.9f);
+            screenHeight * 0.88f + 20 * scaleFactor); // Added 20 pixels above
 
-        // Draw slider labels
+        // Draw slider labels, more precise alignment
         font.setColor(Color.WHITE);
-        font.draw(batch, "MUSIC VOLUME", musicSlider.x - 220, musicSlider.y + sliderHeight * 1.5f);
-        font.draw(batch, String.format("%.0f%%", musicVolume * 100),
-            musicSlider.x + sliderWidth + 30, musicSlider.y + sliderHeight * 0.8f);
+        layout.setText(font, "MUSIC VOLUME");
+        float musicLabelX = musicSlider.x - layout.width - 40 * scaleFactor;
+        float musicLabelY = musicSlider.y + (sliderHeight * scaleFactor) / 2 + layout.height / 2;
+        font.draw(batch, "MUSIC VOLUME", musicLabelX, musicLabelY);
 
-        font.draw(batch, "SOUND EFFECTS", soundSlider.x - 220, soundSlider.y + sliderHeight * 1.5f);
-        font.draw(batch, String.format("%.0f%%", soundVolume * 100),
-            soundSlider.x + sliderWidth + 30, soundSlider.y + sliderHeight * 0.8f);
+        String musicPercent = String.format("%.0f%%", musicVolume * 100);
+        layout.setText(font, musicPercent);
+        float musicValueX = musicSlider.x + (sliderWidth * scaleFactor) + 40 * scaleFactor;
+        float musicValueY = musicSlider.y + (sliderHeight * scaleFactor) / 2 + layout.height / 2;
+        font.draw(batch, musicPercent, musicValueX, musicValueY);
 
-        font.draw(batch, "BRIGHTNESS", brightnessSlider.x - 220, brightnessSlider.y + sliderHeight * 1.5f);
-        font.draw(batch, String.format("%.0f%%", brightness * 100),
-            brightnessSlider.x + sliderWidth + 30, brightnessSlider.y + sliderHeight * 0.8f);
+        layout.setText(font, "SOUND EFFECTS");
+        float soundLabelX = soundSlider.x - layout.width - 40 * scaleFactor;
+        float soundLabelY = soundSlider.y + (sliderHeight * scaleFactor) / 2 + layout.height / 2;
+        font.draw(batch, "SOUND EFFECTS", soundLabelX, soundLabelY);
 
-        // Draw button text (centered properly)
+        String soundPercent = String.format("%.0f%%", soundVolume * 100);
+        layout.setText(font, soundPercent);
+        float soundValueX = soundSlider.x + (sliderWidth * scaleFactor) + 40 * scaleFactor;
+        float soundValueY = soundSlider.y + (sliderHeight * scaleFactor) / 2 + layout.height / 2;
+        font.draw(batch, soundPercent, soundValueX, soundValueY);
+
+        layout.setText(font, "BRIGHTNESS");
+        float brightnessLabelX = brightnessSlider.x - layout.width - 40 * scaleFactor;
+        float brightnessLabelY = brightnessSlider.y + (sliderHeight * scaleFactor) / 2 + layout.height / 2;
+        font.draw(batch, "BRIGHTNESS", brightnessLabelX, brightnessLabelY);
+
+        String brightnessPercent = String.format("%.0f%%", brightness * 100);
+        layout.setText(font, brightnessPercent);
+        float brightnessValueX = brightnessSlider.x + (sliderWidth * scaleFactor) + 40 * scaleFactor;
+        float brightnessValueY = brightnessSlider.y + (sliderHeight * scaleFactor) / 2 + layout.height / 2;
+        font.draw(batch, brightnessPercent, brightnessValueX, brightnessValueY);
+
+        // Draw button text
         drawCenteredButtonText(batch, backButton, "BACK", 0);
         drawCenteredButtonText(batch, restartButton, "RESTART", 1);
         drawCenteredButtonText(batch, quitButton, "QUIT", 2);
@@ -194,67 +222,63 @@ public class GameControls implements Screen {
         float scale = 1.0f + buttonAnimations[buttonIndex] * 0.1f;
 
         buttonFont.setColor(Color.WHITE);
-        buttonFont.draw(batch, text,
+        // Center the text within the button
+        font.draw(batch, text,
             button.x + button.width / 2 - layout.width / 2,
             button.y + button.height / 2 + layout.height / 2);
     }
 
     private void drawSliders() {
+        // Define distinct colors for each slider
+        Color musicSliderColor = new Color(0.1f, 0.5f, 0.8f, 1f); // Blueish
+        Color soundSliderColor = new Color(0.8f, 0.6f, 0.2f, 1f); // Orangeish
+        Color brightnessSliderColor = new Color(0.4f, 0.8f, 0.3f, 1f); // Greenish
+
         // Draw music slider
         shapeRenderer.setColor(sliderBgColor);
-        shapeRenderer.rect(musicSlider.x, musicSlider.y, musicSlider.width, musicSlider.height,
-            new Color(0.2f, 0.2f, 0.3f, 1f), new Color(0.2f, 0.2f, 0.3f, 1f),
-            sliderBgColor, sliderBgColor);
-
-        shapeRenderer.setColor(accentColor);
+        shapeRenderer.rect(musicSlider.x, musicSlider.y, musicSlider.width, musicSlider.height);
+        shapeRenderer.setColor(musicSliderColor);
         shapeRenderer.rect(musicSlider.x, musicSlider.y, musicSlider.width * musicVolume, musicSlider.height);
 
         // Draw sound slider
         shapeRenderer.setColor(sliderBgColor);
         shapeRenderer.rect(soundSlider.x, soundSlider.y, soundSlider.width, soundSlider.height);
-
-        shapeRenderer.setColor(accentColor);
+        shapeRenderer.setColor(soundSliderColor);
         shapeRenderer.rect(soundSlider.x, soundSlider.y, soundSlider.width * soundVolume, soundSlider.height);
 
         // Draw brightness slider
         shapeRenderer.setColor(sliderBgColor);
         shapeRenderer.rect(brightnessSlider.x, brightnessSlider.y, brightnessSlider.width, brightnessSlider.height);
-
-        shapeRenderer.setColor(secondAccentColor);
+        shapeRenderer.setColor(brightnessSliderColor);
         shapeRenderer.rect(brightnessSlider.x, brightnessSlider.y, brightnessSlider.width * brightness, brightnessSlider.height);
 
-        // Draw knobs
-        drawKnob(musicSlider.x + musicSlider.width * musicVolume, musicSlider.y + musicSlider.height / 2, accentColor);
-        drawKnob(soundSlider.x + soundSlider.width * soundVolume, soundSlider.y + soundSlider.height / 2, accentColor);
-        drawKnob(brightnessSlider.x + brightnessSlider.width * brightness, brightnessSlider.y + brightnessSlider.height / 2, secondAccentColor);
+        // Draw knobs with corresponding colors
+        drawKnob(musicSlider.x + musicSlider.width * musicVolume, musicSlider.y + musicSlider.height / 2, musicSliderColor);
+        drawKnob(soundSlider.x + soundSlider.width * soundVolume, soundSlider.y + soundSlider.height / 2, soundSliderColor);
+        drawKnob(brightnessSlider.x + brightnessSlider.width * brightness, brightnessSlider.y + sliderHeight / 2, brightnessSliderColor);
     }
 
     private void drawKnob(float x, float y, Color color) {
-        // Inner circle (main knob)
+        // Inner circle
         shapeRenderer.setColor(color);
-        shapeRenderer.circle(x, y, knobRadius);
-
-        // Outer circle (shadow/highlight)
+        shapeRenderer.circle(x, y, knobRadius * scaleFactor);
+        // Outer circle
         shapeRenderer.setColor(color.r * 1.2f, color.g * 1.2f, color.b * 1.2f, 0.5f);
-        shapeRenderer.circle(x, y, knobRadius + 4);
+        shapeRenderer.circle(x, y, (knobRadius + 4) * scaleFactor);
     }
 
     private void drawSliderOutlines() {
         shapeRenderer.setColor(accentColor.r, accentColor.g, accentColor.b, 0.5f);
         shapeRenderer.rect(musicSlider.x, musicSlider.y, musicSlider.width, musicSlider.height);
         shapeRenderer.rect(soundSlider.x, soundSlider.y, soundSlider.width, soundSlider.height);
-
-        shapeRenderer.setColor(secondAccentColor.r, secondAccentColor.g, secondAccentColor.b, 0.5f);
         shapeRenderer.rect(brightnessSlider.x, brightnessSlider.y, brightnessSlider.width, brightnessSlider.height);
     }
 
     private void drawButtons() {
         // Draw back button with animation
         drawAnimatedButton(backButton, buttonColor, buttonHoverColor, 0);
-
         // Draw restart button with animation
         drawAnimatedButton(restartButton, buttonColor, buttonHoverColor, 1);
-
         // Draw quit button with animation
         drawAnimatedButton(quitButton, buttonColor, buttonHoverColor, 2);
     }
@@ -263,11 +287,9 @@ public class GameControls implements Screen {
         float animation = buttonAnimations[buttonIndex];
         Color renderColor = baseColor.cpy().lerp(hoverColor, animation);
 
-        // Button with rounded corners effect
         shapeRenderer.setColor(renderColor);
         shapeRenderer.rect(button.x, button.y, button.width, button.height);
 
-        // Button highlight/glow based on animation
         if (animation > 0) {
             shapeRenderer.setColor(accentColor.r, accentColor.g, accentColor.b, animation * 0.3f);
             shapeRenderer.rect(button.x - 2, button.y - 2, button.width + 4, button.height + 4);
@@ -290,6 +312,7 @@ public class GameControls implements Screen {
         // Update pulsing effect
         pulse = (float)Math.sin(Gdx.graphics.getFrameId() * 0.05f) * pulseAmount;
     }
+
     private void updateButtonAnimation(Rectangle button, int buttonIndex, float delta) {
         boolean isHovered = button.contains(Gdx.input.getX(), screenHeight - Gdx.input.getY());
 
@@ -323,7 +346,7 @@ public class GameControls implements Screen {
                 return;
             }
 
-            // Check slider interactions - start dragging
+            // Check slider interactions
             if (isPointNearSlider(musicSlider, mouseX, mouseY, musicVolume)) {
                 isDraggingMusic = true;
             } else if (isPointNearSlider(soundSlider, mouseX, mouseY, soundVolume)) {
@@ -333,9 +356,8 @@ public class GameControls implements Screen {
             }
         }
 
-        // Handle dragging (whether button is held or not)
+        // Handle dragging
         if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
-            // Update slider values when dragging
             if (isDraggingMusic) {
                 musicVolume = calculateSliderValue(musicSlider, mouseX);
             } else if (isDraggingSound) {
@@ -344,13 +366,12 @@ public class GameControls implements Screen {
                 brightness = calculateSliderValue(brightnessSlider, mouseX);
             }
         } else {
-            // Stop dragging when mouse button is released
             isDraggingMusic = false;
             isDraggingSound = false;
             isDraggingBrightness = false;
         }
 
-        // Also allow clicking directly on slider
+        // Allow clicking directly on slider
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             if (musicSlider.contains(mouseX, mouseY)) {
                 musicVolume = calculateSliderValue(musicSlider, mouseX);
@@ -385,10 +406,6 @@ public class GameControls implements Screen {
         prefs.putFloat("soundVolume", soundVolume);
         prefs.putFloat("brightness", brightness);
         prefs.flush();
-
-        // Here you would also apply the settings to your game
-        // For example: game.setMusicVolume(musicVolume);
-        // suresuresure
     }
 
     @Override
@@ -396,33 +413,44 @@ public class GameControls implements Screen {
         screenWidth = width;
         screenHeight = height;
 
-        // Re-position UI elements
-        float centerX = screenWidth / 2 - sliderWidth / 2;
+        // Re-position UI elements with scaling
+        float centerX = screenWidth / 2 - (sliderWidth * scaleFactor) / 2;
         float startY = screenHeight * 0.7f;
-        float spacing = 80f;
+        float spacing = 70f * scaleFactor;
 
         musicSlider.x = centerX;
         musicSlider.y = startY;
+        musicSlider.width = sliderWidth * scaleFactor;
+        musicSlider.height = sliderHeight * scaleFactor;
+
         soundSlider.x = centerX;
         soundSlider.y = startY - spacing;
+        soundSlider.width = sliderWidth * scaleFactor;
+        soundSlider.height = sliderHeight * scaleFactor;
+
         brightnessSlider.x = centerX;
         brightnessSlider.y = startY - spacing * 2;
+        brightnessSlider.width = sliderWidth * scaleFactor;
+        brightnessSlider.height = sliderHeight * scaleFactor;
 
-        float buttonWidth = 180f;
-        float buttonHeight = 60f;
-        float buttonY = startY - spacing * 3.5f;
+        float buttonWidth = 180f * scaleFactor; // Adjusted button width
+        float buttonHeight = 60f * scaleFactor; // Adjusted button height
+        float buttonSpacing = 15f * scaleFactor;
+        float totalButtonWidth = buttonWidth * 3 + buttonSpacing * 2;
+        float buttonsStartX = screenWidth / 2 - totalButtonWidth / 2 - 50 * scaleFactor + screenWidth * 0.02f - 10; // Shifted left by 10
+        float buttonY = startY - spacing * 3.5f - 30 * scaleFactor; // Increased spacing
 
-        backButton.x = screenWidth / 4 - buttonWidth / 2;
+        backButton.x = buttonsStartX;
         backButton.y = buttonY;
         backButton.width = buttonWidth;
         backButton.height = buttonHeight;
 
-        restartButton.x = screenWidth / 2 - buttonWidth / 2;
+        restartButton.x = buttonsStartX + buttonWidth + buttonSpacing;
         restartButton.y = buttonY;
         restartButton.width = buttonWidth;
         restartButton.height = buttonHeight;
 
-        quitButton.x = screenWidth * 3/4 - buttonWidth / 2;
+        quitButton.x = buttonsStartX + buttonWidth * 2 + buttonSpacing * 2;
         quitButton.y = buttonY;
         quitButton.width = buttonWidth;
         quitButton.height = buttonHeight;
@@ -453,3 +481,4 @@ public class GameControls implements Screen {
         shapeRenderer.dispose();
     }
 }
+
