@@ -75,7 +75,7 @@ public class GameMenu implements Screen {
         // Render menu options
         for (int i = 0; i < menuOptions.length; i++) {
             boolean isSelected = (i == selectedIndex);
-            font.setColor(isSelected ? new Color(0, 1, 1, glowAlpha) : Color.LIGHT_GRAY);
+            font.setColor(isSelected ? new Color(1, 1, 0, glowAlpha) : Color.LIGHT_GRAY); //COLOR OF THE HOVER EFFECT
             font.draw(batch, menuOptions[i], optionPositions[i].x, optionPositions[i].y);
         }
         batch.end();
