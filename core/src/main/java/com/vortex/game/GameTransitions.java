@@ -29,7 +29,7 @@ public class GameTransitions extends Game {
             "AI", "Analyzing... please wait.", "Lab", "#00FF00",
             "Nova", "Alright, let’s see what’s next.", "Umbra_CharViewBackground", "#FFFFFF",
             "Umbra", "What the frick", "Jina_CharViewBackground", "#FFFFFF"
-        }, ()->this.setScreen(new BattleClass()))); //this triggers a battle after this story segment, just put null if it doesnt
+        }, ()->this.setScreen(new BattleClass("Nyxarion",true,true,true, "XyberiaBattleBackground.png", "RoadTile.png")))); //this triggers a battle after this story segment, just put null if it doesnt
 
         this.setScreen(new StoryScene(this, new String[]{
             "Nova", "Hmm... doesn't seem to work well..?", "Lab", "#FFFFFF",

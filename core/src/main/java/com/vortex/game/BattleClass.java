@@ -18,21 +18,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BattleClass implements Screen {
-    private SpriteBatch batch;
-    private BitmapFont font;
+    private SpriteBatch spriteBatch;
+    private BitmapFont bitmapFont;
     private Stage stage;
     private Skin skin;
     private TextButton attackButton, skillButton, ultButton, inventoryButton, pauseButton;
     private Viewport viewport;
-    private List<Texture> backgroundLayers;
+    private Texture backgroundTexture;
+    private Texture roadTileTexture;
 
-    private String[] characters = {"Umbra", "Nova", "Jina"};
-    private int currentTurn = 2; // Jina's turn (index 2)
+    private List<String> characters;
+    private int currentTurn = 0;
     private int skillPoints = 3;
 
-    public BattleClass(String... backgroundImages) {
-        batch = new SpriteBatch();
-        font = new BitmapFont();
+    private String universeName;
+    private final int PLATFORM_Y = 200;
+    private final int TILE_SIZE = 16;
+
+    public BattleClass(String universeName, boolean hasUmbra, boolean hasNova, boolean hasJina, String background, String roadTile) {
+        this.universeName = universeName;
+        spriteBatch = new SpriteBatch();
+        bitmapFont = new BitmapFont();
         stage = new Stage();
         skin = new Skin(Gdx.files.internal("uiskin.json"));
         viewport = new FitViewport(1600, 900);
@@ -40,10 +46,15 @@ public class BattleClass implements Screen {
 
         Gdx.input.setInputProcessor(stage);
 
-        backgroundLayers = new ArrayList<>();
-        for (String image : backgroundImages) {
-            backgroundLayers.add(new Texture(Gdx.files.internal("Backgrounds/" + image)));
-        }
+        // Load Background and Platform Tile
+        backgroundTexture = new Texture(Gdx.files.internal("Backgrounds/" + background));
+        roadTileTexture = new Texture(Gdx.files.internal("Tiles/" + roadTile));
+
+        // Add Characters Dynamically
+        characters = new ArrayList<>();
+        if (hasUmbra) characters.add("Umbra");
+        if (hasNova) characters.add("Nova");
+        if (hasJina) characters.add("Jina");
 
         // Buttons
         attackButton = new TextButton("Basic Attack", skin);
@@ -52,11 +63,12 @@ public class BattleClass implements Screen {
         inventoryButton = new TextButton("Inventory", skin);
         pauseButton = new TextButton("Pause", skin);
 
-        attackButton.setPosition(50, 50);
-        skillButton.setPosition(200, 50);
-        ultButton.setPosition(350, 50);
-        inventoryButton.setPosition(500, 50);
-        pauseButton.setPosition(700, 400);
+        // Position Buttons
+        attackButton.setPosition(100, PLATFORM_Y - 60);
+        skillButton.setPosition(100, PLATFORM_Y - 110);
+        ultButton.setPosition(100, PLATFORM_Y - 160);
+        inventoryButton.setPosition(1050, 50);
+        pauseButton.setPosition(1400, 750);
 
         // Button Listeners
         attackButton.addListener(new ClickListener() {
@@ -74,39 +86,53 @@ public class BattleClass implements Screen {
     }
 
     private void nextTurn() {
-        currentTurn = (currentTurn + 1) % characters.length;
+        currentTurn = (currentTurn + 1) % characters.size();
     }
 
     @Override
     public void render(float delta) {
         ScreenUtils.clear(0, 0, 0, 1);
         viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
-        batch.setProjectionMatrix(viewport.getCamera().combined);
+        spriteBatch.setProjectionMatrix(viewport.getCamera().combined);
 
-        batch.begin();
+        spriteBatch.begin();
 
         // Draw Background
-        for (Texture texture : backgroundLayers) {
-            batch.draw(texture, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
+        spriteBatch.draw(backgroundTexture, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
+
+        // Draw Universe Name & Boss Info (Centered)
+        bitmapFont.draw(spriteBatch, universeName, 750, 850); // Universe Name
+        bitmapFont.draw(spriteBatch, "Boss Name", 750, 550);
+        bitmapFont.draw(spriteBatch, "[ BOSS ]", 780, 500);
+
+        // Draw Black Background Below Platform
+        spriteBatch.setColor(0, 0, 0, 1);
+        spriteBatch.draw(backgroundTexture, 0, 0, viewport.getWorldWidth(), PLATFORM_Y);
+        spriteBatch.setColor(1, 1, 1, 1); // Reset color
+
+        // Draw Platform (Spanning Full Width)
+        int tilesAcross = (int) Math.ceil(viewport.getWorldWidth() / (TILE_SIZE * 4));
+        for (int i = 0; i < tilesAcross; i++) {
+            spriteBatch.draw(roadTileTexture, i * (TILE_SIZE * 4), PLATFORM_Y, TILE_SIZE * 4, TILE_SIZE * 4);
         }
 
-        // Draw Boss
-        font.draw(batch, "Boss Name", 350, 550);
-        font.draw(batch, "[ BOSS ]", 380, 500);
+        // Draw Characters on the Platform (Centered)
+        int startX = 650;
+        int spacing = 200;
 
-        // Draw Characters & Turn Indicator
-        for (int i = 0; i < characters.length; i++) {
-            font.draw(batch, characters[i], 200 + (i * 150), 300);
-            font.draw(batch, "HP: [|||||]", 200 + (i * 150), 280);
+        for (int i = 0; i < characters.size(); i++) {
+            int xPos = startX + (i * spacing);
+            bitmapFont.draw(spriteBatch, characters.get(i), xPos, PLATFORM_Y + 60);
+            bitmapFont.draw(spriteBatch, "HP: [|||||]", xPos, PLATFORM_Y + 40);
             if (i == currentTurn) {
-                font.draw(batch, "▼", 220 + (i * 150), 320); // Turn Indicator
+                bitmapFont.draw(spriteBatch, "▼", xPos + 20, PLATFORM_Y + 80); // Turn Indicator
             }
         }
 
         // Draw Skill Points
-        font.draw(batch, "Skill Points: " + skillPoints, 600, 100);
+        bitmapFont.draw(spriteBatch, "Skill Points: " + skillPoints, 750, 150);
 
-        batch.end();
+        spriteBatch.end();
         stage.draw();
     }
 
@@ -117,13 +143,12 @@ public class BattleClass implements Screen {
 
     @Override
     public void dispose() {
-        batch.dispose();
-        font.dispose();
+        spriteBatch.dispose();
+        bitmapFont.dispose();
         stage.dispose();
         skin.dispose();
-        for (Texture texture : backgroundLayers) {
-            texture.dispose();
-        }
+        backgroundTexture.dispose();
+        roadTileTexture.dispose();
     }
 
     // Unused methods
