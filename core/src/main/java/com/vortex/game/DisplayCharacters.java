@@ -15,7 +15,8 @@ public class DisplayCharacters implements Screen {
     private Texture umbraDistractingIllusions;
     private Texture umbraVeilOfShadows;
     private int selectedSkill = -1; // -1 means no skill is selected
-    private Texture[] characterIcons;
+    private Texture[] centerCharacterImages;
+    private Texture[] leftSideIcons;
     private Texture selectedCharacter;
     private int currentCharacterIndex;
     private BitmapFont font;
@@ -33,13 +34,21 @@ public class DisplayCharacters implements Screen {
         batch = new SpriteBatch();
         font = new BitmapFont();
         shapeRenderer = new ShapeRenderer();
-        characterIcons = new Texture[]{
+
+        leftSideIcons = new Texture[]{
+            new Texture("Pictures/Umbra/CharacterView/UmbraIcon.png"),
+            new Texture("Pictures/Nova/CharacterView/NovaIcon.png"),
+            new Texture("Pictures/Jina/CharacterView/JinaIcon.png")
+        };
+
+        centerCharacterImages = new Texture[]{
             new Texture("Pictures/Umbra/CharacterView/Umbra_CharView.png"),
             new Texture("Pictures/Nova/CharacterView/Nova_CharView.png"),
             new Texture("Pictures/Jina/CharacterView/Jina_CharView.png")
         };
+
         currentCharacterIndex = 0;
-        selectedCharacter = characterIcons[currentCharacterIndex];
+        selectedCharacter = centerCharacterImages[currentCharacterIndex];
         umbraShadowStrike = new Texture("Pictures/Umbra/CharacterView/Umbra_ShadowStrike.png");
         umbraDistractingIllusions = new Texture("Pictures/Umbra/CharacterView/Umbra_DistractingIllusions.png");
         umbraVeilOfShadows = new Texture("Pictures/Umbra/CharacterView/Umbra_VeilOfShadows.png");
@@ -54,7 +63,7 @@ public class DisplayCharacters implements Screen {
                 int index = getHoveredCharacterIndex(screenX, screenY);
                 if (index != -1) {
                     currentCharacterIndex = index;
-                    selectedCharacter = characterIcons[currentCharacterIndex];
+                    selectedCharacter = centerCharacterImages[currentCharacterIndex];
                     selectedSkill = -1;
                 }
                 if (currentCharacterIndex == 0) {
@@ -90,7 +99,7 @@ public class DisplayCharacters implements Screen {
     private int getHoveredCharacterIndex(int x, int y) {
         int screenHeight = Gdx.graphics.getHeight();
         y = screenHeight - y;
-        for (int i = 0; i < characterIcons.length; i++) {
+        for (int i = 0; i < leftSideIcons.length; i++) {
             int iconY = screenHeight - 360 - (i * 120);
             if (x >= 60 && x <= 160 && y >= iconY && y <= iconY + 100) {
                 return i;
@@ -196,31 +205,47 @@ public class DisplayCharacters implements Screen {
                 font.draw(batch, line, textX, textY);
                 textY -= 30;
             }
- }
-            for (int i = 0; i < characterIcons.length; i++) {
-                float drawX = 90;
-                float drawY = screenHeight - 360 - (i * 120);
-                float width = 100;
-                float height = 100;
-                Color glowColor = null;
-                if (i == hoveredIndex) {
-                    glowColor = glowColors[i].cpy();
-                    glowColor.a = 0.8f;
-                    glowColor.mul(1.2f, 1.2f, 1.2f, 1f);
-                } else if (i == currentCharacterIndex) {
-                    glowColor = glowColors[i].cpy();
-                    glowColor.a = 1f;
-                }
-                if (glowColor != null) {
-                    drawGlow(batch, drawX, drawY, width, height, glowColor);
-                }
-                batch.draw(characterIcons[i], drawX, drawY, width, height);
+     }
+        for (int i = 0; i < leftSideIcons.length; i++) {
+            float drawX = 90;
+            float drawY = screenHeight - 350 - (i * 100);
+            float width = 75;
+            float height = 75;
+
+            boolean isHovered = (i == hoveredIndex);
+            boolean isSelected = (i == currentCharacterIndex);
+
+            float scale = isHovered ? 1.2f : 1.0f;
+            float newWidth = width * scale;
+            float newHeight = height * scale;
+
+            float adjustedX = drawX - (newWidth - width) / 2;
+            float adjustedY = drawY - (newHeight - height) / 2;
+
+            // Apply circle glow when hovered or selected
+            if (isHovered || isSelected) {
+                drawCircleGlow(batch, adjustedX, adjustedY, newWidth, newHeight, glowColors[i]);
             }
-            int centerImageWidth = 700;
+
+            // Set grayscale if NOT hovered or selected
+            if (!isHovered && !isSelected) {
+                batch.setColor(0.3f, 0.3f, 0.3f, 1f); // Grayscale effect
+            } else {
+                batch.setColor(1f, 1f, 1f, 1f); // Full color
+            }
+
+            // Draw the left-side character icon
+            batch.draw(leftSideIcons[i], adjustedX, adjustedY, newWidth, newHeight);
+
+            // Reset color after drawing
+            batch.setColor(Color.WHITE);
+        }
+
+        int centerImageWidth = 700;
             int centerImageHeight = 1050;
             int centerX = screenWidth / 2 - centerImageWidth / 2 - 50;
             int centerY = -150;
-            batch.draw(selectedCharacter, centerX, centerY, centerImageWidth, centerImageHeight);
+            batch.draw(selectedCharacter, centerX, centerY, centerImageWidth, centerImageHeight);///////////
             batch.end();
  }
             // Glow effect function (unchanged)
@@ -232,7 +257,20 @@ public class DisplayCharacters implements Screen {
                 shapeRenderer.end();
                 batch.begin();
             }
-            @Override
+
+            private void drawCircleGlow(SpriteBatch batch, float x, float y, float width, float height, Color color) {
+                batch.end();
+                shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+                shapeRenderer.setColor(color.r, color.g, color.b, 0.3f);
+
+                float radius = (width / 2) + 1; // Extra glow effect
+                shapeRenderer.circle(x + width / 2, y + height / 2, radius);
+
+                shapeRenderer.end();
+                batch.begin();
+            }
+
+    @Override
             public void resize(int width, int height) {}
             @Override
             public void pause() {}
@@ -245,7 +283,7 @@ public class DisplayCharacters implements Screen {
                 batch.dispose();
                 font.dispose();
                 shapeRenderer.dispose();
-                for (Texture texture : characterIcons) {
+                for (Texture texture : leftSideIcons) {
                     texture.dispose();
                 }
             }
