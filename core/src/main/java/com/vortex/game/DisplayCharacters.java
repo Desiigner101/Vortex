@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 
 public class DisplayCharacters implements Screen {
     private SpriteBatch batch;
@@ -126,7 +127,75 @@ public class DisplayCharacters implements Screen {
         batch.begin();
         int screenWidth = Gdx.graphics.getWidth();
         int screenHeight = Gdx.graphics.getHeight();
+
+        float borderX = 50;
+        float borderY = 50;
+        float borderWidth = screenWidth - 100;
+        float borderHeight = screenHeight - 100;
+
         if (currentCharacterIndex == 0) {
+
+            // Start drawing filled shapes
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+            int steps = 300; // Higher = smoother gradient
+            float stepHeight = borderHeight / (float) steps;
+
+            for (int i = 0; i < steps; i++) {
+                float t = i / (float) (steps - 1); // Normalized progress (0 to 1)
+
+                Color blendedColor;
+                if (t < 0.25f) {
+                    // **Black → Deep Purple (Bottom area)**
+                    float t1 = t / 0.25f;
+                    blendedColor = new Color(
+                        MathUtils.lerp(0.0f, 0.15f, t1), // **Slight Red tint**
+                        MathUtils.lerp(0.0f, 0.0f, t1),  // No Green
+                        MathUtils.lerp(0.0f, 0.3f, t1),  // **Deep Blue mix**
+                        1f
+                    );
+                } else if (t < 0.5f) {
+                    // **Deep Purple → Dark Magenta (Middle blend)**
+                    float t2 = (t - 0.25f) / 0.25f;
+                    blendedColor = new Color(
+                        MathUtils.lerp(0.15f, 0.6f, t2), // **More Red for Magenta**
+                        MathUtils.lerp(0.0f, 0.1f, t2),  // Slight Green tint
+                        MathUtils.lerp(0.3f, 0.6f, t2),  // Purple highlight
+                        1f
+                    );
+                } else if (t < 0.75f) {
+                    // **Dark Magenta → Neon Purple (Top area)**
+                    float t3 = (t - 0.5f) / 0.25f;
+                    blendedColor = new Color(
+                        MathUtils.lerp(0.6f, 0.7f, t3),  // **More vibrant Red**
+                        MathUtils.lerp(0.1f, 0.2f, t3),  // **Slight Green glow**
+                        MathUtils.lerp(0.6f, 0.9f, t3),  // **Electric Blue mix**
+                        1f
+                    );
+                } else {
+                    // **Neon Purple → Abyssal Black (Top edges)**
+                    float t4 = (t - 0.75f) / 0.25f;
+                    blendedColor = new Color(
+                        MathUtils.lerp(0.7f, 0.1f, t4),  // **Fade out Red**
+                        MathUtils.lerp(0.2f, 0.0f, t4),  // Fade out Green
+                        MathUtils.lerp(0.9f, 0.2f, t4),  // Fade out Blue (into Black)
+                        1f
+                    );
+                }
+
+                // **Ensure it stays inside the square!**
+                float startX = borderX;
+                float startY = borderY + i * stepHeight;
+                float width = borderWidth;
+                float height = stepHeight;
+
+                shapeRenderer.setColor(blendedColor);
+                shapeRenderer.rect(startX, startY, width, height);
+            }
+
+            // End drawing
+            shapeRenderer.end();
+
             float imageWidth = 66;
             float imageHeight = 66;
             float margin = 435;
@@ -189,14 +258,14 @@ public class DisplayCharacters implements Screen {
             batch.draw(displayImage, displayImageX, displayImageY, displayImageWidth, displayImageHeight);
 
             // Draw the text on top of the image
-            font.getData().setScale(2.0f);  // Adjust text size
+            font.getData().setScale(1.5f);  // Adjust text size
             font.setColor(Color.WHITE);  // Set text color
 
             // Calculate text position (centered on the image)
             float textX = displayImageX + (displayImageWidth / 2) - 125;  // Adjust for centering
             float textY = displayImageY + (displayImageHeight / 2) - 30; // Adjust for centering
 
-            font.draw(batch, "THE VOID", textX, textY);
+            font.draw(batch, "NYXARION", textX, textY);
         }
         if (currentCharacterIndex == 0 && selectedSkill != -1) {
             float textX = screenWidth - 500;
