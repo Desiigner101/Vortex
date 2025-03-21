@@ -10,4 +10,6 @@ public interface Character_BattleStats {
     public String getBasicAtkImage();
     public String getSkillImage();
     public String getUltImage();
+    public String getIdleAnimation();
+    public String getBasicAtkAnimation();
 }

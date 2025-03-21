@@ -29,9 +29,15 @@ public class GameTransitions extends Game {
             "AI", "Analyzing... please wait.", "Lab", "#00FF00",
             "Nova", "Alright, let’s see what’s next.", "Umbra_CharViewBackground", "#FFFFFF",
             "Umbra", "What the frick", "Jina_CharViewBackground", "#FFFFFF"
-        }, ()->this.setScreen(new BattleClass("Nyxarion",true,true,true, "XyberiaBattleBackground.png", "RoadTile.png")))); //this triggers a battle after this story segment, just put null if it doesnt
-
+        }, () -> this.setScreen(new BattleClass(
+            "Nyxarion",
+            true, true, true,
+            "XyberiaBattleBackground.png",
+            "RoadTile.png",
+            "Boss-BattleMusic.wav")) // Pass music file
+        ));
     }
+
 
     // Method to open the character selection screen
     public void displayCharacters() {

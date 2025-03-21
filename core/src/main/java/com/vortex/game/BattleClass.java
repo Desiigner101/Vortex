@@ -7,13 +7,18 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.vortex.SFX.PlayAudio;
+import com.vortex.CharacterStats.Character_Umbra;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,20 +27,29 @@ public class BattleClass implements Screen {
     private BitmapFont bitmapFont;
     private Stage stage;
     private Skin skin;
-    private TextButton attackButton, skillButton, ultButton, inventoryButton, pauseButton;
+
+    private ImageButton attackButton, skillButton;
     private Viewport viewport;
     private Texture backgroundTexture;
     private Texture roadTileTexture;
-
+    private Texture enabledSkillPointTexture;
+    private Texture disabledSkillPointTexture;
+    private Character_Umbra umbra;
+    private BattleAssetsClass battleAssets;
     private List<String> characters;
     private int currentTurn = 0;
-    private int skillPoints = 3;
+    private int skillPoints = 1;
 
     private String universeName;
     private final int PLATFORM_Y = 200;
     private final int TILE_SIZE = 16;
 
-    public BattleClass(String universeName, boolean hasUmbra, boolean hasNova, boolean hasJina, String background, String roadTile) {
+    private int flashCounter = 0;
+    private float flashTimer = 0;
+    private boolean flashing = false;
+
+    public BattleClass(String universeName, boolean hasUmbra, boolean hasNova, boolean hasJina,
+                       String background, String roadTile, String musicFile) {
         this.universeName = universeName;
         spriteBatch = new SpriteBatch();
         bitmapFont = new BitmapFont();
@@ -43,50 +57,98 @@ public class BattleClass implements Screen {
         skin = new Skin(Gdx.files.internal("uiskin.json"));
         viewport = new FitViewport(1600, 900);
         viewport.apply();
-
+        PlayAudio sfx = new PlayAudio();
         Gdx.input.setInputProcessor(stage);
 
-        // Load Background and Platform Tile
         backgroundTexture = new Texture(Gdx.files.internal("Backgrounds/" + background));
         roadTileTexture = new Texture(Gdx.files.internal("Tiles/" + roadTile));
+        enabledSkillPointTexture = new Texture(Gdx.files.internal("BattleAssets/enabledSkillpoint.png"));
+        disabledSkillPointTexture = new Texture(Gdx.files.internal("BattleAssets/disabledSkillpoint.png"));
 
-        // Add Characters Dynamically
+        if (hasUmbra) {
+            umbra = new Character_Umbra();
+        }
+
+        sfx.playMusic(musicFile);
+
         characters = new ArrayList<>();
         if (hasUmbra) characters.add("Umbra");
         if (hasNova) characters.add("Nova");
         if (hasJina) characters.add("Jina");
 
-        // Buttons
-        attackButton = new TextButton("Basic Attack", skin);
-        skillButton = new TextButton("Skill (2 SP)", skin);
-        ultButton = new TextButton("Ult (5 Turns CD)", skin);
-        inventoryButton = new TextButton("Inventory", skin);
-        pauseButton = new TextButton("Pause", skin);
+        attackButton = new ImageButton(new TextureRegionDrawable(new Texture(Gdx.files.internal(umbra.getBasicAtkImage()))));
+        attackButton.getColor().a = 0.85f;
+        int skillPointY = 60;
+        attackButton.setPosition(100, skillPointY);
+        attackButton.setSize(120, 120);
 
-        // Position Buttons
-        attackButton.setPosition(100, PLATFORM_Y - 60);
-        skillButton.setPosition(100, PLATFORM_Y - 110);
-        ultButton.setPosition(100, PLATFORM_Y - 160);
-        inventoryButton.setPosition(1050, 50);
-        pauseButton.setPosition(1400, 750);
+        skillButton = new ImageButton(new TextureRegionDrawable(new Texture(Gdx.files.internal(umbra.getSkillImage()))));
+        if (skillPoints < umbra.getSkillCost()) {
+            skillButton.getColor().a = 0.5f; // 50% opacity
+        } else {
+            skillButton.getColor().a = 0.85f; // Normal opacity
+        }
+        skillButton.setPosition(attackButton.getX() + attackButton.getWidth() + 20, skillPointY);
+        skillButton.setSize(120, 120);
 
-        // Button Listeners
         attackButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                nextTurn();
+                addSkillPoint();
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                attackButton.getColor().a = 1.0f;
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                attackButton.getColor().a = 0.85f;
+            }
+        });
+
+        skillButton.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                useSkill();
+            }
+
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                if (skillPoints >= umbra.getSkillCost()) {
+                    skillButton.getColor().a = 1.0f;
+                }
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                if (skillPoints >= umbra.getSkillCost()) {
+                    skillButton.getColor().a = 0.85f;
+                } else {
+                    skillButton.getColor().a = 0.5f; // Keep it at 50% if not enough skill points
+                }
             }
         });
 
         stage.addActor(attackButton);
         stage.addActor(skillButton);
-        stage.addActor(ultButton);
-        stage.addActor(inventoryButton);
-        stage.addActor(pauseButton);
     }
 
-    private void nextTurn() {
-        currentTurn = (currentTurn + 1) % characters.size();
+    private void addSkillPoint() {
+        if (skillPoints < 3) {
+            skillPoints++;
+        }
+    }
+
+    private void useSkill() {
+        if (skillPoints >= umbra.getSkillCost()) {
+            skillPoints -= umbra.getSkillCost();
+        } else {
+            flashing = true;
+            flashCounter = 0;
+            flashTimer = 0;
+        }
     }
 
     @Override
@@ -97,61 +159,80 @@ public class BattleClass implements Screen {
 
         spriteBatch.begin();
 
-        // Draw Background
         spriteBatch.draw(backgroundTexture, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
 
-        // Draw Universe Name & Boss Info (Centered)
-        bitmapFont.draw(spriteBatch, universeName, 750, 850); // Universe Name
+        bitmapFont.draw(spriteBatch, universeName, 750, 850);
         bitmapFont.draw(spriteBatch, "Boss Name", 750, 550);
         bitmapFont.draw(spriteBatch, "[ BOSS ]", 780, 500);
 
-        // Draw Black Background Below Platform
         spriteBatch.setColor(0, 0, 0, 1);
         spriteBatch.draw(backgroundTexture, 0, 0, viewport.getWorldWidth(), PLATFORM_Y);
-        spriteBatch.setColor(1, 1, 1, 1); // Reset color
+        spriteBatch.setColor(1, 1, 1, 1);
 
-        // Draw Platform (Spanning Full Width)
         int tilesAcross = (int) Math.ceil(viewport.getWorldWidth() / (TILE_SIZE * 4));
         for (int i = 0; i < tilesAcross; i++) {
             spriteBatch.draw(roadTileTexture, i * (TILE_SIZE * 4), PLATFORM_Y, TILE_SIZE * 4, TILE_SIZE * 4);
         }
 
-        // Draw Characters on the Platform (Centered)
-        int startX = 650;
-        int spacing = 200;
+        int skillPointSize = 60;
+        int skillPointX = (int) viewport.getWorldWidth() - 250;
+        int skillPointY = 80;
+        int spacingSkill = skillPointSize + 5;
 
-        for (int i = 0; i < characters.size(); i++) {
-            int xPos = startX + (i * spacing);
-            bitmapFont.draw(spriteBatch, characters.get(i), xPos, PLATFORM_Y + 60);
-            bitmapFont.draw(spriteBatch, "HP: [|||||]", xPos, PLATFORM_Y + 40);
-            if (i == currentTurn) {
-                bitmapFont.draw(spriteBatch, "▼", xPos + 20, PLATFORM_Y + 80); // Turn Indicator
+        for (int i = 0; i < 3; i++) {
+            Texture skillPointTexture = (i < skillPoints) ? enabledSkillPointTexture : disabledSkillPointTexture;
+            spriteBatch.draw(skillPointTexture, skillPointX + (i * spacingSkill), skillPointY, skillPointSize, skillPointSize);
+        }
+
+        spriteBatch.end();
+
+        stage.act(Gdx.graphics.getDeltaTime());
+        stage.draw();
+
+
+        spriteBatch.begin();
+        bitmapFont.setColor(0.53f, 0.81f, 0.92f, 1f);
+        bitmapFont.getData().setScale(2f);
+
+        if (flashing) {
+            flashTimer += delta;
+            if (flashTimer >= 0.1f) {
+                flashTimer = 0;
+                flashCounter++;
+            }
+
+            if (flashCounter % 2 == 0) {
+                bitmapFont.setColor(1f, 0f, 0f, 1f);
+            } else {
+                bitmapFont.setColor(0.53f, 0.81f, 0.92f, 1f);
+            }
+
+            if (flashCounter >= 6) {
+                flashing = false;
+                bitmapFont.setColor(1f, 1f, 1f, 1f);
             }
         }
 
-        // Draw Skill Points
-        bitmapFont.draw(spriteBatch, "Skill Points: " + skillPoints, 750, 150);
+        float spX = skillButton.getX() + skillButton.getWidth() - 65;
+        float spY = skillButton.getY() + 30;
+        bitmapFont.draw(spriteBatch, "3 SP", spX, spY);
 
+        bitmapFont.getData().setScale(1f); // Reset scale back to normal
+        bitmapFont.setColor(1, 1, 1, 1);
         spriteBatch.end();
-        stage.draw();
     }
 
-    @Override
-    public void resize(int width, int height) {
-        viewport.update(width, height, true);
-    }
-
-    @Override
-    public void dispose() {
+    @Override public void resize(int width, int height) { viewport.update(width, height, true); }
+    @Override public void dispose() {
         spriteBatch.dispose();
         bitmapFont.dispose();
         stage.dispose();
         skin.dispose();
         backgroundTexture.dispose();
         roadTileTexture.dispose();
+        enabledSkillPointTexture.dispose();
+        disabledSkillPointTexture.dispose();
     }
-
-    // Unused methods
     @Override public void show() {}
     @Override public void pause() {}
     @Override public void resume() {}
