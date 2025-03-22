@@ -104,5 +104,9 @@ public class PlayAudio implements SoundEffects {
     }
 
 
+    public void setSoundVolume(float soundVolume) {
+    }
 
+    public void setMusicVolume(float musicVolume) {
+    }
 }
