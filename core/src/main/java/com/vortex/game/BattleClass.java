@@ -447,10 +447,15 @@ public class BattleClass implements Screen {
 
             // Adjust HP Bar position and size
             float hpBarX = characterX + 5; // Move to the right of the character
-            float hpBarY = characterY+10; // Move down a bit
+            float hpBarY = characterY + 10; // Move down a bit
             float hpBarWidth = 95; // Original width of the HP bar
             float hpBarHeight = 100; // Increased height to match character height
-            spriteBatch.draw(hpBarRegions[hpBarIndex], hpBarX, hpBarY, hpBarWidth, hpBarHeight);
+
+            // Adjust the HP bar's width based on the current HP percentage
+            float hpBarWidthAdjusted = hpBarWidth * hpPercentage;
+
+            // Draw the HP bar with the adjusted width
+            spriteBatch.draw(hpBarRegions[hpBarIndex], hpBarX, hpBarY, hpBarWidthAdjusted, hpBarHeight);
 
             if (i == currentTurn) {
                 float indicatorX = characterX + 100 - turnIndicatorTexture.getWidth() / 2;
@@ -465,6 +470,7 @@ public class BattleClass implements Screen {
 
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
+
 
         spriteBatch.begin();
         bitmapFont.setColor(0.53f, 0.81f, 0.92f, 1f);
