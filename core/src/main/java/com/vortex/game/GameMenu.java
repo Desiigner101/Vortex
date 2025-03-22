@@ -27,7 +27,7 @@ public class GameMenu implements Screen {
     private int lastHoveredIndex = -1; // Keeps track of the last hovered option
 
 
-   // private MainMenuAnimator mainMenuAnimator; // Handles the animated background
+    private MainMenuAnimator mainMenuAnimator; // Handles the animated background
     private PlayAudio sfx; // Handles music playback
 
     public GameMenu(GameTransitions game) {
@@ -49,7 +49,7 @@ public class GameMenu implements Screen {
             optionPositions[i] = new Vector2(startX, startY - (i * 80));
         }
 
-      //  mainMenuAnimator = new MainMenuAnimator(); // Initialize animated background
+        mainMenuAnimator = new MainMenuAnimator(); // Initialize animated background
         sfx = new PlayAudio(); // Initialize PlayAudio
 
         // Play menu background music only if it's not already playing
@@ -62,10 +62,10 @@ public class GameMenu implements Screen {
     public void render(float delta) {
         ScreenUtils.clear(0, 0, 0, 1); // Clear screen with black color
 
-       // mainMenuAnimator.update(delta); // Update background animation
+       mainMenuAnimator.update(delta); // Update background animation
 
         batch.begin();
-     //   mainMenuAnimator.render(); // Render animated background
+       mainMenuAnimator.render(); // Render animated background
         batch.end();
 
         batch.begin();
@@ -85,7 +85,7 @@ public class GameMenu implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        //mainMenuAnimator.resize(width, height); // Adjust background on resize
+        mainMenuAnimator.resize(width, height); // Adjust background on resize
     }
 
     @Override
@@ -106,7 +106,7 @@ public class GameMenu implements Screen {
     public void dispose() {
         batch.dispose();
         font.dispose();
-        //mainMenuAnimator.dispose(); // Free resources
+        mainMenuAnimator.dispose(); // Free resources
         if (sfx != null) {
             sfx.stopMusic(); // Ensure music stops when disposing
         }
