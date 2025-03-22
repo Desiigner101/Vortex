@@ -5,23 +5,23 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-public class Character_Umbra implements Character_BattleStats {
+public class Character_Jina implements Character_BattleStats {
     // Stats
     private int HP = 800;
-    private int basicAttackDamage = 80;
-    private int skillDamage = 230;
-    private int skillCost = 3;
-    private int ultimateDamage = 300;
-    private int ultCooldown = 12; // turns
+    private int basicAttackDamage = 68;
+    private int skillDamage = 130;
+    private int skillCost = 1;
+    private int ultimateDamage = 170;
+    private int ultCooldown = 6; // turns
 
     // File paths for images
-    private String basicAtkImage = "Pictures/Umbra/CharacterView/Umbra_ShadowStrike.png";
-    private String skillImage = "Pictures/Umbra/CharacterView/Umbra_DistractingIllusions.png";
-    private String ultImage = "Pictures/Umbra/CharacterView/Umbra_VeilOfShadows.png";
+    private String basicAtkImage = "Pictures/Jina/CharacterView/Jina_SledgeStrike.png";
+    private String skillImage = "Pictures/Jina/CharacterView/Jina_PrecisionShot.png";
+    private String ultImage = "Pictures/Jina/CharacterView/Jina_VanguardsResolve.png";
 
     // File paths for animations
     private String idleAnimationPath = "Pictures/Umbra/BattleView/umbra_idle_battle.png";
-    private String basicAtkAnimationPath = "Pictures/Umbra/BattleView/umbra_basicAtk_battle.png";
+    private String basicAtkAnimationPath = "Pictures/Umbra/Nova.CharacterView/nova_basicAtk_battle.png";
 
     // Animation-related fields
     private Texture idleSheet; // Sprite sheet for idle animation
@@ -30,7 +30,7 @@ public class Character_Umbra implements Character_BattleStats {
     private float stateTime; // Tracks elapsed time for animation
 
     // Constructor
-    public Character_Umbra() {
+    public Character_Jina() {
         // Load the idle animation sprite sheet
         idleSheet = new Texture(Gdx.files.internal(idleAnimationPath));
 
@@ -79,6 +79,7 @@ public class Character_Umbra implements Character_BattleStats {
     public void setHP(int HP){
         this.HP = HP;
     }
+
     @Override
     public int getMaxHP() {
         return 800;

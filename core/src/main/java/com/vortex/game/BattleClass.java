@@ -25,11 +25,16 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.vortex.CharacterStats.Character_BattleStats;
 import com.vortex.SFX.PlayAudio;
 import com.vortex.CharacterStats.Character_Umbra;
+import com.vortex.CharacterStats.Character_Nova;
+import com.vortex.CharacterStats.Character_Jina;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class BattleClass implements Screen {
     private SpriteBatch spriteBatch;
@@ -45,10 +50,14 @@ public class BattleClass implements Screen {
     private Texture disabledSkillPointTexture;
     private Texture turnIndicatorTexture;
     private Character_Umbra umbra;
+    private Character_Nova nova;
+    private Character_Jina jina; // Add Jina
+    private Character_BattleStats currentCharacter; // Tracks the current character
     private List<String> characters;
     private int currentTurn = 0;
     private int skillPoints = 1;
-    private int ultimateCooldown;
+
+    private Map<String, Integer> ultimateCooldowns; // Track cooldowns for each character
 
     private String universeName;
     private final int PLATFORM_Y = 200;
@@ -110,9 +119,12 @@ public class BattleClass implements Screen {
 
     private boolean showControls = false; // Flag to show/hide GameControls
 
+    // HP Bar related fields
+    private Texture hpBarTexture;
+    private TextureRegion[] hpBarRegions;
+
     public BattleClass(String universeName, boolean hasUmbra, boolean hasNova, boolean hasJina,
                        String background, String roadTile, String musicFile) {
-        this.game = game;
         this.universeName = universeName;
         spriteBatch = new SpriteBatch();
         bitmapFont = new BitmapFont();
@@ -129,9 +141,27 @@ public class BattleClass implements Screen {
         disabledSkillPointTexture = new Texture(Gdx.files.internal("BattleAssets/disabledSkillpoint.png"));
         turnIndicatorTexture = new Texture(Gdx.files.internal("BattleAssets/turnIndicator.png"));
 
+        // Load HP Bar sprite sheet
+        hpBarTexture = new Texture(Gdx.files.internal("BattleAssets/HP_Bar.png"));
+        hpBarRegions = new TextureRegion[6];
+        int regionWidth = hpBarTexture.getWidth() / 6; // 6 regions in the sprite sheet
+        for (int i = 0; i < 6; i++) {
+            hpBarRegions[i] = new TextureRegion(hpBarTexture, i * regionWidth, 0, regionWidth, hpBarTexture.getHeight());
+        }
+
+        ultimateCooldowns = new HashMap<>();
+
         if (hasUmbra) {
             umbra = new Character_Umbra();
-            ultimateCooldown = umbra.getUltCooldown();
+            ultimateCooldowns.put("Umbra", umbra.getUltCooldown());
+        }
+        if (hasNova) {
+            nova = new Character_Nova();
+            ultimateCooldowns.put("Nova", nova.getUltCooldown());
+        }
+        if (hasJina) {
+            jina = new Character_Jina(); // Initialize Jina
+            ultimateCooldowns.put("Jina", jina.getUltCooldown());
         }
 
         sfx.playMusic(musicFile);
@@ -139,29 +169,21 @@ public class BattleClass implements Screen {
         characters = new ArrayList<>();
         if (hasUmbra) characters.add("Umbra");
         if (hasNova) characters.add("Nova");
-        if (hasJina) characters.add("Jina");
+        if (hasJina) characters.add("Jina"); // Add Jina to the character list
 
+        // Initialize buttons with Umbra's abilities (default)
         attackButton = new ImageButton(new TextureRegionDrawable(new Texture(Gdx.files.internal(umbra.getBasicAtkImage()))));
+        skillButton = new ImageButton(new TextureRegionDrawable(new Texture(Gdx.files.internal(umbra.getSkillImage()))));
+        ultimateButton = new ImageButton(new TextureRegionDrawable(new Texture(Gdx.files.internal(umbra.getUltImage()))));
+
         attackButton.getColor().a = 0.85f;
         int skillPointY = 60;
         attackButton.setPosition(100, skillPointY);
         attackButton.setSize(120, 120);
 
-        skillButton = new ImageButton(new TextureRegionDrawable(new Texture(Gdx.files.internal(umbra.getSkillImage()))));
-        if (skillPoints < umbra.getSkillCost()) {
-            skillButton.getColor().a = 0.5f;
-        } else {
-            skillButton.getColor().a = 0.85f;
-        }
         skillButton.setPosition(attackButton.getX() + attackButton.getWidth() + 20, skillPointY);
         skillButton.setSize(120, 120);
 
-        ultimateButton = new ImageButton(new TextureRegionDrawable(new Texture(Gdx.files.internal(umbra.getUltImage()))));
-        if (ultimateCooldown > 0) {
-            ultimateButton.getColor().a = 0.5f;
-        } else {
-            ultimateButton.getColor().a = 0.85f;
-        }
         ultimateButton.setPosition(skillButton.getX() + skillButton.getWidth() + 20, skillPointY);
         ultimateButton.setSize(120, 120);
 
@@ -169,6 +191,10 @@ public class BattleClass implements Screen {
         settingsButton.setPosition(viewport.getWorldWidth() - 150, viewport.getWorldHeight() - 150);
         settingsButton.setSize(100, 100);
 
+        // Set the current character to Umbra by default
+        currentCharacter = umbra;
+
+        // Add button listeners
         attackButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -190,7 +216,7 @@ public class BattleClass implements Screen {
         skillButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (skillPoints >= umbra.getSkillCost()) {
+                if (skillPoints >= currentCharacter.getSkillCost()) {
                     useSkill();
                     nextTurn();
                 } else {
@@ -200,14 +226,14 @@ public class BattleClass implements Screen {
 
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                if (skillPoints >= umbra.getSkillCost()) {
+                if (skillPoints >= currentCharacter.getSkillCost()) {
                     skillButton.getColor().a = 1.0f;
                 }
             }
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                if (skillPoints >= umbra.getSkillCost()) {
+                if (skillPoints >= currentCharacter.getSkillCost()) {
                     skillButton.getColor().a = 0.85f;
                 } else {
                     skillButton.getColor().a = 0.5f;
@@ -218,7 +244,8 @@ public class BattleClass implements Screen {
         ultimateButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (ultimateCooldown <= 0) {
+                int currentCooldown = ultimateCooldowns.get(characters.get(currentTurn));
+                if (currentCooldown <= 0) {
                     useUltimate();
                     nextTurn();
                 } else {
@@ -228,14 +255,16 @@ public class BattleClass implements Screen {
 
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                if (ultimateCooldown <= 0) {
+                int currentCooldown = ultimateCooldowns.get(characters.get(currentTurn));
+                if (currentCooldown <= 0) {
                     ultimateButton.getColor().a = 1.0f;
                 }
             }
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                if (ultimateCooldown <= 0) {
+                int currentCooldown = ultimateCooldowns.get(characters.get(currentTurn));
+                if (currentCooldown <= 0) {
                     ultimateButton.getColor().a = 0.85f;
                 } else {
                     ultimateButton.getColor().a = 0.5f;
@@ -247,8 +276,8 @@ public class BattleClass implements Screen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 showControls = true;
-                initGameControls(); // Initialize GameControls here
-                Gdx.input.setInputProcessor(stage); // keep the input processor to stage
+                initGameControls();
+                Gdx.input.setInputProcessor(stage);
             }
         });
 
@@ -265,27 +294,65 @@ public class BattleClass implements Screen {
     }
 
     private void useSkill() {
-        if (skillPoints >= umbra.getSkillCost()) {
-            skillPoints -= umbra.getSkillCost();
+        if (skillPoints >= currentCharacter.getSkillCost()) {
+            skillPoints -= currentCharacter.getSkillCost();
         }
     }
 
     private void useUltimate() {
-        if (ultimateCooldown <= 0) {
-            ultimateCooldown = umbra.getUltCooldown();
+        String currentCharacterName = characters.get(currentTurn);
+        int currentCooldown = ultimateCooldowns.get(currentCharacterName);
+        if (currentCooldown <= 0) {
+            ultimateCooldowns.put(currentCharacterName, currentCharacter.getUltCooldown());
         }
     }
 
     private void nextTurn() {
-        if (ultimateCooldown > 0) {
-            ultimateCooldown--;
+        // Decrease cooldown for the current character
+        String currentCharacterName = characters.get(currentTurn);
+        int currentCooldown = ultimateCooldowns.get(currentCharacterName);
+        if (currentCooldown > 0) {
+            ultimateCooldowns.put(currentCharacterName, currentCooldown - 1);
         }
+
         currentTurn = (currentTurn + 1) % characters.size();
+
+        // Update the current character based on whose turn it is
+        if (characters.get(currentTurn).equals("Umbra")) {
+            currentCharacter = umbra;
+        } else if (characters.get(currentTurn).equals("Nova")) {
+            currentCharacter = nova;
+        } else if (characters.get(currentTurn).equals("Jina")) {
+            currentCharacter = jina; // Set Jina as the current character
+        }
+
+        // Update the buttons to reflect the current character's abilities
+        updateButtons();
+    }
+
+    private void updateButtons() {
+        attackButton.getStyle().imageUp = new TextureRegionDrawable(new Texture(Gdx.files.internal(currentCharacter.getBasicAtkImage())));
+        skillButton.getStyle().imageUp = new TextureRegionDrawable(new Texture(Gdx.files.internal(currentCharacter.getSkillImage())));
+        ultimateButton.getStyle().imageUp = new TextureRegionDrawable(new Texture(Gdx.files.internal(currentCharacter.getUltImage())));
+
+        // Update skill button opacity based on skill points
+        if (skillPoints < currentCharacter.getSkillCost()) {
+            skillButton.getColor().a = 0.5f;
+        } else {
+            skillButton.getColor().a = 0.85f;
+        }
+
+        // Update ultimate button opacity based on cooldown
+        int currentCooldown = ultimateCooldowns.get(characters.get(currentTurn));
+        if (currentCooldown > 0) {
+            ultimateButton.getColor().a = 0.5f;
+        } else {
+            ultimateButton.getColor().a = 0.85f;
+        }
     }
 
     @Override
     public void show() {
-
     }
 
     @Override
@@ -340,7 +407,50 @@ public class BattleClass implements Screen {
             if (character.equals("Umbra")) {
                 TextureRegion currentFrame = umbra.getIdleFrame(delta);
                 spriteBatch.draw(currentFrame, characterX, characterY, 250, 250);
+            } else if (character.equals("Nova")) {
+                TextureRegion currentFrame = nova.getIdleFrame(delta);
+                spriteBatch.draw(currentFrame, characterX, characterY, 250, 250);
+            } else if (character.equals("Jina")) {
+                TextureRegion currentFrame = jina.getIdleFrame(delta); // Draw Jina's idle frame
+                spriteBatch.draw(currentFrame, characterX, characterY, 250, 250);
             }
+
+            // Draw HP Bar for each character
+            int currentHP = 0;
+            int maxHP = 0;
+            if (character.equals("Umbra")) {
+                currentHP = umbra.getHP();
+                maxHP = umbra.getMaxHP();
+            } else if (character.equals("Nova")) {
+                currentHP = nova.getHP();
+                maxHP = nova.getMaxHP();
+            } else if (character.equals("Jina")) {
+                currentHP = jina.getHP();
+                maxHP = jina.getMaxHP();
+            }
+
+            float hpPercentage = (float) currentHP / maxHP;
+            int hpBarIndex = 0;
+            if (hpPercentage >= 0.8f) {
+                hpBarIndex = 0; // 100%
+            } else if (hpPercentage >= 0.6f) {
+                hpBarIndex = 1; // 80%
+            } else if (hpPercentage >= 0.4f) {
+                hpBarIndex = 2; // 60%
+            } else if (hpPercentage >= 0.2f) {
+                hpBarIndex = 3; // 40%
+            } else if (hpPercentage > 0f) {
+                hpBarIndex = 4; // 20%
+            } else {
+                hpBarIndex = 5; // 0%
+            }
+
+            // Adjust HP Bar position and size
+            float hpBarX = characterX + 5; // Move to the right of the character
+            float hpBarY = characterY+10; // Move down a bit
+            float hpBarWidth = 95; // Original width of the HP bar
+            float hpBarHeight = 100; // Increased height to match character height
+            spriteBatch.draw(hpBarRegions[hpBarIndex], hpBarX, hpBarY, hpBarWidth, hpBarHeight);
 
             if (i == currentTurn) {
                 float indicatorX = characterX + 100 - turnIndicatorTexture.getWidth() / 2;
@@ -379,7 +489,7 @@ public class BattleClass implements Screen {
             }
         }
 
-        String skillCostText = umbra.getSkillCost() + " SP";
+        String skillCostText = currentCharacter.getSkillCost() + " SP";
         GlyphLayout skillGlyphLayout = new GlyphLayout(bitmapFont, skillCostText);
         float skillTextX = skillButton.getX() + skillButton.getWidth() - skillGlyphLayout.width - 10;
         float skillTextY = skillButton.getY() + 20;
@@ -406,8 +516,9 @@ public class BattleClass implements Screen {
             }
         }
 
-        if (ultimateCooldown > 0) {
-            String cooldownText = ultimateCooldown + (ultimateCooldown == 1 ? " turn" : " turns");
+        int currentCooldown = ultimateCooldowns.get(characters.get(currentTurn));
+        if (currentCooldown > 0) {
+            String cooldownText = currentCooldown + (currentCooldown == 1 ? " turn" : " turns");
             GlyphLayout ultimateGlyphLayout = new GlyphLayout(bitmapFont, cooldownText);
             float ultX = ultimateButton.getX() + (ultimateButton.getWidth() - ultimateGlyphLayout.width) / 2;
             float ultY = ultimateButton.getY() + (ultimateButton.getHeight() + ultimateGlyphLayout.height) / 2;
@@ -811,6 +922,6 @@ public class BattleClass implements Screen {
         if (controlsTitleFont != null) controlsTitleFont.dispose();
         if (controlsButtonFont != null) controlsButtonFont.dispose();
         if (controlsShapeRenderer != null) controlsShapeRenderer.dispose();
+        if (hpBarTexture != null) hpBarTexture.dispose();
     }
 }
-

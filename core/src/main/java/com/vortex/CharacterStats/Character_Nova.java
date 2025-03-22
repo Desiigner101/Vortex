@@ -5,23 +5,23 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-public class Character_Umbra implements Character_BattleStats {
+public class Character_Nova implements Character_BattleStats {
     // Stats
     private int HP = 800;
-    private int basicAttackDamage = 80;
-    private int skillDamage = 230;
-    private int skillCost = 3;
-    private int ultimateDamage = 300;
-    private int ultCooldown = 12; // turns
+    private int basicAttackDamage = 70;
+    private int skillDamage = 170;
+    private int skillCost = 1;
+    private int ultimateDamage = 250;
+    private int ultCooldown = 7; // turns
 
     // File paths for images
-    private String basicAtkImage = "Pictures/Umbra/CharacterView/Umbra_ShadowStrike.png";
-    private String skillImage = "Pictures/Umbra/CharacterView/Umbra_DistractingIllusions.png";
-    private String ultImage = "Pictures/Umbra/CharacterView/Umbra_VeilOfShadows.png";
+    private String basicAtkImage = "Pictures/Nova/CharacterView/Nova_EnergyPunch.png";
+    private String skillImage = "Pictures/Nova/CharacterView/Nova_EnergyBlaster.png";
+    private String ultImage = "Pictures/Nova/CharacterView/Nova_MultidimensionalBlast.png";
 
     // File paths for animations
     private String idleAnimationPath = "Pictures/Umbra/BattleView/umbra_idle_battle.png";
-    private String basicAtkAnimationPath = "Pictures/Umbra/BattleView/umbra_basicAtk_battle.png";
+    private String basicAtkAnimationPath = "Pictures/Umbra/Nova.CharacterView/nova_basicAtk_battle.png";
 
     // Animation-related fields
     private Texture idleSheet; // Sprite sheet for idle animation
@@ -30,7 +30,7 @@ public class Character_Umbra implements Character_BattleStats {
     private float stateTime; // Tracks elapsed time for animation
 
     // Constructor
-    public Character_Umbra() {
+    public Character_Nova() {
         // Load the idle animation sprite sheet
         idleSheet = new Texture(Gdx.files.internal(idleAnimationPath));
 
