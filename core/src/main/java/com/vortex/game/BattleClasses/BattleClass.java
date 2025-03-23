@@ -23,6 +23,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.vortex.CharacterStats.Character_BattleStats;
@@ -47,6 +48,7 @@ public class BattleClass implements Screen, BattleScreenInterface {
     private BitmapFont BASIC_ENEMIES;
     private BitmapFont SKILLS_FONT;
     private BitmapFont UNIVERSE_FONT;
+    private BitmapFont enemyTurnFont; // Added for "Enemy's Turn" text
     private FontManager fontHandler;
 
     private ImageButton attackButton, skillButton, ultimateButton, settingsButton;
@@ -56,6 +58,7 @@ public class BattleClass implements Screen, BattleScreenInterface {
     private Texture enabledSkillPointTexture;
     private Texture disabledSkillPointTexture;
     private Texture turnIndicatorTexture;
+    private Texture enemyTurnIndicatorTexture; // Added for enemy turn indicator
     private Character_Umbra umbra;
     private Character_Nova nova;
     private Character_Jina jina; // Add Jina
@@ -136,6 +139,11 @@ public class BattleClass implements Screen, BattleScreenInterface {
     private int enemyMaxHp = 1000; // Set this to the enemy's max HP
     private int enemyCurrentHp = 1000; // Set this to the enemy's current HP
 
+    // Enemy turn related fields
+    private boolean isEnemyTurn = false;
+    private float enemyTurnTimer = 0f;
+    private final float ENEMY_TURN_DURATION = 2f; // 2 seconds for enemy turn
+
     public BattleClass(String universeName, boolean hasUmbra, boolean hasNova, boolean hasJina,
                        String background, String roadTile, String musicFile) {
         this.universeName = universeName;
@@ -149,23 +157,29 @@ public class BattleClass implements Screen, BattleScreenInterface {
         PlayAudio sfx = new PlayAudio();
         Gdx.input.setInputProcessor(stage);
 
-        //1. load fonts
+        // Load fonts
         fontHandler.loadFont("Poppins-Bold", "Fonts/Poppins-Bold.ttf");
         fontHandler.loadFont("skillsfont", "Fonts/SKILLS_FONTS/Orbitron-SemiBold.ttf");
-        //fontHandler.loadFont("Roboto-Regular", "Fonts/Roboto-Regular.ttf");
-        //fontHandler.loadFont("Arial", "Fonts/Arial.ttf");
 
-        //2. Generate fonts
-        // Generate and cache fonts (no borders, just text color)
-        UNIVERSE_FONT = fontHandler.getFont("Poppins-Bold", 42, Color.RED);
-        SKILLS_FONT = fontHandler.getFont("skillsfont", 10, Color.WHITE);
+        // Generate fonts
+        UNIVERSE_FONT = fontHandler.getFont("Poppins-Bold", 32, Color.RED);
+        SKILLS_FONT = fontHandler.getFont("skillsfont", 20, Color.WHITE);
 
+        // Create a large font for "Enemy's Turn" text
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Fonts/Poppins-Bold.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        parameter.size = 72; // Large font size
+        parameter.color = Color.RED;
+        enemyTurnFont = generator.generateFont(parameter);
+        generator.dispose();
 
+        // Load textures
         backgroundTexture = new Texture(Gdx.files.internal("Backgrounds/" + background));
         roadTileTexture = new Texture(Gdx.files.internal("Tiles/" + roadTile));
         enabledSkillPointTexture = new Texture(Gdx.files.internal("BattleAssets/enabledSkillpoint.png"));
         disabledSkillPointTexture = new Texture(Gdx.files.internal("BattleAssets/disabledSkillpoint.png"));
         turnIndicatorTexture = new Texture(Gdx.files.internal("BattleAssets/turnIndicator.png"));
+        enemyTurnIndicatorTexture = new Texture(Gdx.files.internal("BattleAssets/EnemyTurnIndicator.png")); // Load enemy turn indicator
 
         // Load HP Bar sprite sheet
         hpBarTexture = new Texture(Gdx.files.internal("BattleAssets/HP_Bar.png"));
@@ -197,6 +211,10 @@ public class BattleClass implements Screen, BattleScreenInterface {
             jina = new Character_Jina(); // Initialize Jina
             ultimateCooldowns.put("Jina", jina.getUltCooldown());
         }
+
+        TestBossClass testBoss = new TestBossClass();
+        enemyMaxHp = testBoss.getMaxHP();
+        enemyCurrentHp = testBoss.getMaxHP();
 
         sfx.playMusic(musicFile);
 
@@ -373,6 +391,13 @@ public class BattleClass implements Screen, BattleScreenInterface {
             ultimateCooldowns.put(currentCharacterName, currentCooldown - 1);
         }
 
+        // Check if it's Jina's turn and trigger enemy turn
+        if (characters.get(currentTurn).equals("Jina")) {
+            isEnemyTurn = true;
+            enemyTurnTimer = ENEMY_TURN_DURATION;
+            return; // Skip to enemy turn
+        }
+
         currentTurn = (currentTurn + 1) % characters.size();
 
         // Update the current character based on whose turn it is
@@ -429,22 +454,31 @@ public class BattleClass implements Screen, BattleScreenInterface {
 
         spriteBatch.begin();
 
+        // Draw background and other elements
         spriteBatch.draw(backgroundTexture, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
-
         UNIVERSE_FONT.draw(spriteBatch, universeName, 750, 850);
         bitmapFont.draw(spriteBatch, "Boss Name", 750, 550);
         bitmapFont.draw(spriteBatch, "[ BOSS ]", 780, 500);
 
         // Draw Enemy HP Bar
         float enemyHpPercentage = (float) enemyCurrentHp / enemyMaxHp;
-        int enemyHpIndex = (int) (61 * (1 - enemyHpPercentage)); // 61 because the spritesheet has 62 rows (0-61)
+        int enemyHpIndex = (int) (61 * (1 - enemyHpPercentage));
         TextureRegion enemyHpRegion = enemyHpBarRegions[enemyHpIndex];
-        float enemyHpBarWidth = 800; // Adjust width as needed
-        float enemyHpBarHeight = 50; // Adjust height as needed
-        float enemyHpBarX = (viewport.getWorldWidth() - enemyHpBarWidth) / 2; // Center horizontally
-        float enemyHpBarY = viewport.getWorldHeight() - 48; // Stick to the top of the screen
+        float enemyHpBarWidth = 800;
+        float enemyHpBarHeight = 50;
+        float enemyHpBarX = (viewport.getWorldWidth() - enemyHpBarWidth) / 2;
+        float enemyHpBarY = viewport.getWorldHeight() - 48;
         spriteBatch.draw(enemyHpRegion, enemyHpBarX, enemyHpBarY, enemyHpBarWidth, enemyHpBarHeight);
 
+        // Draw Enemy HP Percentage
+        String enemyHpText = String.format("%.0f%%", enemyHpPercentage * 100);
+        GlyphLayout enemyHpLayout = new GlyphLayout(SKILLS_FONT, enemyHpText);
+        float enemyHpTextX = enemyHpBarX - enemyHpLayout.width - 10;
+        float enemyHpTextY = enemyHpBarY + enemyHpBarHeight / 2 + enemyHpLayout.height / 2;
+        SKILLS_FONT.setColor(Color.WHITE);
+        SKILLS_FONT.draw(spriteBatch, enemyHpText, enemyHpTextX, enemyHpTextY);
+
+        // Draw platform and tiles
         spriteBatch.setColor(0, 0, 0, 1);
         spriteBatch.draw(backgroundTexture, 0, 0, viewport.getWorldWidth(), PLATFORM_Y);
         spriteBatch.setColor(1, 1, 1, 1);
@@ -454,6 +488,7 @@ public class BattleClass implements Screen, BattleScreenInterface {
             spriteBatch.draw(roadTileTexture, i * (TILE_SIZE * 4), PLATFORM_Y, TILE_SIZE * 4, TILE_SIZE * 4);
         }
 
+        // Draw skill points
         int skillPointSize = 60;
         int skillPointX = (int) viewport.getWorldWidth() - 250;
         int skillPointY = 80;
@@ -464,6 +499,7 @@ public class BattleClass implements Screen, BattleScreenInterface {
             spriteBatch.draw(skillPointTexture, skillPointX + (i * spacingSkill), skillPointY, skillPointSize, skillPointSize);
         }
 
+        // Draw characters and their HP bars
         float totalCharactersWidth = characters.size() * 300;
         float startX = (viewport.getWorldWidth() - totalCharactersWidth) / 2;
 
@@ -479,7 +515,7 @@ public class BattleClass implements Screen, BattleScreenInterface {
                 TextureRegion currentFrame = nova.getIdleFrame(delta);
                 spriteBatch.draw(currentFrame, characterX, characterY, 250, 250);
             } else if (character.equals("Jina")) {
-                TextureRegion currentFrame = jina.getIdleFrame(delta); // Draw Jina's idle frame
+                TextureRegion currentFrame = jina.getIdleFrame(delta);
                 spriteBatch.draw(currentFrame, characterX, characterY, 250, 250);
             }
 
@@ -500,32 +536,26 @@ public class BattleClass implements Screen, BattleScreenInterface {
             float hpPercentage = (float) currentHP / maxHP;
             int hpBarIndex = 0;
             if (hpPercentage >= 0.8f) {
-                hpBarIndex = 0; // 100%
+                hpBarIndex = 0;
             } else if (hpPercentage >= 0.6f) {
-                hpBarIndex = 1; // 80%
+                hpBarIndex = 1;
             } else if (hpPercentage >= 0.4f) {
-                hpBarIndex = 2; // 60%
+                hpBarIndex = 2;
             } else if (hpPercentage >= 0.2f) {
-                hpBarIndex = 3; // 40%
+                hpBarIndex = 3;
             } else if (hpPercentage > 0f) {
-                hpBarIndex = 4; // 20%
+                hpBarIndex = 4;
             } else {
-                hpBarIndex = 5; // 0%
+                hpBarIndex = 5;
             }
 
-            // Adjust HP Bar position and size
-            float hpBarX = characterX + 5; // Move to the right of the character
-            float hpBarY = characterY + 10; // Move down a bit
-            float hpBarWidth = 95; // Original width of the HP bar
-            float hpBarHeight = 100; // Increased height to match character height
+            float hpBarX = characterX + 5;
+            float hpBarY = characterY + 10;
+            float hpBarWidth = 95;
+            float hpBarHeight = 100;
+            spriteBatch.draw(hpBarRegions[hpBarIndex], hpBarX, hpBarY, hpBarWidth, hpBarHeight);
 
-            // Adjust the HP bar's width based on the current HP percentage
-            float hpBarWidthAdjusted = hpBarWidth * hpPercentage;
-
-            // Draw the HP bar with the adjusted width
-            spriteBatch.draw(hpBarRegions[hpBarIndex], hpBarX, hpBarY, hpBarWidthAdjusted, hpBarHeight);
-
-            if (i == currentTurn) {
+            if (i == currentTurn && !isEnemyTurn) {
                 float indicatorX = characterX + 100 - turnIndicatorTexture.getWidth() / 2;
                 float indicatorY = characterY + 170;
                 float indicatorWidth = turnIndicatorTexture.getWidth() * 4f;
@@ -534,83 +564,94 @@ public class BattleClass implements Screen, BattleScreenInterface {
             }
         }
 
+        // Draw Enemy Turn Indicator if it's the enemy's turn
+        if (isEnemyTurn) {
+            float indicatorX = (viewport.getWorldWidth() - 20) / 2;
+            float indicatorY = viewport.getWorldHeight() - 140;
+            spriteBatch.draw(enemyTurnIndicatorTexture, indicatorX, indicatorY, 40, 62);
+        }
+
+        // Disable buttons and display "Enemy's Turn" text during the enemy's turn
+        if (isEnemyTurn) {
+            attackButton.setVisible(false);
+            skillButton.setVisible(false);
+            ultimateButton.setVisible(false);
+
+            String enemyTurnText = "Enemy's Turn";
+            GlyphLayout enemyTurnLayout = new GlyphLayout(enemyTurnFont, enemyTurnText);
+            float enemyTurnTextX = attackButton.getX() + (ultimateButton.getX() + ultimateButton.getWidth() - attackButton.getX() - enemyTurnLayout.width) / 2;
+            float enemyTurnTextY = attackButton.getY() + attackButton.getHeight() / 2 + enemyTurnLayout.height / 2;
+            enemyTurnFont.draw(spriteBatch, enemyTurnText, enemyTurnTextX, enemyTurnTextY);
+        } else {
+            attackButton.setVisible(true);
+            skillButton.setVisible(true);
+            ultimateButton.setVisible(true);
+        }
+
         spriteBatch.end();
 
-
+        // Draw the stage (buttons)
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
 
-        spriteBatch.begin();
+        // Draw Skill Cost Text and Ultimate Cooldown Text AFTER the buttons
+        if (!isEnemyTurn) {
+            spriteBatch.begin();
 
+            // Draw Skill Cost Text
+            String skillCostText = currentCharacter.getSkillCost() + " SP";
+            GlyphLayout skillGlyphLayout = new GlyphLayout(SKILLS_FONT, skillCostText);
+            float skillTextX = skillButton.getX() + skillButton.getWidth() - skillGlyphLayout.width - 10;
+            float skillTextY = skillButton.getY() + 20;
+            SKILLS_FONT.draw(spriteBatch, skillGlyphLayout, skillTextX, skillTextY);
 
-        if (skillFlashing) {
-            skillFlashTimer += delta;
-            if (skillFlashTimer >= 0.1f) {
-                skillFlashTimer = 0;
-                skillFlashCounter++;
-            }
-
-            if (skillFlashCounter % 2 == 0) {
-                SKILLS_FONT.setColor(1f, 0f, 0f, 1f);
+            // Draw Ultimate Cooldown Text
+            int currentCooldown = ultimateCooldowns.get(characters.get(currentTurn));
+            if (currentCooldown > 0) {
+                String cooldownText = currentCooldown + (currentCooldown == 1 ? " turn" : " turns");
+                GlyphLayout ultimateGlyphLayout = new GlyphLayout(SKILLS_FONT, cooldownText);
+                float ultX = ultimateButton.getX() + (ultimateButton.getWidth() - ultimateGlyphLayout.width) / 2;
+                float ultY = ultimateButton.getY() + (ultimateButton.getHeight() + ultimateGlyphLayout.height) / 2;
+                SKILLS_FONT.draw(spriteBatch, ultimateGlyphLayout, ultX, ultY);
             } else {
-                SKILLS_FONT.setColor(0.53f, 0.81f, 0.92f, 1f);
+                String readyText = "READY";
+                GlyphLayout readyGlyphLayout = new GlyphLayout(SKILLS_FONT, readyText);
+                float readyX = ultimateButton.getX() + ultimateButton.getWidth() - readyGlyphLayout.width - 10;
+                float readyY = ultimateButton.getY() + 20;
+                SKILLS_FONT.draw(spriteBatch, readyGlyphLayout, readyX, readyY);
             }
 
-            if (skillFlashCounter >= 6) {
-                skillFlashing = false;
-                skillFlashCounter = 0;
-                SKILLS_FONT.setColor(0.53f, 0.81f, 0.92f, 1f);
-            }
-        }else {
-            SKILLS_FONT.setColor(0.53f, 0.81f, 0.92f, 1f); //reset the color sa color white
+            spriteBatch.end();
         }
 
-
-        String skillCostText = currentCharacter.getSkillCost() + " SP";
-        GlyphLayout skillGlyphLayout = new GlyphLayout(SKILLS_FONT, skillCostText);
-        float skillTextX = skillButton.getX() + skillButton.getWidth() - skillGlyphLayout.width - 10;
-        float skillTextY = skillButton.getY() + 20;
-        SKILLS_FONT.draw(spriteBatch, skillGlyphLayout, skillTextX, skillTextY);
-
-        if (ultimateFlashing) {
-            ultimateFlashTimer += delta;
-            if (ultimateFlashTimer >= 0.1f) {
-                ultimateFlashTimer = 0;
-                ultimateFlashCounter++;
+        // Handle enemy turn
+        if (isEnemyTurn) {
+            enemyTurnTimer -= delta;
+            if (enemyTurnTimer <= 0) {
+                enemyAttack();
+                isEnemyTurn = false;
+                currentTurn = 0; // Reset to Umbra's turn
+                currentCharacter = umbra;
+                updateButtons();
             }
-
-            if (ultimateFlashCounter % 2 == 0) {
-                SKILLS_FONT.setColor(1f, 0f, 0f, 1f);
-            } else {
-                SKILLS_FONT.setColor(0.53f, 0.81f, 0.92f, 1f);
-            }
-
-            if (ultimateFlashCounter >= 6) {
-                ultimateFlashing = false;
-                ultimateFlashCounter = 0;
-            }
-        }else {
-            SKILLS_FONT.setColor(0.53f, 0.81f, 0.92f, 1f); // Reset to default ONLY if not flashing
         }
+    }
 
-        int currentCooldown = ultimateCooldowns.get(characters.get(currentTurn));
-        if (currentCooldown > 0) {
-            String cooldownText = currentCooldown + (currentCooldown == 1 ? " turn" : " turns");
-            GlyphLayout ultimateGlyphLayout = new GlyphLayout(SKILLS_FONT, cooldownText);
-            float ultX = ultimateButton.getX() + (ultimateButton.getWidth() - ultimateGlyphLayout.width) / 2;
-            float ultY = ultimateButton.getY() + (ultimateButton.getHeight() + ultimateGlyphLayout.height) / 2;
-            SKILLS_FONT.draw(spriteBatch, ultimateGlyphLayout, ultX, ultY);
-        } else {
-            String readyText = "READY";
-            GlyphLayout readyGlyphLayout = new GlyphLayout(SKILLS_FONT, readyText);
-            float readyX = ultimateButton.getX() + ultimateButton.getWidth() - readyGlyphLayout.width - 10;
-            float readyY = ultimateButton.getY() + 20;
-            SKILLS_FONT.draw(spriteBatch, readyGlyphLayout, readyX, readyY);
+    // Enemy attack logic
+    private void enemyAttack() {
+        // Randomly select a target
+        List<Character_BattleStats> targets = new ArrayList<>();
+        if (umbra != null && umbra.getHP() > 0) targets.add(umbra);
+        if (nova != null && nova.getHP() > 0) targets.add(nova);
+        if (jina != null && jina.getHP() > 0) targets.add(jina);
+
+        if (!targets.isEmpty()) {
+            int randomIndex = (int) (Math.random() * targets.size());
+            Character_BattleStats target = targets.get(randomIndex);
+            int damage = 100; // Example damage value
+            target.takeDamage(damage);
+            System.out.println("Enemy attacked " + target.getClass().getSimpleName() + " for " + damage + " damage!");
         }
-
-        SKILLS_FONT.getData().setScale(1f);
-        SKILLS_FONT.setColor(1, 1, 1, 1);
-        spriteBatch.end();
     }
 
     // Initialize GameControls
@@ -993,6 +1034,7 @@ public class BattleClass implements Screen, BattleScreenInterface {
         enabledSkillPointTexture.dispose();
         disabledSkillPointTexture.dispose();
         turnIndicatorTexture.dispose();
+        enemyTurnIndicatorTexture.dispose(); // Dispose of enemy turn indicator
         umbra.dispose();
         if (controlsBatch != null) controlsBatch.dispose();
         if (controlsFont != null) controlsFont.dispose();

@@ -1,7 +1,7 @@
 package com.vortex.game.BattleClasses;
 
 public class TestBossClass implements EnemyClass{
-    private int HP = 2000;
+    private int HP = 5000;
     private int Atk = 100;
     @Override
     public int getHP() {

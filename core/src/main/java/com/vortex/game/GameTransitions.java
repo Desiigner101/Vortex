@@ -34,7 +34,7 @@ public class GameTransitions extends Game {
         }, () -> this.setScreen(new BattleClass(
             "Nyxarion",
             true, true, true,
-            "XyberiaBattleBackground.png",
+            "ruins_background.png",
             "RoadTile.png",
             "Boss-BattleMusic.wav")) // Pass music file
         ));//ples

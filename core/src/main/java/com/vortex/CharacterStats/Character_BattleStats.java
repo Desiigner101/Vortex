@@ -4,6 +4,7 @@ public interface Character_BattleStats {
     public int getHP();
     public int getMaxHP();
     public void setHP(int HP);
+    public void takeDamage(int damage);
 
     public int getBasicAttackDamage();
     public int getSkillDamage();

@@ -83,6 +83,10 @@ public class Character_Umbra implements Character_BattleStats {
     public int getMaxHP() {
         return 800;
     }
+    public void takeDamage(int damage) {
+        this.HP = Math.max(0, this.HP - damage); // Ensure HP doesn't go below 0
+        System.out.println(this.getClass().getSimpleName() + " took " + damage + " damage! Remaining HP: " + this.HP);
+    }
 
     @Override
     public int getBasicAttackDamage() {

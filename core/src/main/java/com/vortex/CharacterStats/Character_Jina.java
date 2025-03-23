@@ -28,7 +28,10 @@ public class Character_Jina implements Character_BattleStats {
     private TextureRegion[] idleFrames; // Array to hold individual frames
     private Animation<TextureRegion> idleAnimation; // Animation object
     private float stateTime; // Tracks elapsed time for animation
-
+    public void takeDamage(int damage) {
+        this.HP = Math.max(0, this.HP - damage); // Ensure HP doesn't go below 0
+        System.out.println(this.getClass().getSimpleName() + " took " + damage + " damage! Remaining HP: " + this.HP);
+    }
     // Constructor
     public Character_Jina() {
         // Load the idle animation sprite sheet
