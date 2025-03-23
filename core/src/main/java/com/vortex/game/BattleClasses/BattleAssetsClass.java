@@ -1,4 +1,4 @@
-package com.vortex.game.BattleStuff;
+package com.vortex.game.BattleClasses;
 
 public class BattleAssetsClass {
     private String enabledSkillPoint = "BattleAssets/enabledSkillpoint.png";

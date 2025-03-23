@@ -1,6 +1,6 @@
 package com.vortex.game;
 import com.badlogic.gdx.Game;
-import com.vortex.game.BattleStuff.BattleClass;
+import com.vortex.game.BattleClasses.BattleClass;
 
 public class GameTransitions extends Game {
     // A flag to track if the intro video has been played (resets when the app restarts)

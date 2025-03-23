@@ -1,4 +1,4 @@
-package com.vortex.game.BattleStuff;
+package com.vortex.game.BattleClasses;
 
 public class TestBossClass implements EnemyClass{
     private int HP = 2000;

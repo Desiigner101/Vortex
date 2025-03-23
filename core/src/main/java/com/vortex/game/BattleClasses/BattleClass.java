@@ -1,4 +1,4 @@
-package com.vortex.game.BattleStuff;
+package com.vortex.game.BattleClasses;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -31,6 +31,7 @@ import com.vortex.CharacterStats.Character_Umbra;
 import com.vortex.CharacterStats.Character_Nova;
 import com.vortex.CharacterStats.Character_Jina;
 import com.vortex.game.GameTransitions;
+import com.vortex.game.FontManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +43,11 @@ public class BattleClass implements Screen, BattleScreenInterface {
     private BitmapFont bitmapFont;
     private Stage stage;
     private Skin skin;
+    private BitmapFont BOSS_FONT;
+    private BitmapFont BASIC_ENEMIES;
+    private BitmapFont SKILLS_FONT;
+    private BitmapFont UNIVERSE_FONT;
+    private FontManager fontHandler;
 
     private ImageButton attackButton, skillButton, ultimateButton, settingsButton;
     private Viewport viewport;
@@ -135,12 +141,25 @@ public class BattleClass implements Screen, BattleScreenInterface {
         this.universeName = universeName;
         spriteBatch = new SpriteBatch();
         bitmapFont = new BitmapFont();
+        fontHandler = new FontManager();
         stage = new Stage();
         skin = new Skin(Gdx.files.internal("uiskin.json"));
         viewport = new FitViewport(1600, 900);
         viewport.apply();
         PlayAudio sfx = new PlayAudio();
         Gdx.input.setInputProcessor(stage);
+
+        //1. load fonts
+        fontHandler.loadFont("Poppins-Bold", "Fonts/Poppins-Bold.ttf");
+        fontHandler.loadFont("skillsfont", "Fonts/SKILLS_FONTS/Orbitron-SemiBold.ttf");
+        //fontHandler.loadFont("Roboto-Regular", "Fonts/Roboto-Regular.ttf");
+        //fontHandler.loadFont("Arial", "Fonts/Arial.ttf");
+
+        //2. Generate fonts
+        // Generate and cache fonts (no borders, just text color)
+        UNIVERSE_FONT = fontHandler.getFont("Poppins-Bold", 42, Color.RED);
+        SKILLS_FONT = fontHandler.getFont("skillsfont", 10, Color.WHITE);
+
 
         backgroundTexture = new Texture(Gdx.files.internal("Backgrounds/" + background));
         roadTileTexture = new Texture(Gdx.files.internal("Tiles/" + roadTile));
@@ -412,7 +431,7 @@ public class BattleClass implements Screen, BattleScreenInterface {
 
         spriteBatch.draw(backgroundTexture, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
 
-        bitmapFont.draw(spriteBatch, universeName, 750, 850);
+        UNIVERSE_FONT.draw(spriteBatch, universeName, 750, 850);
         bitmapFont.draw(spriteBatch, "Boss Name", 750, 550);
         bitmapFont.draw(spriteBatch, "[ BOSS ]", 780, 500);
 
@@ -517,12 +536,12 @@ public class BattleClass implements Screen, BattleScreenInterface {
 
         spriteBatch.end();
 
+
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
 
         spriteBatch.begin();
-        bitmapFont.setColor(0.53f, 0.81f, 0.92f, 1f);
-        bitmapFont.getData().setScale(2f);
+
 
         if (skillFlashing) {
             skillFlashTimer += delta;
@@ -532,24 +551,26 @@ public class BattleClass implements Screen, BattleScreenInterface {
             }
 
             if (skillFlashCounter % 2 == 0) {
-                bitmapFont.setColor(1f, 0f, 0f, 1f);
+                SKILLS_FONT.setColor(1f, 0f, 0f, 1f);
             } else {
-                bitmapFont.setColor(0.53f, 0.81f, 0.92f, 1f);
+                SKILLS_FONT.setColor(0.53f, 0.81f, 0.92f, 1f);
             }
 
             if (skillFlashCounter >= 6) {
                 skillFlashing = false;
                 skillFlashCounter = 0;
+                SKILLS_FONT.setColor(0.53f, 0.81f, 0.92f, 1f);
             }
+        }else {
+            SKILLS_FONT.setColor(0.53f, 0.81f, 0.92f, 1f); //reset the color sa color white
         }
 
+
         String skillCostText = currentCharacter.getSkillCost() + " SP";
-        GlyphLayout skillGlyphLayout = new GlyphLayout(bitmapFont, skillCostText);
+        GlyphLayout skillGlyphLayout = new GlyphLayout(SKILLS_FONT, skillCostText);
         float skillTextX = skillButton.getX() + skillButton.getWidth() - skillGlyphLayout.width - 10;
         float skillTextY = skillButton.getY() + 20;
-        bitmapFont.draw(spriteBatch, skillGlyphLayout, skillTextX, skillTextY);
-
-        bitmapFont.setColor(0.53f, 0.81f, 0.92f, 1f);
+        SKILLS_FONT.draw(spriteBatch, skillGlyphLayout, skillTextX, skillTextY);
 
         if (ultimateFlashing) {
             ultimateFlashTimer += delta;
@@ -559,34 +580,36 @@ public class BattleClass implements Screen, BattleScreenInterface {
             }
 
             if (ultimateFlashCounter % 2 == 0) {
-                bitmapFont.setColor(1f, 0f, 0f, 1f);
+                SKILLS_FONT.setColor(1f, 0f, 0f, 1f);
             } else {
-                bitmapFont.setColor(0.53f, 0.81f, 0.92f, 1f);
+                SKILLS_FONT.setColor(0.53f, 0.81f, 0.92f, 1f);
             }
 
             if (ultimateFlashCounter >= 6) {
                 ultimateFlashing = false;
                 ultimateFlashCounter = 0;
             }
+        }else {
+            SKILLS_FONT.setColor(0.53f, 0.81f, 0.92f, 1f); // Reset to default ONLY if not flashing
         }
 
         int currentCooldown = ultimateCooldowns.get(characters.get(currentTurn));
         if (currentCooldown > 0) {
             String cooldownText = currentCooldown + (currentCooldown == 1 ? " turn" : " turns");
-            GlyphLayout ultimateGlyphLayout = new GlyphLayout(bitmapFont, cooldownText);
+            GlyphLayout ultimateGlyphLayout = new GlyphLayout(SKILLS_FONT, cooldownText);
             float ultX = ultimateButton.getX() + (ultimateButton.getWidth() - ultimateGlyphLayout.width) / 2;
             float ultY = ultimateButton.getY() + (ultimateButton.getHeight() + ultimateGlyphLayout.height) / 2;
-            bitmapFont.draw(spriteBatch, ultimateGlyphLayout, ultX, ultY);
+            SKILLS_FONT.draw(spriteBatch, ultimateGlyphLayout, ultX, ultY);
         } else {
             String readyText = "READY";
-            GlyphLayout readyGlyphLayout = new GlyphLayout(bitmapFont, readyText);
+            GlyphLayout readyGlyphLayout = new GlyphLayout(SKILLS_FONT, readyText);
             float readyX = ultimateButton.getX() + ultimateButton.getWidth() - readyGlyphLayout.width - 10;
             float readyY = ultimateButton.getY() + 20;
-            bitmapFont.draw(spriteBatch, readyGlyphLayout, readyX, readyY);
+            SKILLS_FONT.draw(spriteBatch, readyGlyphLayout, readyX, readyY);
         }
 
-        bitmapFont.getData().setScale(1f);
-        bitmapFont.setColor(1, 1, 1, 1);
+        SKILLS_FONT.getData().setScale(1f);
+        SKILLS_FONT.setColor(1, 1, 1, 1);
         spriteBatch.end();
     }
 

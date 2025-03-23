@@ -1,4 +1,4 @@
-package com.vortex.game.BattleStuff;
+package com.vortex.game.BattleClasses;
 
  interface EnemyClass {
      public int getHP();
