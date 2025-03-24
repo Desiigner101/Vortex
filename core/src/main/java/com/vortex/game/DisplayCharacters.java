@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
+
 //stinky
 public class DisplayCharacters implements Screen {
     private SpriteBatch batch;
@@ -32,6 +33,7 @@ public class DisplayCharacters implements Screen {
     private int currentCharacterIndex;
 
     private BitmapFont font;
+    private BitmapFont fontForBackButton;
     private GameTransitions game;
     private Color[] glowColors;
     private int hoveredIndex = -1;
@@ -52,6 +54,7 @@ public class DisplayCharacters implements Screen {
     @Override
     public void show() {
         batch = new SpriteBatch();
+        fontForBackButton = new BitmapFont();
         font = new BitmapFont();
         shapeRenderer = new ShapeRenderer();
 
@@ -332,7 +335,7 @@ public class DisplayCharacters implements Screen {
             batch.draw(displayImageUmbra, displayImageX, displayImageY, displayImageWidth, displayImageHeight);
 
             // Draw the text on top of the image
-            font.getData().setScale(1.5f);  // Adjust text size
+            font.getData().setScale(1.5f);  // Adjust text size charact origin text size
             font.setColor(Color.WHITE);  // Set text color
 
             // Calculate text position (centered on the image)
@@ -575,7 +578,7 @@ public class DisplayCharacters implements Screen {
            drawGlow(batch, x3, y, imageWidth, imageHeight, borderColor);
            batch.draw(Jina_VanguardsResolve, isHover3 ? x3 - (newWidth - imageWidth) / 2 : x3, y, isHover3 ?
                newWidth : imageWidth, isHover3 ? newHeight : imageHeight);
-           font.getData().setScale(5.5f);
+           font.getData().setScale(5f);
            float imageX = screenWidth - 250;
            float imageY = screenHeight - 300;
            float textXx = imageX - 250;
@@ -829,12 +832,12 @@ public class DisplayCharacters implements Screen {
                 Color hoverColor = glowColors[currentCharacterIndex]; // Use the glow color of the current character
 
                 // Draw the back button text
-                font.getData().setScale(2); // Set font size
-                font.setColor(isHovered ? hoverColor : Color.WHITE); // Change color on hover
-                font.draw(batch, "Back", backButtonX, backButtonY + backButtonHeight);
+                fontForBackButton.getData().setScale(2); // Set font size
+                fontForBackButton.setColor(isHovered ? hoverColor : Color.WHITE); // Change color on hover
+                fontForBackButton.draw(batch, "Back", backButtonX, backButtonY + backButtonHeight);
 
                 // Restore the original font color
-                font.setColor(originalColor);
+                fontForBackButton.setColor(originalColor);
 
                 // Handle click on the back button
                 if (Gdx.input.justTouched() && isHovered) {

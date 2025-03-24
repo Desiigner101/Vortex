@@ -273,9 +273,13 @@ public class BattleClass implements Screen, BattleScreenInterface {
                     dealSkillDamage(); // Deal damage to the enemy
                     useSkill();
                     nextTurn();
+                    SKILLS_FONT.setColor(1f, 0f, 0f, 1f);
                 } else {
                     skillFlashing = true;
+                    SKILLS_FONT.setColor(0.53f, 0.81f, 0.92f, 1f);
                 }
+
+                SKILLS_FONT.setColor(1f, 0f, 0f, 1f);
             }
 
             @Override
@@ -473,8 +477,8 @@ public class BattleClass implements Screen, BattleScreenInterface {
         // Draw Enemy HP Percentage
         String enemyHpText = String.format("%.0f%%", enemyHpPercentage * 100);
         GlyphLayout enemyHpLayout = new GlyphLayout(SKILLS_FONT, enemyHpText);
-        float enemyHpTextX = enemyHpBarX - enemyHpLayout.width - 10;
-        float enemyHpTextY = enemyHpBarY + enemyHpBarHeight / 2 + enemyHpLayout.height / 2;
+        float enemyHpTextX = enemyHpBarX - enemyHpLayout.width + 90;
+        float enemyHpTextY = enemyHpBarY + enemyHpBarHeight / 2 + enemyHpLayout.height / 2 + 8; //boss percentage position
         SKILLS_FONT.setColor(Color.WHITE);
         SKILLS_FONT.draw(spriteBatch, enemyHpText, enemyHpTextX, enemyHpTextY);
 
@@ -536,7 +540,6 @@ public class BattleClass implements Screen, BattleScreenInterface {
             float hpPercentage = (float) currentHP / maxHP;
             int hpBarIndex = 0;
             if (hpPercentage >= 0.8f) {
-                hpBarIndex = 0;
             } else if (hpPercentage >= 0.6f) {
                 hpBarIndex = 1;
             } else if (hpPercentage >= 0.4f) {
@@ -620,7 +623,6 @@ public class BattleClass implements Screen, BattleScreenInterface {
                 float readyY = ultimateButton.getY() + 20;
                 SKILLS_FONT.draw(spriteBatch, readyGlyphLayout, readyX, readyY);
             }
-
             spriteBatch.end();
         }
 
