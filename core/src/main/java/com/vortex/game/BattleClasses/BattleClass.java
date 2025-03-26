@@ -39,7 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class BattleClass implements Screen, BattleScreenInterface {
+public class BattleClass implements Screen {
     private SpriteBatch spriteBatch;
     private BitmapFont bitmapFont;
     private Stage stage;
@@ -48,7 +48,7 @@ public class BattleClass implements Screen, BattleScreenInterface {
     private BitmapFont BASIC_ENEMIES;
     private BitmapFont SKILLS_FONT;
     private BitmapFont UNIVERSE_FONT;
-    private BitmapFont enemyTurnFont; // Added for "Enemy's Turn" text
+    private BitmapFont enemyTurnFont;
     private FontManager fontHandler;
 
     private ImageButton attackButton, skillButton, ultimateButton, settingsButton;
@@ -58,16 +58,20 @@ public class BattleClass implements Screen, BattleScreenInterface {
     private Texture enabledSkillPointTexture;
     private Texture disabledSkillPointTexture;
     private Texture turnIndicatorTexture;
-    private Texture enemyTurnIndicatorTexture; // Added for enemy turn indicator
+    private Texture enemyTurnIndicatorTexture;
     private Character_Umbra umbra;
     private Character_Nova nova;
-    private Character_Jina jina; // Add Jina
-    private Character_BattleStats currentCharacter; // Tracks the current character
+    private Character_Jina jina;
+    private Character_BattleStats currentCharacter;
     private List<String> characters;
     private int currentTurn = 0;
     private int skillPoints = 1;
+    private boolean isPlayingUltimate = false;
+    private float ultimateAnimationTimer = 0f;
+    private float ultimateAnimationDuration = 0.12f * 29; // 29 frames * 0.12s per frame
+    private TextureRegion currentUltimateFrame;
 
-    private Map<String, Integer> ultimateCooldowns; // Track cooldowns for each character
+    private Map<String, Integer> ultimateCooldowns;
 
     private String universeName;
     private final int PLATFORM_Y = 200;
@@ -90,7 +94,7 @@ public class BattleClass implements Screen, BattleScreenInterface {
     private BitmapFont controlsFont, controlsTitleFont, controlsButtonFont;
     private ShapeRenderer controlsShapeRenderer;
     private GlyphLayout controlsLayout;
-
+    private PlayAudio sfx = new PlayAudio();
     private float musicVolume = 1.0f;
     private float soundVolume = 1.0f;
     private float brightness = 1.0f;
@@ -127,7 +131,7 @@ public class BattleClass implements Screen, BattleScreenInterface {
 
     private float scaleFactor = 1.2f;
 
-    private boolean showControls = false; // Flag to show/hide GameControls
+    private boolean showControls = false;
 
     // HP Bar related fields
     private Texture hpBarTexture;
@@ -136,13 +140,13 @@ public class BattleClass implements Screen, BattleScreenInterface {
     // Enemy HP Bar related fields
     private Texture enemyHpBarTexture;
     private TextureRegion[] enemyHpBarRegions;
-    private int enemyMaxHp = 1000; // Set this to the enemy's max HP
-    private int enemyCurrentHp = 1000; // Set this to the enemy's current HP
+    private int enemyMaxHp = 1000;
+    private int enemyCurrentHp = 1000;
 
     // Enemy turn related fields
     private boolean isEnemyTurn = false;
     private float enemyTurnTimer = 0f;
-    private final float ENEMY_TURN_DURATION = 2f; // 2 seconds for enemy turn
+    private final float ENEMY_TURN_DURATION = 2f;
 
     public BattleClass(String universeName, boolean hasUmbra, boolean hasNova, boolean hasJina,
                        String background, String roadTile, String musicFile) {
@@ -154,7 +158,7 @@ public class BattleClass implements Screen, BattleScreenInterface {
         skin = new Skin(Gdx.files.internal("uiskin.json"));
         viewport = new FitViewport(1600, 900);
         viewport.apply();
-        PlayAudio sfx = new PlayAudio();
+
         Gdx.input.setInputProcessor(stage);
 
         // Load fonts
@@ -168,7 +172,7 @@ public class BattleClass implements Screen, BattleScreenInterface {
         // Create a large font for "Enemy's Turn" text
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Fonts/Poppins-Bold.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-        parameter.size = 72; // Large font size
+        parameter.size = 72;
         parameter.color = Color.RED;
         enemyTurnFont = generator.generateFont(parameter);
         generator.dispose();
@@ -179,12 +183,12 @@ public class BattleClass implements Screen, BattleScreenInterface {
         enabledSkillPointTexture = new Texture(Gdx.files.internal("BattleAssets/enabledSkillpoint.png"));
         disabledSkillPointTexture = new Texture(Gdx.files.internal("BattleAssets/disabledSkillpoint.png"));
         turnIndicatorTexture = new Texture(Gdx.files.internal("BattleAssets/turnIndicator.png"));
-        enemyTurnIndicatorTexture = new Texture(Gdx.files.internal("BattleAssets/EnemyTurnIndicator.png")); // Load enemy turn indicator
+        enemyTurnIndicatorTexture = new Texture(Gdx.files.internal("BattleAssets/EnemyTurnIndicator.png"));
 
         // Load HP Bar sprite sheet
         hpBarTexture = new Texture(Gdx.files.internal("BattleAssets/HP_Bar.png"));
         hpBarRegions = new TextureRegion[6];
-        int regionWidth = hpBarTexture.getWidth() / 6; // 6 regions in the sprite sheet
+        int regionWidth = hpBarTexture.getWidth() / 6;
         for (int i = 0; i < 6; i++) {
             hpBarRegions[i] = new TextureRegion(hpBarTexture, i * regionWidth, 0, regionWidth, hpBarTexture.getHeight());
         }
@@ -192,7 +196,7 @@ public class BattleClass implements Screen, BattleScreenInterface {
         // Load Enemy HP Bar sprite sheet
         enemyHpBarTexture = new Texture(Gdx.files.internal("BattleAssets/EnemyHP_bar.png"));
         enemyHpBarRegions = new TextureRegion[62];
-        int enemyRegionHeight = enemyHpBarTexture.getHeight() / 62; // 62 rows in the sprite sheet
+        int enemyRegionHeight = enemyHpBarTexture.getHeight() / 62;
         for (int i = 0; i < 62; i++) {
             enemyHpBarRegions[i] = new TextureRegion(enemyHpBarTexture, 0, i * enemyRegionHeight, enemyHpBarTexture.getWidth(), enemyRegionHeight);
         }
@@ -208,7 +212,7 @@ public class BattleClass implements Screen, BattleScreenInterface {
             ultimateCooldowns.put("Nova", nova.getUltCooldown());
         }
         if (hasJina) {
-            jina = new Character_Jina(); // Initialize Jina
+            jina = new Character_Jina();
             ultimateCooldowns.put("Jina", jina.getUltCooldown());
         }
 
@@ -221,7 +225,7 @@ public class BattleClass implements Screen, BattleScreenInterface {
         characters = new ArrayList<>();
         if (hasUmbra) characters.add("Umbra");
         if (hasNova) characters.add("Nova");
-        if (hasJina) characters.add("Jina"); // Add Jina to the character list
+        if (hasJina) characters.add("Jina");
 
         // Initialize buttons with Umbra's abilities (default)
         attackButton = new ImageButton(new TextureRegionDrawable(new Texture(Gdx.files.internal(umbra.getBasicAtkImage()))));
@@ -243,14 +247,13 @@ public class BattleClass implements Screen, BattleScreenInterface {
         settingsButton.setPosition(viewport.getWorldWidth() - 150, viewport.getWorldHeight() - 150);
         settingsButton.setSize(100, 100);
 
-        // Set the current character to Umbra by default
         currentCharacter = umbra;
 
         // Add button listeners
         attackButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                dealBasicAttackDamage(); // Deal damage to the enemy
+                dealBasicAttackDamage();
                 addSkillPoint();
                 nextTurn();
             }
@@ -270,7 +273,7 @@ public class BattleClass implements Screen, BattleScreenInterface {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (skillPoints >= currentCharacter.getSkillCost()) {
-                    dealSkillDamage(); // Deal damage to the enemy
+                    dealSkillDamage();
                     useSkill();
                     nextTurn();
                     SKILLS_FONT.setColor(1f, 0f, 0f, 1f);
@@ -304,7 +307,7 @@ public class BattleClass implements Screen, BattleScreenInterface {
             public void clicked(InputEvent event, float x, float y) {
                 int currentCooldown = ultimateCooldowns.get(characters.get(currentTurn));
                 if (currentCooldown <= 0) {
-                    dealUltimateDamage(); // Deal damage to the enemy
+                    dealUltimateDamage();
                     useUltimate();
                     nextTurn();
                 } else {
@@ -346,25 +349,34 @@ public class BattleClass implements Screen, BattleScreenInterface {
         stage.addActor(settingsButton);
     }
 
-    // Deal damage to the enemy with basic attack
     private void dealBasicAttackDamage() {
         int damage = currentCharacter.getBasicAttackDamage();
-        enemyCurrentHp = Math.max(0, enemyCurrentHp - damage); // Ensure HP doesn't go below 0
+        enemyCurrentHp = Math.max(0, enemyCurrentHp - damage);
         System.out.println("Character dealt " + damage + " damage to the enemy!");
+
+        if (currentCharacter instanceof Character_Umbra) {
+            umbra.playBasicAttackAnimation();
+        }
     }
 
-    // Deal damage to the enemy with skill
     private void dealSkillDamage() {
         int damage = currentCharacter.getSkillDamage();
-        enemyCurrentHp = Math.max(0, enemyCurrentHp - damage); // Ensure HP doesn't go below 0
+        enemyCurrentHp = Math.max(0, enemyCurrentHp - damage);
         System.out.println("Character used their skill and dealt " + damage + " damage to the enemy!");
+
+        if (currentCharacter instanceof Character_Umbra) {
+            umbra.playSkillAnimation();
+        }
     }
 
-    // Deal damage to the enemy with ultimate
     private void dealUltimateDamage() {
         int damage = currentCharacter.getUltimateDamage();
-        enemyCurrentHp = Math.max(0, enemyCurrentHp - damage); // Ensure HP doesn't go below 0
-        System.out.println("Character used their ultimate and dealt " + damage + " damage to the enemy!");
+        enemyCurrentHp = Math.max(0, enemyCurrentHp - damage);
+
+        if (currentCharacter instanceof Character_Umbra) {
+            umbra.startUltimate();
+            sfx.playSoundEffect("umbra_ult_sfx.wav",0);
+        }
     }
 
     public void addSkillPoint() {
@@ -390,6 +402,7 @@ public class BattleClass implements Screen, BattleScreenInterface {
     public void nextTurn() {
         // Decrease cooldown for the current character
         String currentCharacterName = characters.get(currentTurn);
+        isPlayingUltimate = false;
         int currentCooldown = ultimateCooldowns.get(currentCharacterName);
         if (currentCooldown > 0) {
             ultimateCooldowns.put(currentCharacterName, currentCooldown - 1);
@@ -399,7 +412,7 @@ public class BattleClass implements Screen, BattleScreenInterface {
         if (characters.get(currentTurn).equals("Jina")) {
             isEnemyTurn = true;
             enemyTurnTimer = ENEMY_TURN_DURATION;
-            return; // Skip to enemy turn
+            return;
         }
 
         currentTurn = (currentTurn + 1) % characters.size();
@@ -407,13 +420,13 @@ public class BattleClass implements Screen, BattleScreenInterface {
         // Update the current character based on whose turn it is
         if (characters.get(currentTurn).equals("Umbra")) {
             currentCharacter = umbra;
+            umbra.setAnimation(umbra.getIdleAnimation());
         } else if (characters.get(currentTurn).equals("Nova")) {
             currentCharacter = nova;
         } else if (characters.get(currentTurn).equals("Jina")) {
-            currentCharacter = jina; // Set Jina as the current character
+            currentCharacter = jina;
         }
 
-        // Update the buttons to reflect the current character's abilities
         updateButtons();
     }
 
@@ -422,14 +435,12 @@ public class BattleClass implements Screen, BattleScreenInterface {
         skillButton.getStyle().imageUp = new TextureRegionDrawable(new Texture(Gdx.files.internal(currentCharacter.getSkillImage())));
         ultimateButton.getStyle().imageUp = new TextureRegionDrawable(new Texture(Gdx.files.internal(currentCharacter.getUltImage())));
 
-        // Update skill button opacity based on skill points
         if (skillPoints < currentCharacter.getSkillCost()) {
             skillButton.getColor().a = 0.5f;
         } else {
             skillButton.getColor().a = 0.85f;
         }
 
-        // Update ultimate button opacity based on cooldown
         int currentCooldown = ultimateCooldowns.get(characters.get(currentTurn));
         if (currentCooldown > 0) {
             ultimateButton.getColor().a = 0.5f;
@@ -445,6 +456,10 @@ public class BattleClass implements Screen, BattleScreenInterface {
     @Override
     public void render(float delta) {
         if (!showControls) {
+            // Update ultimate animation
+            if (umbra != null) {
+                umbra.updateUltimate(delta);
+            }
             renderBattle(delta);
         } else {
             renderGameControls(delta);
@@ -456,6 +471,14 @@ public class BattleClass implements Screen, BattleScreenInterface {
         viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
         spriteBatch.setProjectionMatrix(viewport.getCamera().combined);
 
+        if (isPlayingUltimate) {
+            ultimateAnimationTimer += delta;
+            if (ultimateAnimationTimer >= ultimateAnimationDuration) {
+                isPlayingUltimate = false;
+            } else {
+                currentUltimateFrame = umbra.getCurrentFrame();
+            }
+        }
         spriteBatch.begin();
 
         // Draw background and other elements
@@ -474,11 +497,10 @@ public class BattleClass implements Screen, BattleScreenInterface {
         float enemyHpBarY = viewport.getWorldHeight() - 48;
         spriteBatch.draw(enemyHpRegion, enemyHpBarX, enemyHpBarY, enemyHpBarWidth, enemyHpBarHeight);
 
-        // Draw Enemy HP Percentage
         String enemyHpText = String.format("%.0f%%", enemyHpPercentage * 100);
         GlyphLayout enemyHpLayout = new GlyphLayout(SKILLS_FONT, enemyHpText);
         float enemyHpTextX = enemyHpBarX - enemyHpLayout.width + 90;
-        float enemyHpTextY = enemyHpBarY + enemyHpBarHeight / 2 + enemyHpLayout.height / 2 + 8; //boss percentage position
+        float enemyHpTextY = enemyHpBarY + enemyHpBarHeight / 2 + enemyHpLayout.height / 2 + 8;
         SKILLS_FONT.setColor(Color.WHITE);
         SKILLS_FONT.draw(spriteBatch, enemyHpText, enemyHpTextX, enemyHpTextY);
 
@@ -506,22 +528,24 @@ public class BattleClass implements Screen, BattleScreenInterface {
         // Draw characters and their HP bars
         float totalCharactersWidth = characters.size() * 300;
         float startX = (viewport.getWorldWidth() - totalCharactersWidth) / 2;
-
         for (int i = 0; i < characters.size(); i++) {
             String character = characters.get(i);
             float characterX = startX + i * 300;
             float characterY = PLATFORM_Y + 50;
 
             if (character.equals("Umbra")) {
-                TextureRegion currentFrame = umbra.getIdleFrame(delta);
+                umbra.update(delta);
+                TextureRegion currentFrame = umbra.getCurrentFrame();
                 spriteBatch.draw(currentFrame, characterX, characterY, 250, 250);
             } else if (character.equals("Nova")) {
-                TextureRegion currentFrame = nova.getIdleFrame(delta);
+                TextureRegion currentFrame = nova.getCurrentFrame();
                 spriteBatch.draw(currentFrame, characterX, characterY, 250, 250);
             } else if (character.equals("Jina")) {
-                TextureRegion currentFrame = jina.getIdleFrame(delta);
+                TextureRegion currentFrame = jina.getCurrentFrame();
                 spriteBatch.draw(currentFrame, characterX, characterY, 250, 250);
             }
+
+
 
             // Draw HP Bar for each character
             int currentHP = 0;
@@ -567,6 +591,8 @@ public class BattleClass implements Screen, BattleScreenInterface {
             }
         }
 
+
+
         // Draw Enemy Turn Indicator if it's the enemy's turn
         if (isEnemyTurn) {
             float indicatorX = (viewport.getWorldWidth() - 20) / 2;
@@ -590,14 +616,47 @@ public class BattleClass implements Screen, BattleScreenInterface {
             skillButton.setVisible(true);
             ultimateButton.setVisible(true);
         }
+        if (isPlayingUltimate && umbra != null && umbra.isUltimatePlaying()) {
+            TextureRegion currentUltimateFrame = umbra.getCurrentUltimateFrame();
 
+            // Save the original color
+            Color originalColor = spriteBatch.getColor();
+
+            // Draw fullscreen ultimate
+            spriteBatch.setColor(1, 1, 1, 1); // Ensure full opacity
+            spriteBatch.draw(currentUltimateFrame,
+                0, 0,  // Start at bottom-left corner
+                viewport.getWorldWidth(),  // Full width
+                viewport.getWorldHeight()); // Full height
+
+            // Restore original color
+            spriteBatch.setColor(originalColor);
+        }
+
+        if (umbra != null && umbra.isUltimatePlaying()) {
+            TextureRegion ultimateFrame = umbra.getCurrentUltimateFrame();
+
+            // Save original color
+            Color original = spriteBatch.getColor();
+            spriteBatch.setColor(Color.WHITE);
+
+            // Draw fullscreen
+            spriteBatch.draw(ultimateFrame,
+                0, 0,
+                viewport.getWorldWidth(),
+                viewport.getWorldHeight());
+
+            // Restore color
+            spriteBatch.setColor(original);
+        }
         spriteBatch.end();
 
-        // Draw the stage (buttons)
+
+        stage.act(Gdx.graphics.getDeltaTime());
+        stage.draw();
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
 
-        // Draw Skill Cost Text and Ultimate Cooldown Text AFTER the buttons
         if (!isEnemyTurn) {
             spriteBatch.begin();
 
@@ -632,16 +691,14 @@ public class BattleClass implements Screen, BattleScreenInterface {
             if (enemyTurnTimer <= 0) {
                 enemyAttack();
                 isEnemyTurn = false;
-                currentTurn = 0; // Reset to Umbra's turn
+                currentTurn = 0;
                 currentCharacter = umbra;
                 updateButtons();
             }
         }
     }
 
-    // Enemy attack logic
     private void enemyAttack() {
-        // Randomly select a target
         List<Character_BattleStats> targets = new ArrayList<>();
         if (umbra != null && umbra.getHP() > 0) targets.add(umbra);
         if (nova != null && nova.getHP() > 0) targets.add(nova);
@@ -650,14 +707,18 @@ public class BattleClass implements Screen, BattleScreenInterface {
         if (!targets.isEmpty()) {
             int randomIndex = (int) (Math.random() * targets.size());
             Character_BattleStats target = targets.get(randomIndex);
-            int damage = 100; // Example damage value
+            int damage = 100;
             target.takeDamage(damage);
             System.out.println("Enemy attacked " + target.getClass().getSimpleName() + " for " + damage + " damage!");
+
+            if (target instanceof Character_Umbra) {
+                umbra.playHitAnimation();
+            }
         }
     }
 
-    // Initialize GameControls
-    public void initGameControls() {
+    // ===== GAME CONTROLS SECTION =====
+    private void initGameControls() {
         controlsBatch = new SpriteBatch();
         controlsShapeRenderer = new ShapeRenderer();
         controlsLayout = new GlyphLayout();
@@ -710,8 +771,7 @@ public class BattleClass implements Screen, BattleScreenInterface {
         quitButton = new Rectangle(buttonsStartX + buttonWidth * 2 + buttonSpacing * 2, buttonY, buttonWidth, buttonHeight);
     }
 
-    // Render GameControls
-    public void renderGameControls(float delta) {
+    private void renderGameControls(float delta) {
         Color bgWithBrightness = backgroundColor.cpy().mul(brightness * 0.5f + 0.5f);
         ScreenUtils.clear(bgWithBrightness.r, bgWithBrightness.g, bgWithBrightness.b, 1);
 
@@ -738,61 +798,6 @@ public class BattleClass implements Screen, BattleScreenInterface {
         controlsBatch.end();
 
         saveSettings();
-    }
-
-    private void drawControlsText() {
-        controlsLayout.setText(controlsTitleFont, "VORTEX CONTROLS");
-        controlsTitleFont.draw(controlsBatch, "VORTEX CONTROLS",
-            screenWidth / 2 - controlsLayout.width / 2,
-            screenHeight * 0.88f + 20 * scaleFactor);
-
-        controlsFont.setColor(Color.WHITE);
-        controlsLayout.setText(controlsFont, "MUSIC VOLUME");
-        float musicLabelX = musicSlider.x - controlsLayout.width - 40 * scaleFactor;
-        float musicLabelY = musicSlider.y + (sliderHeight * scaleFactor) / 2 + controlsLayout.height / 2;
-        controlsFont.draw(controlsBatch, "MUSIC VOLUME", musicLabelX, musicLabelY);
-
-        String musicPercent = String.format("%.0f%%", musicVolume * 100);
-        controlsLayout.setText(controlsFont, musicPercent);
-        float musicValueX = musicSlider.x + (sliderWidth * scaleFactor) + 40 * scaleFactor;
-        float musicValueY = musicSlider.y + (sliderHeight * scaleFactor) / 2 + controlsLayout.height / 2;
-        controlsFont.draw(controlsBatch, musicPercent, musicValueX, musicValueY);
-
-        controlsLayout.setText(controlsFont, "SOUND EFFECTS");
-        float soundLabelX = soundSlider.x - controlsLayout.width - 40 * scaleFactor;
-        float soundLabelY = soundSlider.y + (sliderHeight * scaleFactor) / 2 + controlsLayout.height / 2;
-        controlsFont.draw(controlsBatch, "SOUND EFFECTS", soundLabelX, soundLabelY);
-
-        String soundPercent = String.format("%.0f%%", soundVolume * 100);
-        controlsLayout.setText(controlsFont, soundPercent);
-        float soundValueX = soundSlider.x + (sliderWidth * scaleFactor) + 40 * scaleFactor;
-        float soundValueY = soundSlider.y + (sliderHeight * scaleFactor) / 2 + controlsLayout.height / 2;
-        controlsFont.draw(controlsBatch, soundPercent, soundValueX, soundValueY);
-
-        controlsLayout.setText(controlsFont, "BRIGHTNESS");
-        float brightnessLabelX = brightnessSlider.x - controlsLayout.width - 40 * scaleFactor;
-        float brightnessLabelY = brightnessSlider.y + (sliderHeight * scaleFactor) / 2 + controlsLayout.height / 2;
-        controlsFont.draw(controlsBatch, "BRIGHTNESS", brightnessLabelX, brightnessLabelY);
-
-        String brightnessPercent = String.format("%.0f%%", brightness * 100);
-        controlsLayout.setText(controlsFont, brightnessPercent);
-        float brightnessValueX = brightnessSlider.x + (sliderWidth * scaleFactor) + 40 * scaleFactor;
-        float brightnessValueY = brightnessSlider.y + (sliderHeight * scaleFactor) / 2 + controlsLayout.height / 2;
-        controlsFont.draw(controlsBatch, brightnessPercent, brightnessValueX, brightnessValueY);
-
-        drawCenteredControlsButtonText(controlsBatch, backButton, "BACK", 0);
-        drawCenteredControlsButtonText(controlsBatch, restartButton, "RESTART", 1);
-        drawCenteredControlsButtonText(controlsBatch, quitButton, "QUIT", 2);
-    }
-
-    private void drawCenteredControlsButtonText(SpriteBatch batch, Rectangle button, String text, int buttonIndex) {
-        controlsLayout.setText(controlsButtonFont, text);
-        float scale = 1.0f + buttonAnimations[buttonIndex] * 0.1f;
-
-        controlsButtonFont.setColor(Color.WHITE);
-        controlsFont.draw(batch, text,
-            button.x + button.width / 2 - controlsLayout.width / 2,
-            button.y + button.height / 2 + controlsLayout.height / 2);
     }
 
     private void drawControlsSliders() {
@@ -860,7 +865,62 @@ public class BattleClass implements Screen, BattleScreenInterface {
         controlsShapeRenderer.rect(quitButton.x, quitButton.y, quitButton.width, quitButton.height);
     }
 
-    public void updateControlsAnimations(float delta) {
+    private void drawControlsText() {
+        controlsLayout.setText(controlsTitleFont, "VORTEX CONTROLS");
+        controlsTitleFont.draw(controlsBatch, "VORTEX CONTROLS",
+            screenWidth / 2 - controlsLayout.width / 2,
+            screenHeight * 0.88f + 20 * scaleFactor);
+
+        controlsFont.setColor(Color.WHITE);
+        controlsLayout.setText(controlsFont, "MUSIC VOLUME");
+        float musicLabelX = musicSlider.x - controlsLayout.width - 40 * scaleFactor;
+        float musicLabelY = musicSlider.y + (sliderHeight * scaleFactor) / 2 + controlsLayout.height / 2;
+        controlsFont.draw(controlsBatch, "MUSIC VOLUME", musicLabelX, musicLabelY);
+
+        String musicPercent = String.format("%.0f%%", musicVolume * 100);
+        controlsLayout.setText(controlsFont, musicPercent);
+        float musicValueX = musicSlider.x + (sliderWidth * scaleFactor) + 40 * scaleFactor;
+        float musicValueY = musicSlider.y + (sliderHeight * scaleFactor) / 2 + controlsLayout.height / 2;
+        controlsFont.draw(controlsBatch, musicPercent, musicValueX, musicValueY);
+
+        controlsLayout.setText(controlsFont, "SOUND EFFECTS");
+        float soundLabelX = soundSlider.x - controlsLayout.width - 40 * scaleFactor;
+        float soundLabelY = soundSlider.y + (sliderHeight * scaleFactor) / 2 + controlsLayout.height / 2;
+        controlsFont.draw(controlsBatch, "SOUND EFFECTS", soundLabelX, soundLabelY);
+
+        String soundPercent = String.format("%.0f%%", soundVolume * 100);
+        controlsLayout.setText(controlsFont, soundPercent);
+        float soundValueX = soundSlider.x + (sliderWidth * scaleFactor) + 40 * scaleFactor;
+        float soundValueY = soundSlider.y + (sliderHeight * scaleFactor) / 2 + controlsLayout.height / 2;
+        controlsFont.draw(controlsBatch, soundPercent, soundValueX, soundValueY);
+
+        controlsLayout.setText(controlsFont, "BRIGHTNESS");
+        float brightnessLabelX = brightnessSlider.x - controlsLayout.width - 40 * scaleFactor;
+        float brightnessLabelY = brightnessSlider.y + (sliderHeight * scaleFactor) / 2 + controlsLayout.height / 2;
+        controlsFont.draw(controlsBatch, "BRIGHTNESS", brightnessLabelX, brightnessLabelY);
+
+        String brightnessPercent = String.format("%.0f%%", brightness * 100);
+        controlsLayout.setText(controlsFont, brightnessPercent);
+        float brightnessValueX = brightnessSlider.x + (sliderWidth * scaleFactor) + 40 * scaleFactor;
+        float brightnessValueY = brightnessSlider.y + (sliderHeight * scaleFactor) / 2 + controlsLayout.height / 2;
+        controlsFont.draw(controlsBatch, brightnessPercent, brightnessValueX, brightnessValueY);
+
+        drawCenteredControlsButtonText(controlsBatch, backButton, "BACK", 0);
+        drawCenteredControlsButtonText(controlsBatch, restartButton, "RESTART", 1);
+        drawCenteredControlsButtonText(controlsBatch, quitButton, "QUIT", 2);
+    }
+
+    private void drawCenteredControlsButtonText(SpriteBatch batch, Rectangle button, String text, int buttonIndex) {
+        controlsLayout.setText(controlsButtonFont, text);
+        float scale = 1.0f + buttonAnimations[buttonIndex] * 0.1f;
+
+        controlsButtonFont.setColor(Color.WHITE);
+        controlsButtonFont.draw(batch, text,
+            button.x + button.width / 2 - controlsLayout.width / 2,
+            button.y + button.height / 2 + controlsLayout.height / 2);
+    }
+
+    private void updateControlsAnimations(float delta) {
         updateControlsButtonAnimation(backButton, 0, delta);
         updateControlsButtonAnimation(restartButton, 1, delta);
         updateControlsButtonAnimation(quitButton, 2, delta);
@@ -878,7 +938,7 @@ public class BattleClass implements Screen, BattleScreenInterface {
         }
     }
 
-    public void handleControlsInput() {
+    private void handleControlsInput() {
         float mouseX = Gdx.input.getX();
         float mouseY = screenHeight - Gdx.input.getY();
 
@@ -886,7 +946,7 @@ public class BattleClass implements Screen, BattleScreenInterface {
             if (backButton.contains(mouseX, mouseY)) {
                 saveSettings();
                 showControls = false;
-                Gdx.input.setInputProcessor(stage); // Switch back to the stage
+                Gdx.input.setInputProcessor(stage);
                 return;
             }
             if (restartButton.contains(mouseX, mouseY)) {
@@ -946,31 +1006,20 @@ public class BattleClass implements Screen, BattleScreenInterface {
         return Math.max(0, Math.min(1, value));
     }
 
-    public void loadSettings() {
+    private void loadSettings() {
         musicVolume = prefs.getFloat("musicVolume", 1.0f);
         soundVolume = prefs.getFloat("soundVolume", 1.0f);
         brightness = prefs.getFloat("brightness", 1.0f);
     }
 
-    public void saveSettings() {
+    private void saveSettings() {
         prefs.putFloat("musicVolume", musicVolume);
         prefs.putFloat("soundVolume", soundVolume);
         prefs.putFloat("brightness", brightness);
         prefs.flush();
     }
 
-    @Override
-    public void resize(int width, int height) {
-        viewport.update(width, height, true);
-        screenWidth = width;
-        screenHeight = height;
-
-        if (showControls) {
-            resizeControls();
-        }
-    }
-
-    public void resizeControls() {
+    private void resizeControls() {
         float centerX = screenWidth / 2 - (sliderWidth * scaleFactor) / 2;
         float startY = screenHeight * 0.7f;
         float spacing = 70f * scaleFactor;
@@ -1012,6 +1061,18 @@ public class BattleClass implements Screen, BattleScreenInterface {
         quitButton.width = buttonWidth;
         quitButton.height = buttonHeight;
     }
+// ===== END OF GAME CONTROLS SECTION =====
+
+    @Override
+    public void resize(int width, int height) {
+        viewport.update(width, height, true);
+        screenWidth = width;
+        screenHeight = height;
+
+        if (showControls) {
+            resizeControls();
+        }
+    }
 
     @Override
     public void pause() {
@@ -1036,8 +1097,12 @@ public class BattleClass implements Screen, BattleScreenInterface {
         enabledSkillPointTexture.dispose();
         disabledSkillPointTexture.dispose();
         turnIndicatorTexture.dispose();
-        enemyTurnIndicatorTexture.dispose(); // Dispose of enemy turn indicator
-        umbra.dispose();
+        enemyTurnIndicatorTexture.dispose();
+
+        if (umbra != null) umbra.dispose();
+        if (nova != null) nova.dispose();
+        if (jina != null) jina.dispose();
+
         if (controlsBatch != null) controlsBatch.dispose();
         if (controlsFont != null) controlsFont.dispose();
         if (controlsTitleFont != null) controlsTitleFont.dispose();

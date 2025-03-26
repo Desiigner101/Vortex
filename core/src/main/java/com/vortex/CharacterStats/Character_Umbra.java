@@ -12,129 +12,247 @@ public class Character_Umbra implements Character_BattleStats {
     private int skillDamage = 230;
     private int skillCost = 3;
     private int ultimateDamage = 300;
-    private int ultCooldown = 12; // turns
+    private int ultCooldown = 1;
+    private int currentUltCooldown = 0;
 
-    // File paths for images
+    // File paths
     private String basicAtkImage = "Pictures/Umbra/CharacterView/Umbra_ShadowStrike.png";
     private String skillImage = "Pictures/Umbra/CharacterView/Umbra_DistractingIllusions.png";
     private String ultImage = "Pictures/Umbra/CharacterView/Umbra_VeilOfShadows.png";
 
-    // File paths for animations
-    private String idleAnimationPath = "Pictures/Umbra/BattleView/umbra_idle_battle.png";
-    private String basicAtkAnimationPath = "Pictures/Umbra/BattleView/umbra_basicAtk_battle.png";
+    // Animation paths
+    private final String idleAnimationPath = "Pictures/Umbra/BattleView/umbra_idle_battle.png";
+    private final String basicAtkAnimationPath = "Pictures/Umbra/BattleView/umbra_basicAtk_battle.png";
+    private final String skillAnimationPath = "Pictures/Umbra/BattleView/umbra_skill_battle.png";
+    private final String hitAnimationPath = "Pictures/Umbra/BattleView/umbra_hit_battle.png";
+    private final String ultAnimationBasePath = "Pictures/Umbra/BattleView/UmbraUltFrames/umbra_ult_battle";
 
-    // Animation-related fields
-    private Texture idleSheet; // Sprite sheet for idle animation
-    private TextureRegion[] idleFrames; // Array to hold individual frames
-    private Animation<TextureRegion> idleAnimation; // Animation object
-    private float stateTime; // Tracks elapsed time for animation
+    // Animation textures
+    private Texture idleSheet, basicAtkSheet, skillSheet, hitSheet;
+    private Texture[] ultFrames;
+    private Animation<TextureRegion> idleAnimation, basicAtkAnimation, skillAnimation, hitAnimation, ultAnimation;
+    private float stateTime;
+    private Animation<TextureRegion> currentAnimation;
 
-    // Constructor
     public Character_Umbra() {
-        // Load the idle animation sprite sheet
+        loadAnimations();
+        loadUltimateAnimation();
+        stateTime = 0;
+        currentAnimation = idleAnimation;
+    }
+    private void loadAnimations() {
+        // Load standard animations
         idleSheet = new Texture(Gdx.files.internal(idleAnimationPath));
+        basicAtkSheet = new Texture(Gdx.files.internal(basicAtkAnimationPath));
+        skillSheet = new Texture(Gdx.files.internal(skillAnimationPath));
+        hitSheet = new Texture(Gdx.files.internal(hitAnimationPath));
 
-        // Split the sprite sheet into frames
-        int frameWidth = 64; // Width of each frame
-        int frameHeight = 64; // Height of each frame
-        int cols = 7; // Number of columns in the sprite sheet
-        int rows = 1; // Number of rows in the sprite sheet
+        // Load ultimate frames (29 frames)
+        int totalUltFrames = 29;
+        ultFrames = new Texture[totalUltFrames];
+        TextureRegion[] ultRegions = new TextureRegion[totalUltFrames];
 
-        TextureRegion[][] tmp = TextureRegion.split(idleSheet, frameWidth, frameHeight);
-        idleFrames = new TextureRegion[cols * rows];
+        for (int i = 0; i < totalUltFrames; i++) {
+            String framePath = ultAnimationBasePath + (i + 1) + ".png";
+            ultFrames[i] = new Texture(Gdx.files.internal(framePath));
+            ultRegions[i] = new TextureRegion(ultFrames[i]);
+        }
+
+
+        // Create animations
+        idleAnimation = createAnimation(idleSheet, 64, 64, 7, 1, 0.1f);
+        basicAtkAnimation = createAnimation(basicAtkSheet, 64, 64, 12, 1, 0.1f);
+        skillAnimation = createAnimation(skillSheet, 64, 64, 12, 1, 0.1f);
+        hitAnimation = createAnimation(hitSheet, 64, 64, 6, 1, 0.15f);
+        ultAnimation = new Animation<>(0.12f, ultRegions);
+
+        // Set loop modes
+        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
+        basicAtkAnimation.setPlayMode(Animation.PlayMode.NORMAL);
+        skillAnimation.setPlayMode(Animation.PlayMode.NORMAL);
+        hitAnimation.setPlayMode(Animation.PlayMode.NORMAL);
+        ultAnimation.setPlayMode(Animation.PlayMode.NORMAL);
+    }
+
+    private Animation<TextureRegion> createAnimation(Texture sheet, int frameWidth, int frameHeight,
+                                                     int cols, int rows, float frameDuration) {
+        TextureRegion[][] tmp = TextureRegion.split(sheet, frameWidth, frameHeight);
+        TextureRegion[] frames = new TextureRegion[cols * rows];
         int index = 0;
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
-                idleFrames[index++] = tmp[i][j];
+                frames[index++] = tmp[i][j];
             }
         }
-
-        // Create the idle animation
-        float frameDuration = 0.1f; // Time between frames (adjust for speed)
-        idleAnimation = new Animation<>(frameDuration, idleFrames);
-
-        // Initialize stateTime
-        stateTime = 0;
+        return new Animation<>(frameDuration, frames);
     }
 
-    // Get the current frame of the idle animation
-    public TextureRegion getIdleFrame(float deltaTime) {
-        stateTime += deltaTime; // Accumulate elapsed time
-        return idleAnimation.getKeyFrame(stateTime, true); // Loop the animation
+    private Animation<TextureRegion> fullscreenUltAnimation;
+    private float ultStateTime = 0;
+    private boolean isUltimatePlaying = false;
+
+
+
+    private void loadUltimateAnimation() {
+        int totalUltFrames = 29;
+        TextureRegion[] ultRegions = new TextureRegion[totalUltFrames];
+
+        for (int i = 0; i < totalUltFrames; i++) {
+            String framePath = ultAnimationBasePath + (i + 1) + ".png";
+            Texture frame = new Texture(Gdx.files.internal(framePath));
+            frame.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
+            ultRegions[i] = new TextureRegion(frame);
+        }
+
+        fullscreenUltAnimation = new Animation<>(0.12f, ultRegions);
+        fullscreenUltAnimation.setPlayMode(Animation.PlayMode.NORMAL);
     }
 
-    // Dispose method to clean up resources
-    public void dispose() {
-        if (idleSheet != null) {
-            idleSheet.dispose(); // Dispose of the sprite sheet texture
+    public void startUltimate() {
+        isUltimatePlaying = true;
+        ultStateTime = 0;
+    }
+
+    public TextureRegion getCurrentUltimateFrame() {
+        return fullscreenUltAnimation.getKeyFrame(ultStateTime, false);
+    }
+
+    public boolean isUltimatePlaying() {
+        return isUltimatePlaying && !fullscreenUltAnimation.isAnimationFinished(ultStateTime);
+    }
+
+    public void updateUltimate(float delta) {
+        if (isUltimatePlaying) {
+            ultStateTime += delta;
+            if (fullscreenUltAnimation.isAnimationFinished(ultStateTime)) {
+                isUltimatePlaying = false;
+            }
         }
     }
 
-    // Getters for stats and file paths
-    @Override
-    public int getHP() {
-        return HP;
+    public void update(float deltaTime) {
+        stateTime += deltaTime;
+        if (currentAnimation != idleAnimation && currentAnimation.isAnimationFinished(stateTime)) {
+            setAnimation(idleAnimation);
+        }
     }
-    @Override
-    public void setHP(int HP){
-        this.HP = HP;
+
+    public void setAnimation(Animation<TextureRegion> animation) {
+        this.currentAnimation = animation;
+        this.stateTime = 0;
     }
-    @Override
-    public int getMaxHP() {
-        return 800;
+
+    public TextureRegion getCurrentFrame() {
+        return currentAnimation.getKeyFrame(stateTime, false);
     }
+
+    // Animation control methods
+    public void playBasicAttackAnimation() {
+        setAnimation(basicAtkAnimation);
+    }
+
+    public void playSkillAnimation() {
+        setAnimation(skillAnimation);
+    }
+
+    public void playHitAnimation() {
+        setAnimation(hitAnimation);
+    }
+
+    public void playUltimateAnimation() {
+        setAnimation(ultAnimation);
+    }
+
+    public void dispose() {
+        idleSheet.dispose();
+        basicAtkSheet.dispose();
+        skillSheet.dispose();
+        hitSheet.dispose();
+
+        // Dispose ultimate frames
+        for (Texture frame : ultFrames) {
+            if (frame != null) {
+                frame.dispose();
+            }
+        }
+    }
+
+    @Override
+    public int getHP() { return HP; }
+
+    @Override
+    public void setHP(int HP) {
+        this.HP = Math.max(0, Math.min(HP, getMaxHP()));
+    }
+
+    @Override
+    public int getMaxHP() { return 800; }
+
+    @Override
     public void takeDamage(int damage) {
-        this.HP = Math.max(0, this.HP - damage); // Ensure HP doesn't go below 0
-        System.out.println(this.getClass().getSimpleName() + " took " + damage + " damage! Remaining HP: " + this.HP);
+        setHP(this.HP - damage);
+        playHitAnimation();
     }
 
     @Override
-    public int getBasicAttackDamage() {
-        return basicAttackDamage;
-    }
+    public int getBasicAttackDamage() { return basicAttackDamage; }
 
     @Override
-    public int getSkillDamage() {
-        return skillDamage;
-    }
+    public int getSkillDamage() { return skillDamage; }
 
     @Override
-    public int getSkillCost() {
-        return skillCost;
-    }
+    public int getSkillCost() { return skillCost; }
 
     @Override
-    public int getUltimateDamage() {
-        return ultimateDamage;
-    }
+    public int getUltimateDamage() { return ultimateDamage; }
 
     @Override
-    public int getUltCooldown() {
-        return ultCooldown;
-    }
+    public int getUltCooldown() { return ultCooldown; }
 
     @Override
-    public String getBasicAtkImage() {
-        return basicAtkImage;
-    }
+    public String getBasicAtkImage() { return basicAtkImage; }
 
     @Override
-    public String getSkillImage() {
-        return skillImage;
-    }
+    public String getSkillImage() { return skillImage; }
 
     @Override
-    public String getUltImage() {
-        return ultImage;
-    }
+    public String getUltImage() { return ultImage; }
 
     @Override
-    public String getIdleAnimation() {
-        return idleAnimationPath;
-    }
+    public String getSkillAnimation() { return skillAnimationPath; }
 
     @Override
-    public String getBasicAtkAnimation() {
-        return basicAtkAnimationPath;
+    public String getHitAnimation() { return hitAnimationPath; }
+
+    @Override
+    public String getUltAnimation() { return ultAnimationBasePath; }
+
+    @Override
+    public Animation<TextureRegion> getIdleAnimation() { return idleAnimation; }
+
+    @Override
+    public String getBasicAtkAnimation() { return basicAtkAnimationPath; }
+
+    @Override
+    public void startUltimateCooldown() { currentUltCooldown = ultCooldown; }
+
+    @Override
+    public void reduceCooldowns() {
+        if (currentUltCooldown > 0) currentUltCooldown--;
+    }
+    //for ultimate animations
+    @Override
+    public boolean isUltimateReady() { return currentUltCooldown == 0; }
+
+    public TextureRegion getUltimateFirstFrame() {
+        return ultAnimation.getKeyFrame(0, false);
+    }
+
+    public float getUltimateAnimationProgress() {
+        return stateTime / ultAnimation.getAnimationDuration();
+    }
+
+    public boolean isUltimateFinished() {
+        return ultAnimation.isAnimationFinished(stateTime);
     }
 }
