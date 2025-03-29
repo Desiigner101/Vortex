@@ -1,8 +1,10 @@
 package com.vortex.game.BattleClasses;
 
 public class TestBossClass implements EnemyClass{
-    private int HP = 5000;
-    private int Atk = 100;
+    private int HP = 100;
+    private int maxHP = 100;
+    private int Atk = 500;
+    private String name = "TestBoss";
     @Override
     public int getHP() {
         return HP;
@@ -10,7 +12,7 @@ public class TestBossClass implements EnemyClass{
 
     @Override
     public int getMaxHP() {
-        return 2000;
+        return maxHP;
     }
 
     @Override
@@ -25,7 +27,7 @@ public class TestBossClass implements EnemyClass{
 
     @Override
     public String getName() {
-        return "Test Boss";
+        return name;
     }
 
     @Override

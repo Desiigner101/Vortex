@@ -7,10 +7,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
@@ -50,7 +47,10 @@ public class BattleClass implements Screen {
     private BitmapFont UNIVERSE_FONT;
     private BitmapFont enemyTurnFont;
     private FontManager fontHandler;
+    private Runnable onBattleComplete;
 
+
+    private boolean hasStarted = true;
     private ImageButton attackButton, skillButton, ultimateButton, settingsButton;
     private Viewport viewport;
     private Texture backgroundTexture;
@@ -110,6 +110,7 @@ public class BattleClass implements Screen {
     private float pulseAmount = 0.05f;
     private float pulse = 0f;
     private float pulseSpeed = 2f;
+    private String musicFile;
 
     private Color backgroundColor = new Color(0.05f, 0.07f, 0.15f, 1f);
     private Color accentColor = new Color(0f, 0.8f, 0.8f, 1f);
@@ -140,16 +141,31 @@ public class BattleClass implements Screen {
     // Enemy HP Bar related fields
     private Texture enemyHpBarTexture;
     private TextureRegion[] enemyHpBarRegions;
-    private int enemyMaxHp = 1000;
-    private int enemyCurrentHp = 1000;
+    private int enemyMaxHp = 500;
+    private int enemyCurrentHp = 500;
 
     // Enemy turn related fields
     private boolean isEnemyTurn = false;
     private float enemyTurnTimer = 0f;
-    private final float ENEMY_TURN_DURATION = 2f;
+    private final float ENEMY_ATTACK_DELAY = 2f; // Attack happens after 3 seconds
+    private final float ENEMY_TURN_DURATION = 3f;
 
-    public BattleClass(String universeName, boolean hasUmbra, boolean hasNova, boolean hasJina,
-                       String background, String roadTile, String musicFile) {
+    //for transition
+    private Texture closeTransitionTexture;
+    private TextureRegion[] closeTransitionFrames;
+    private Animation<TextureRegion> closeTransitionAnimation;
+    private float closeTransitionStateTime = 0;
+    private boolean playCloseTransition = false;
+    private Texture openTransitionTexture;
+    private TextureRegion[] openTransitionFrames;
+    private Animation<TextureRegion> openTransitionAnimation;
+    private float openTransitionStateTime = 0;
+    private boolean playOpenTransition = true;
+
+    public BattleClass(GameTransitions game,String universeName, boolean hasUmbra, boolean hasNova, boolean hasJina,
+                       String background, String roadTile, String musicFile, Runnable onBattleComplete) {
+        this.game = game;
+        this.onBattleComplete = onBattleComplete;
         this.universeName = universeName;
         spriteBatch = new SpriteBatch();
         bitmapFont = new BitmapFont();
@@ -176,6 +192,30 @@ public class BattleClass implements Screen {
         parameter.color = Color.RED;
         enemyTurnFont = generator.generateFont(parameter);
         generator.dispose();
+
+        //for transition
+        closeTransitionTexture = new Texture(Gdx.files.internal("Backgrounds/closeTransitionSpriteSheet.png"));
+        TextureRegion[][] tmp = TextureRegion.split(closeTransitionTexture,
+            closeTransitionTexture.getWidth()/8,
+            closeTransitionTexture.getHeight());
+        closeTransitionFrames = new TextureRegion[8];
+        for (int i = 0; i < 8; i++) {
+            closeTransitionFrames[i] = tmp[0][i];
+        }
+        closeTransitionAnimation = new Animation<>(0.1f, closeTransitionFrames);
+
+        openTransitionTexture = new Texture(Gdx.files.internal("Backgrounds/closeTransitionSpriteSheet.png"));
+        TextureRegion[][] tmpOpen = TextureRegion.split(openTransitionTexture,
+            openTransitionTexture.getWidth()/8,
+            openTransitionTexture.getHeight());
+        openTransitionFrames = new TextureRegion[15];
+        for (int i = 0; i < 8; i++) {
+            openTransitionFrames[i] = tmpOpen[0][7];
+        }
+        for (int i = 8; i < 15; i++) {
+            openTransitionFrames[i] = tmpOpen[0][14 - i];
+        }
+        openTransitionAnimation = new Animation<>(0.1f, openTransitionFrames);
 
         // Load textures
         backgroundTexture = new Texture(Gdx.files.internal("Backgrounds/" + background));
@@ -221,17 +261,32 @@ public class BattleClass implements Screen {
         enemyCurrentHp = testBoss.getMaxHP();
 
         sfx.playMusic(musicFile);
-
+        this.musicFile = musicFile;
         characters = new ArrayList<>();
         if (hasUmbra) characters.add("Umbra");
         if (hasNova) characters.add("Nova");
         if (hasJina) characters.add("Jina");
 
         // Initialize buttons with Umbra's abilities (default)
-        attackButton = new ImageButton(new TextureRegionDrawable(new Texture(Gdx.files.internal(umbra.getBasicAtkImage()))));
-        skillButton = new ImageButton(new TextureRegionDrawable(new Texture(Gdx.files.internal(umbra.getSkillImage()))));
-        ultimateButton = new ImageButton(new TextureRegionDrawable(new Texture(Gdx.files.internal(umbra.getUltImage()))));
+        Character_BattleStats initialCharacter = null;
+        if (hasUmbra) {
+            initialCharacter = umbra;
+        } else if (hasNova) {
+            initialCharacter = nova;
+        } else if (hasJina) {
+            initialCharacter = jina;
+        }
 
+        if (initialCharacter == null) {
+            throw new IllegalStateException("Battle must have at least one character");
+        }
+
+        attackButton = new ImageButton(new TextureRegionDrawable(new Texture(Gdx.files.internal(initialCharacter.getBasicAtkImage()))));
+        skillButton = new ImageButton(new TextureRegionDrawable(new Texture(Gdx.files.internal(initialCharacter.getSkillImage()))));
+        ultimateButton = new ImageButton(new TextureRegionDrawable(new Texture(Gdx.files.internal(initialCharacter.getUltImage()))));
+
+// Also update the currentCharacter initialization
+        currentCharacter = initialCharacter;
         attackButton.getColor().a = 0.85f;
         int skillPointY = 60;
         attackButton.setPosition(100, skillPointY);
@@ -247,15 +302,17 @@ public class BattleClass implements Screen {
         settingsButton.setPosition(viewport.getWorldWidth() - 150, viewport.getWorldHeight() - 150);
         settingsButton.setSize(100, 100);
 
-        currentCharacter = umbra;
+        currentCharacter = initialCharacter;
 
         // Add button listeners
         attackButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 dealBasicAttackDamage();
+
                 addSkillPoint();
                 nextTurn();
+                debugTurnState("Basic attack used");
             }
 
             @Override
@@ -277,6 +334,7 @@ public class BattleClass implements Screen {
                     useSkill();
                     nextTurn();
                     SKILLS_FONT.setColor(1f, 0f, 0f, 1f);
+                    debugTurnState("skill attack used");
                 } else {
                     skillFlashing = true;
                     SKILLS_FONT.setColor(0.53f, 0.81f, 0.92f, 1f);
@@ -313,6 +371,7 @@ public class BattleClass implements Screen {
                 } else {
                     ultimateFlashing = true;
                 }
+                debugTurnState("ult attack used");
             }
 
             @Override
@@ -354,9 +413,13 @@ public class BattleClass implements Screen {
         enemyCurrentHp = Math.max(0, enemyCurrentHp - damage);
         System.out.println("Character dealt " + damage + " damage to the enemy!");
 
+
+
         if (currentCharacter instanceof Character_Umbra) {
             umbra.playBasicAttackAnimation();
         }
+        debugEnemyHP();
+        checkBattleConditions();
     }
 
     private void dealSkillDamage() {
@@ -367,6 +430,8 @@ public class BattleClass implements Screen {
         if (currentCharacter instanceof Character_Umbra) {
             umbra.playSkillAnimation();
         }
+        debugEnemyHP();
+        checkBattleConditions();
     }
 
     private void dealUltimateDamage() {
@@ -377,6 +442,9 @@ public class BattleClass implements Screen {
             umbra.startUltimate();
             sfx.playSoundEffect("umbra_ult_sfx.wav",0);
         }
+        debugEnemyHP();
+
+        checkBattleConditions();
     }
 
     public void addSkillPoint() {
@@ -400,53 +468,130 @@ public class BattleClass implements Screen {
     }
 
     public void nextTurn() {
-        // Decrease cooldown for the current character
-        String currentCharacterName = characters.get(currentTurn);
-        isPlayingUltimate = false;
-        int currentCooldown = ultimateCooldowns.get(currentCharacterName);
-        if (currentCooldown > 0) {
-            ultimateCooldowns.put(currentCharacterName, currentCooldown - 1);
+        // Decrease cooldown for current character
+        if (!characters.isEmpty() && !isCharacterDefeated(characters.get(currentTurn))) {
+            String currentCharacterName = characters.get(currentTurn);
+            int currentCooldown = ultimateCooldowns.get(currentCharacterName);
+            if (currentCooldown > 0) {
+                ultimateCooldowns.put(currentCharacterName, currentCooldown - 1);
+            }
         }
 
-        // Check if it's Jina's turn and trigger enemy turn
-        if (characters.get(currentTurn).equals("Jina")) {
-            isEnemyTurn = true;
-            enemyTurnTimer = ENEMY_TURN_DURATION;
+        // Find next alive character (skip defeated ones)
+        int nextTurn = findNextAliveCharacter();
+
+        // If no alive characters, battle ends
+        if (nextTurn == -1) {
+            checkBattleConditions();
             return;
         }
 
-        currentTurn = (currentTurn + 1) % characters.size();
-
-        // Update the current character based on whose turn it is
-        if (characters.get(currentTurn).equals("Umbra")) {
-            currentCharacter = umbra;
-            umbra.setAnimation(umbra.getIdleAnimation());
-        } else if (characters.get(currentTurn).equals("Nova")) {
-            currentCharacter = nova;
-        } else if (characters.get(currentTurn).equals("Jina")) {
-            currentCharacter = jina;
+        // If we've looped through all alive characters, trigger enemy turn
+        if (nextTurn <= currentTurn) {
+            enemyAttack(); // This now handles the full enemy turn sequence
+            return;
         }
 
+        currentTurn = nextTurn;
         updateButtons();
+        updateCurrentCharacter(); // This ensures buttons & indicator match the log
+    }
+
+    private int findNextAliveCharacter() {
+        int nextTurn = currentTurn;
+        int attempts = 0;
+
+        do {
+            nextTurn = (nextTurn + 1) % characters.size();
+            attempts++;
+
+            if (!isCharacterDefeated(characters.get(nextTurn))) {
+                return nextTurn;
+            }
+        } while (attempts < characters.size());
+
+        return -1; // No alive characters found
+    }
+
+    private boolean areAllCharactersDefeated() {
+        for (String character : characters) {
+            if (!isCharacterDefeated(character)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    private void updateCurrentCharacter() {
+        if (characters.isEmpty()) return; // Safety check
+
+        String characterName = characters.get(currentTurn);
+
+        // If current character is defeated, find next alive one
+        if (isCharacterDefeated(characterName)) {
+            currentTurn = findFirstAliveCharacter();
+            if (currentTurn == -1) {
+                checkBattleConditions();
+                return;
+            }
+            characterName = characters.get(currentTurn);
+            debugTurnState("Turn changed to " + characters.get(currentTurn));
+        }
+
+        // Update currentCharacter
+        switch (characterName) {
+            case "Umbra":
+                currentCharacter = umbra;
+                if (umbra != null) umbra.setAnimation(umbra.getIdleAnimation());
+                break;
+            case "Nova":
+                currentCharacter = nova;
+                break;
+            case "Jina":
+                currentCharacter = jina;
+                break;
+        }
+
+        System.out.println("It is currently " + characterName + "'s turn!"); // Log
+        updateButtons(); // Refresh buttons immediately
+    }
+
+    private boolean isCharacterDefeated(String characterName) {
+        if (characterName.equals("Umbra")) {
+            return umbra.getHP() <= 0;
+        } else if (characterName.equals("Nova")) {
+            return nova.getHP() <= 0;
+        } else if (characterName.equals("Jina")) {
+            return jina.getHP() <= 0;
+        }
+        return true;
     }
 
     public void updateButtons() {
+        boolean isDefeated = isCharacterDefeated(characters.get(currentTurn));
+
         attackButton.getStyle().imageUp = new TextureRegionDrawable(new Texture(Gdx.files.internal(currentCharacter.getBasicAtkImage())));
         skillButton.getStyle().imageUp = new TextureRegionDrawable(new Texture(Gdx.files.internal(currentCharacter.getSkillImage())));
         ultimateButton.getStyle().imageUp = new TextureRegionDrawable(new Texture(Gdx.files.internal(currentCharacter.getUltImage())));
 
-        if (skillPoints < currentCharacter.getSkillCost()) {
+        if (isDefeated || skillPoints < currentCharacter.getSkillCost()) {
             skillButton.getColor().a = 0.5f;
+            skillButton.setDisabled(true);
         } else {
             skillButton.getColor().a = 0.85f;
+            skillButton.setDisabled(false);
         }
 
         int currentCooldown = ultimateCooldowns.get(characters.get(currentTurn));
-        if (currentCooldown > 0) {
+        if (isDefeated || currentCooldown > 0) {
             ultimateButton.getColor().a = 0.5f;
+            ultimateButton.setDisabled(true);
         } else {
             ultimateButton.getColor().a = 0.85f;
+            ultimateButton.setDisabled(false);
         }
+
+        attackButton.setDisabled(isDefeated);
+        attackButton.getColor().a = isDefeated ? 0.5f : 0.85f;
     }
 
     @Override
@@ -674,8 +819,10 @@ public class BattleClass implements Screen {
 
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
-        stage.act(Gdx.graphics.getDeltaTime());
-        stage.draw();
+
+
+
+
 
         if (!isEnemyTurn) {
             spriteBatch.begin();
@@ -709,32 +856,95 @@ public class BattleClass implements Screen {
         if (isEnemyTurn) {
             enemyTurnTimer -= delta;
             if (enemyTurnTimer <= 0) {
-                enemyAttack();
                 isEnemyTurn = false;
-                currentTurn = 0;
-                currentCharacter = umbra;
-                updateButtons();
+                currentTurn = findFirstAliveCharacter();
+                if (currentTurn == -1) {
+                    checkBattleConditions();
+                } else {
+                    updateCurrentCharacter();
+                    updateButtons();
+                }
+                debugTurnState("Enemy turn finished");
             }
+        }
+        if (playCloseTransition) {
+            spriteBatch.begin();
+            closeTransitionStateTime += delta;
+            TextureRegion currentFrame = closeTransitionAnimation.getKeyFrame(closeTransitionStateTime, false);
+
+            // Draw in top left corner (adjust size as needed)
+            spriteBatch.draw(currentFrame, 0, viewport.getWorldHeight()-900, 1600, 900);
+
+            // Stop animation when it's finished
+            if (closeTransitionAnimation.isAnimationFinished(closeTransitionStateTime)) {
+                playCloseTransition = false;
+                closeTransitionStateTime = 0;
+            }
+            spriteBatch.end();
+        }
+        if(hasStarted) {
+            if (playOpenTransition) {
+                openTransitionStateTime += delta;
+                spriteBatch.begin();
+                TextureRegion currentFrame = openTransitionAnimation.getKeyFrame(openTransitionStateTime, false);
+                spriteBatch.draw(currentFrame, 0, viewport.getWorldHeight() - 900, 1600, 900);
+                spriteBatch.end();
+
+                if (openTransitionAnimation.isAnimationFinished(openTransitionStateTime)) {
+                    playOpenTransition = false;
+                    openTransitionStateTime = 0;
+                }
+                return; // Skip rest of rendering during opening transition
+            }
+            hasStarted=false;
         }
     }
 
     private void enemyAttack() {
-        List<Character_BattleStats> targets = new ArrayList<>();
-        if (umbra != null && umbra.getHP() > 0) targets.add(umbra);
-        if (nova != null && nova.getHP() > 0) targets.add(nova);
-        if (jina != null && jina.getHP() > 0) targets.add(jina);
+        isEnemyTurn = true;
+        enemyTurnTimer = ENEMY_TURN_DURATION;
 
-        if (!targets.isEmpty()) {
-            int randomIndex = (int) (Math.random() * targets.size());
-            Character_BattleStats target = targets.get(randomIndex);
-            int damage = 100;
-            target.takeDamage(damage);
-            System.out.println("Enemy attacked " + target.getClass().getSimpleName() + " for " + damage + " damage!");
+        // Schedule the attack to happen after 3 seconds
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                if (!isEnemyTurn) return; // In case turn ended early
 
-            if (target instanceof Character_Umbra) {
-                umbra.playHitAnimation();
+                // Find valid targets (only alive characters)
+                List<Character_BattleStats> targets = new ArrayList<>();
+                if (umbra != null && umbra.getHP() > 0) targets.add(umbra);
+                if (nova != null && nova.getHP() > 0) targets.add(nova);
+                if (jina != null && jina.getHP() > 0) targets.add(jina);
+
+                // Attack a random alive target if any exist
+                if (!targets.isEmpty()) {
+                    int randomIndex = (int) (Math.random() * targets.size());
+                    Character_BattleStats target = targets.get(randomIndex);
+                    int damage = 500;
+                    target.takeDamage(damage);
+
+                    if (target instanceof Character_Umbra) {
+                        umbra.playHitAnimation();
+                    }
+                }
+
+                debugTurnState("Enemy attacked");
+            }
+        }, ENEMY_ATTACK_DELAY);
+    }
+
+    private int findFirstAliveCharacter() {
+        for (int i = 0; i < characters.size(); i++) {
+            String characterName = characters.get(i);
+            if (!isCharacterDefeated(characterName)) {
+                // Additional verification
+                if (characterName.equals("Umbra") && umbra.getHP() <= 0) {
+                    continue; // Double-check Umbra's HP
+                }
+                return i;
             }
         }
+        return -1;
     }
 
     // ===== GAME CONTROLS SECTION =====
@@ -1122,7 +1332,8 @@ public class BattleClass implements Screen {
         if (umbra != null) umbra.dispose();
         if (nova != null) nova.dispose();
         if (jina != null) jina.dispose();
-
+        if (openTransitionTexture != null) openTransitionTexture.dispose();
+        if (closeTransitionTexture != null) closeTransitionTexture.dispose();
         if (controlsBatch != null) controlsBatch.dispose();
         if (controlsFont != null) controlsFont.dispose();
         if (controlsTitleFont != null) controlsTitleFont.dispose();
@@ -1131,4 +1342,94 @@ public class BattleClass implements Screen {
         if (hpBarTexture != null) hpBarTexture.dispose();
         if (enemyHpBarTexture != null) enemyHpBarTexture.dispose();
     }
+
+    private void checkBattleConditions() {
+        // Check if enemy is defeated
+        if (enemyCurrentHp <= 0) {
+            playCloseTransition = true;
+            closeTransitionStateTime = 0;
+            sfx.stopAudio();
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    game.setScreen(new BattleResultScreen(
+                        game,
+                        true,
+                        "ResultScreenBG.png",
+                        "MainMenuMusic.wav",
+                        onBattleComplete,
+                        () -> {}
+                    ));
+                }
+            }, .75f); // 1 second delay
+            return;
+        }
+
+        // Check if all characters are defeated
+        boolean allDefeated = true;
+        if (umbra != null && umbra.getHP() > 0) allDefeated = false;
+        if (nova != null && nova.getHP() > 0) allDefeated = false;
+        if (jina != null && jina.getHP() > 0) allDefeated = false;
+
+        if (allDefeated) {
+            playCloseTransition = true;
+            closeTransitionStateTime = 0;
+            sfx.stopAudio();
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    game.setScreen(new BattleResultScreen(
+                        game,
+                        false,
+                        "ResultScreenBG.png",
+                        "MainMenuMusic.wav",
+                        () -> {},
+                        () -> {
+                            game.setScreen(new BattleClass(
+                                game, universeName,
+                                umbra != null, nova != null, jina != null,
+                                backgroundTexture.toString().replace("Backgrounds/", ""),
+                                roadTileTexture.toString().replace("Tiles/", ""),
+                                musicFile,
+                                onBattleComplete
+                            ));
+                        }
+                    ));
+                }
+            }, .75f);
+        }
+    }
+    private void debugTurnState(String event) {
+        String turnCharacter = (currentTurn >= 0 && currentTurn < characters.size())
+            ? characters.get(currentTurn) : "NONE";
+
+        String actualCharacter = (currentCharacter != null)
+            ? currentCharacter.getClass().getSimpleName().replace("Character_", "")
+            : "NONE";
+
+        String buttonSkills = (currentCharacter != null)
+            ? "[Basic: " + currentCharacter.getBasicAtkImage() + "]"
+            : "NO_SKILLS";
+
+        System.out.println(
+            "\n===== TURN DEBUG =====" +
+                "\nEvent: " + event +
+                "\nTurn Indicator: " + turnCharacter +
+                "\nActual Character: " + actualCharacter +
+                "\nButtons Showing: " + buttonSkills +
+                "\nUmbra HP: " + (umbra != null ? umbra.getHP() : "DEAD") +
+                "\nNova HP: " + (nova != null ? nova.getHP() : "DEAD") +
+                "\nJina HP: " + (jina != null ? jina.getHP() : "DEAD") +
+                "\n======================="
+        );
+    }
+    private void debugEnemyHP() {
+        System.out.println(
+            "===== ENEMY HP DEBUG ====\n" +
+                "Current HP: " + enemyCurrentHp + "/" + enemyMaxHp + "\n" +
+                "Percentage: " + ((float)enemyCurrentHp/enemyMaxHp)*100 + "%\n" +
+                "========================="
+        );
+    }
+
 }

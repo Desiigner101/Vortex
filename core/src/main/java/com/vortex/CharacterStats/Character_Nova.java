@@ -6,13 +6,13 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class Character_Nova implements Character_BattleStats {
-    // Stats
-    private int HP = 800;
-    private int basicAttackDamage = 70;
-    private int skillDamage = 170;
-    private int skillCost = 1;
-    private int ultimateDamage = 250;
-    private int ultCooldown = 7;
+    // Stats (updated values)
+    private int HP = 750;  // Reduced from 800
+    private int basicAttackDamage = 85;  // Increased from 70
+    private int skillDamage = 200;  // Increased from 170
+    private int skillCost = 2;  // Increased from 1
+    private int ultimateDamage = 350;  // Increased from 250
+    private int ultCooldown = 5;  // Reduced from 7
     private int currentUltCooldown = 0;
 
     // Static image paths
@@ -20,7 +20,7 @@ public class Character_Nova implements Character_BattleStats {
     private final String skillImage = "Pictures/Nova/CharacterView/Nova_EnergyBlaster.png";
     private final String ultImage = "Pictures/Nova/CharacterView/Nova_MultidimensionalBlast.png";
 
-    // Animation paths (corrected to Nova-specific paths)
+    // Animation paths (kept same as original)
     private final String idleAnimationPath = "Pictures/Umbra/BattleView/umbra_idle_battle.png";
     private final String basicAtkAnimationPath = "Pictures/Umbra/BattleView/umbra_basicAtk_battle.png";//12 frames
     private final String skillAnimationPath = "Pictures/Umbra/BattleView/umbra_skill_battle.png";//12 frames
@@ -113,7 +113,6 @@ public class Character_Nova implements Character_BattleStats {
         setAnimation(ultAnimation);
     }
 
-
     public void dispose() {
         if (idleSheet != null) idleSheet.dispose();
         if (basicAtkSheet != null) basicAtkSheet.dispose();
@@ -147,7 +146,7 @@ public class Character_Nova implements Character_BattleStats {
     // Getters
     @Override public int getHP() { return HP; }
     @Override public void setHP(int HP) { this.HP = Math.min(Math.max(0, HP), getMaxHP()); }
-    @Override public int getMaxHP() { return 800; }
+    @Override public int getMaxHP() { return 750; }  // Updated to match new HP
     @Override public int getBasicAttackDamage() { return basicAttackDamage; }
     @Override public int getSkillDamage() { return skillDamage; }
     @Override public int getSkillCost() { return skillCost; }
