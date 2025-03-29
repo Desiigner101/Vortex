@@ -187,9 +187,9 @@ public class BattleClass implements Screen {
 
         // Load HP Bar sprite sheet
         hpBarTexture = new Texture(Gdx.files.internal("BattleAssets/HP_Bar.png"));
-        hpBarRegions = new TextureRegion[6];
-        int regionWidth = hpBarTexture.getWidth() / 6;
-        for (int i = 0; i < 6; i++) {
+        hpBarRegions = new TextureRegion[16];
+        int regionWidth = hpBarTexture.getWidth() / 16;
+        for (int i = 0; i < 16; i++) {
             hpBarRegions[i] = new TextureRegion(hpBarTexture, i * regionWidth, 0, regionWidth, hpBarTexture.getHeight());
         }
 
@@ -563,17 +563,37 @@ public class BattleClass implements Screen {
 
             float hpPercentage = (float) currentHP / maxHP;
             int hpBarIndex = 0;
-            if (hpPercentage >= 0.8f) {
-            } else if (hpPercentage >= 0.6f) {
+            if (hpPercentage == 1f) {
+            } else if (hpPercentage >= 0.9333f) {
                 hpBarIndex = 1;
-            } else if (hpPercentage >= 0.4f) {
+            } else if (hpPercentage >= 0.8667f) {
                 hpBarIndex = 2;
-            } else if (hpPercentage >= 0.2f) {
+            } else if (hpPercentage >= 0.8f) {
                 hpBarIndex = 3;
-            } else if (hpPercentage > 0f) {
+            } else if (hpPercentage >= 0.7333f) {
                 hpBarIndex = 4;
-            } else {
+            } else if (hpPercentage >= 0.6667) {
                 hpBarIndex = 5;
+            } else if (hpPercentage >= 0.6) {
+                hpBarIndex = 6;
+            } else if (hpPercentage >= 0.5333) {
+                hpBarIndex = 7;
+            } else if (hpPercentage >= 0.4667) {
+                hpBarIndex = 8;
+            } else if (hpPercentage >= 0.4) {
+                hpBarIndex = 9;
+            } else if (hpPercentage >= 0.3333) {
+                hpBarIndex = 10;
+            } else if (hpPercentage >= 0.2667) {
+                hpBarIndex = 11;
+            } else if (hpPercentage >= 0.2) {
+                hpBarIndex = 12;
+            } else if (hpPercentage >= 0.1333) {
+                hpBarIndex = 13;
+            } else if (hpPercentage > 0) {
+                hpBarIndex = 14;
+            } else {
+                hpBarIndex = 15;
             }
 
             float hpBarX = characterX + 5;
