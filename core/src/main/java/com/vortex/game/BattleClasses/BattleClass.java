@@ -80,6 +80,15 @@ public class BattleClass implements Screen {
      // Drawing height
 
     private Map<String, Integer> ultimateCooldowns;
+    //HealAnimation
+    private float startX;
+    private Texture healAnimationSheet;
+    private Animation<TextureRegion> healAnimation;
+    private boolean isPlayingHeal = false;
+    private float healAnimationTimer = 0f;
+    private float healAnimationDuration = 0.1f * 23; // 23 frames at 0.1s each
+    private Vector2 healTargetPosition;
+
 
     private String universeName;
     private final int PLATFORM_Y = 200;
@@ -184,7 +193,7 @@ public class BattleClass implements Screen {
         skin = new Skin(Gdx.files.internal("uiskin.json"));
         viewport = new FitViewport(1600, 900);
         viewport.apply();
-
+        loadHealAnimation();
         Gdx.input.setInputProcessor(stage);
 
         // Load fonts
@@ -219,12 +228,12 @@ public class BattleClass implements Screen {
         TextureRegion[][] tmpOpen = TextureRegion.split(openTransitionTexture,
             openTransitionTexture.getWidth()/8,
             openTransitionTexture.getHeight());
-        openTransitionFrames = new TextureRegion[15];
-        for (int i = 0; i < 8; i++) {
+        openTransitionFrames = new TextureRegion[20];
+        for (int i = 0; i < 13; i++) {
             openTransitionFrames[i] = tmpOpen[0][7];
         }
-        for (int i = 8; i < 15; i++) {
-            openTransitionFrames[i] = tmpOpen[0][14 - i];
+        for (int i = 13; i < 20; i++) {
+            openTransitionFrames[i] = tmpOpen[0][19 - i];
         }
         openTransitionAnimation = new Animation<>(0.1f, openTransitionFrames);
         System.out.println("The Battle is starting!");
@@ -443,17 +452,116 @@ public class BattleClass implements Screen {
     }
 
     private void dealSkillDamage() {
-        int damage = currentCharacter.getSkillDamage();
-        enemyCurrentHp = Math.max(0, enemyCurrentHp - damage);
-        System.out.println("Character used their skill and dealt " + damage + " damage to the enemy!");
+        if (currentCharacter instanceof Character_Jina) {
+            // Jina's skill is healing and damage
+            int damage = currentCharacter.getSkillDamage();
+            healLowestCharacter();
+            enemyCurrentHp = Math.max(0, enemyCurrentHp - damage);
+            System.out.println("Character used their skill and dealt " + damage + " damage to the enemy!");
+        } else {
+            // Normal skill damage for other characters
+            int damage = currentCharacter.getSkillDamage();
+            enemyCurrentHp = Math.max(0, enemyCurrentHp - damage);
+            System.out.println("Character used their skill and dealt " + damage + " damage to the enemy!");
+        }
 
+        // Play appropriate animation
         if (currentCharacter instanceof Character_Umbra) {
             umbra.playSkillAnimation();
+        } else if (currentCharacter instanceof Character_Jina) {
+            jina.playSkillAnimation();
         }
+
         debugEnemyHP();
         checkBattleConditions();
     }
 
+    private void loadHealAnimation() {
+        healAnimationSheet = new Texture(Gdx.files.internal("BattleAssets/JinaHeal.png"));
+        TextureRegion[][] tmp = TextureRegion.split(healAnimationSheet,
+            healAnimationSheet.getWidth()/22,
+            healAnimationSheet.getHeight());
+
+        TextureRegion[] frames = new TextureRegion[22];
+        for (int i = 0; i < 22; i++) {
+            frames[i] = tmp[0][i];
+        }
+        healAnimation = new Animation<>(0.1f, frames);
+    }
+
+    private void healLowestCharacter() {
+        Character_BattleStats target = findCharacterWithLowestHP();
+
+        if (target != null) {
+            int healAmount = ((Character_Jina)currentCharacter).getHealAmount();
+            int newHP = Math.min(target.getHP() + healAmount, target.getMaxHP());
+            target.setHP(newHP);
+
+            // Set up healing animation
+            isPlayingHeal = true;
+            healAnimationTimer = 0f;
+
+            // Calculate character positions
+            float totalCharactersWidth = characters.size() * 300;
+            float currentStartX = (viewport.getWorldWidth() - totalCharactersWidth) / 2;
+
+            // Set position based on which character is being healed
+            if (target instanceof Character_Umbra) {
+                healTargetPosition = new Vector2(
+                    currentStartX + characters.indexOf("Umbra") * 300 + 125,
+                    PLATFORM_Y + 160
+                );
+            } else if (target instanceof Character_Nova) {
+                healTargetPosition = new Vector2(
+                    currentStartX + characters.indexOf("Nova") * 300 + 125,
+                    PLATFORM_Y + 160
+                );
+            } else {
+                healTargetPosition = new Vector2(
+                    currentStartX + characters.indexOf("Jina") * 300 + 125,
+                    PLATFORM_Y + 160
+                );
+            }
+
+            System.out.println("Jina healed " +
+                target.getClass().getSimpleName().replace("Character_", "") +
+                " for " + healAmount + " HP!");
+
+            // Play healing sound
+            sfx.playSoundEffect("heal_sound.wav", 0.5f);
+        }
+    }
+
+    private Character_BattleStats findCharacterWithLowestHP() {
+        Character_BattleStats lowestHPChar = null;
+        float lowestPercentage = 1.0f; // Start at 100%
+
+        // Check all available characters
+        if (umbra != null && umbra.getHP() > 0) {
+            float percentage = (float)umbra.getHP() / umbra.getMaxHP();
+            if (percentage < lowestPercentage) {
+                lowestPercentage = percentage;
+                lowestHPChar = umbra;
+            }
+        }
+
+        if (nova != null && nova.getHP() > 0) {
+            float percentage = (float)nova.getHP() / nova.getMaxHP();
+            if (percentage < lowestPercentage) {
+                lowestPercentage = percentage;
+                lowestHPChar = nova;
+            }
+        }
+
+        if (jina != null && jina.getHP() > 0) {
+            float percentage = (float)jina.getHP() / jina.getMaxHP();
+            if (percentage < lowestPercentage) {
+                lowestHPChar = jina;
+            }
+        }
+
+        return lowestHPChar;
+    }
     private void dealUltimateDamage() {
         int damage = currentCharacter.getUltimateDamage();
         enemyCurrentHp = Math.max(0, enemyCurrentHp - damage);
@@ -691,12 +799,16 @@ public class BattleClass implements Screen {
         UNIVERSE_FONT.draw(spriteBatch, universeName, 50, 880);
 
 // Draw enemy hp
+        // Draw enemy hp
         String enemyHpText = String.format("%.0f%%", enemyHpPercentage * 100);
         GlyphLayout enemyHpLayout = new GlyphLayout(SKILLS_FONT, enemyHpText);
-        float enemyHpTextX = enemyHpBarX - enemyHpLayout.width + 90;
+        GlyphLayout enemyNameLayout = new GlyphLayout(SKILLS_FONT, enemy.getName());
+
+        float enemyHpTextX = enemyHpBarX + 40;
         float enemyHpTextY = enemyHpBarY + enemyHpBarHeight / 2 + enemyHpLayout.height / 2 + 8;
-        float enemyNameTextX = enemyHpBarX - enemyHpLayout.width + 710;
-        float enemyNameTextY = enemyHpBarY + enemyHpBarHeight / 2 + enemyHpLayout.height / 2 + 8;
+        float enemyNameTextX = enemyHpBarX + enemyHpBarWidth - enemyNameLayout.width - 40;
+        float enemyNameTextY = enemyHpBarY + enemyHpBarHeight / 2 + enemyNameLayout.height / 2 + 8;
+
         SKILLS_FONT.setColor(Color.WHITE);
         SKILLS_FONT.draw(spriteBatch, enemyHpText, enemyHpTextX, enemyHpTextY);
         SKILLS_FONT.draw(spriteBatch, enemy.getName(), enemyNameTextX, enemyNameTextY);
@@ -724,11 +836,11 @@ public class BattleClass implements Screen {
 
         // Draw characters and their HP bars
         float totalCharactersWidth = characters.size() * 300;
-        float startX = (viewport.getWorldWidth() - totalCharactersWidth) / 2;
+        startX = (viewport.getWorldWidth() - totalCharactersWidth) / 2;
         for (int i = 0; i < characters.size(); i++) {
             String character = characters.get(i);
             float characterX = startX + i * 300;
-            float characterY = PLATFORM_Y + 50;
+            float characterY = PLATFORM_Y + 60;
 
             if (character.equals("Umbra")) {
                 umbra.update(delta);
@@ -919,6 +1031,23 @@ public class BattleClass implements Screen {
                 debugTurnState("Enemy turn finished");
             }
         }
+        if (isPlayingHeal) {
+            healAnimationTimer += delta;
+            if (healAnimationTimer >= healAnimationDuration) {
+                isPlayingHeal = false;
+            }
+        }
+
+        spriteBatch.begin();
+        if (isPlayingHeal) {
+            TextureRegion currentHealFrame = healAnimation.getKeyFrame(healAnimationTimer, false);
+            spriteBatch.draw(currentHealFrame,
+                healTargetPosition.x - 100, // Adjust position as needed
+                healTargetPosition.y - 120,
+                180, 180);
+        }
+
+        spriteBatch.end();
         if (playCloseTransition) {
             spriteBatch.begin();
             closeTransitionStateTime += delta;
@@ -1423,6 +1552,7 @@ public class BattleClass implements Screen {
         if (controlsShapeRenderer != null) controlsShapeRenderer.dispose();
         if (hpBarTexture != null) hpBarTexture.dispose();
         if (enemyHpBarTexture != null) enemyHpBarTexture.dispose();
+        if (healAnimationSheet != null) healAnimationSheet.dispose();
     }
 
     private void checkBattleConditions() {

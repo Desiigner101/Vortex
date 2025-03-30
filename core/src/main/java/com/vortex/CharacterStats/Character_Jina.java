@@ -10,11 +10,11 @@ public class Character_Jina implements Character_BattleStats {
     private int HP = 800;
     private int basicAttackDamage = 68;
     private int skillDamage = 130;
-    private int skillCost = 1;
+    private int skillCost = 2;
     private int ultimateDamage = 170;
     private int ultCooldown = 6;
     private int currentUltCooldown = 0;
-
+    private int HealAmount = 350;
     // Static image paths
     private final String basicAtkImage = "Pictures/Jina/CharacterView/Jina_SledgeStrike.png";
     private final String skillImage = "Pictures/Jina/CharacterView/Jina_PrecisionShot.png";
@@ -162,5 +162,7 @@ public class Character_Jina implements Character_BattleStats {
     @Override public String getHitAnimation() { return hitAnimationPath; }
     @Override public String getUltAnimation() { return ultAnimationPath; }
 
-
+    public int getHealAmount(){
+        return HealAmount;
+    };
 }

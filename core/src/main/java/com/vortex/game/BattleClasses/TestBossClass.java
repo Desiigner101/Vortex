@@ -9,8 +9,8 @@ public class TestBossClass implements EnemyClass {
     // Stats
     private int HP = 5000;
     private int maxHP = 5000;
-    private int Atk = 500;
-    private String name = "TestBoss";
+    private int Atk = 100;
+    private String name = "WhatTheSigma";
     private boolean isBoss = true;
 
     // Animation

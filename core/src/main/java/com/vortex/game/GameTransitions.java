@@ -85,7 +85,7 @@ public class GameTransitions extends Game {
                         this, "NYXARION",
                         new TestBossClass(),
                         true, true, true,
-                        "ResultScreenBG.png", "RoadTile.png", "Boss-BattleMusic.wav",
+                        "ResultScreenBG.png", "StoneTile.png", "Boss-BattleMusic.wav",
                         () -> startNextSequence()
                     );
                     setScreen(currentScreen);
