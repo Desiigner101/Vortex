@@ -3,6 +3,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.utils.Timer;
 import com.vortex.game.BattleClasses.BattleClass;
+import com.vortex.game.BattleClasses.TestBossClass;
 
 public class GameTransitions extends Game {
     // A flag to track if the intro video has been played (resets when the app restarts)
@@ -47,9 +48,10 @@ public class GameTransitions extends Game {
                 // Store the battle creation logic in a variable so we can reuse it for retries
                 Runnable createBattle1 = () -> {
                     currentScreen = new BattleClass(
-                        this, "Battle 1",
+                        this, "NYXARION",
+                        new TestBossClass(), // Create enemy instance here
                         true, true, true,
-                        "ruins_background.png", "RoadTile.png", "Boss-BattleMusic.wav",
+                        "ResultScreenBG.png", "RoadTile.png", "Boss-BattleMusic.wav",
                         () -> startNextSequence()
                     );
                     setScreen(currentScreen);
@@ -65,8 +67,9 @@ public class GameTransitions extends Game {
                 Runnable createBattle1 = () -> {
                     currentScreen = new BattleClass(
                         this, "Battle 2",
+                        new TestBossClass(), // Create enemy instance here
                         true, true, true,
-                        "ruins_background.png", "RoadTile.png", "Boss-BattleMusic.wav",
+                        "ResultScreenBG.png", "RoadTile.png", "Boss-BattleMusic.wav",
                         () -> startNextSequence()
                     );
                     setScreen(currentScreen);

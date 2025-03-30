@@ -44,11 +44,12 @@ public class BattleClass implements Screen {
     private BitmapFont BOSS_FONT;
     private BitmapFont BASIC_ENEMIES;
     private BitmapFont SKILLS_FONT;
+    private BitmapFont ENEMY_TURN_FONT;
     private BitmapFont UNIVERSE_FONT;
     private BitmapFont enemyTurnFont;
     private FontManager fontHandler;
     private Runnable onBattleComplete;
-
+    private EnemyClass enemy;
 
     private boolean hasStarted = true;
     private ImageButton attackButton, skillButton, ultimateButton, settingsButton;
@@ -70,6 +71,13 @@ public class BattleClass implements Screen {
     private float ultimateAnimationTimer = 0f;
     private float ultimateAnimationDuration = 0.12f * 29; // 29 frames * 0.12s per frame
     private TextureRegion currentUltimateFrame;
+
+    //enemyposition
+    private float enemyWidth = 900f;  // Drawing width
+    private float enemyHeight = 900f;
+    private float enemyX = (1600 - enemyWidth) / 2f;;  // X position on screen
+    private float enemyY = (900 - enemyHeight) / 2f + 100f;   // Y position on screen
+     // Drawing height
 
     private Map<String, Integer> ultimateCooldowns;
 
@@ -111,6 +119,7 @@ public class BattleClass implements Screen {
     private float pulse = 0f;
     private float pulseSpeed = 2f;
     private String musicFile;
+    private boolean musicStarted = false;
 
     private Color backgroundColor = new Color(0.05f, 0.07f, 0.15f, 1f);
     private Color accentColor = new Color(0f, 0.8f, 0.8f, 1f);
@@ -141,8 +150,8 @@ public class BattleClass implements Screen {
     // Enemy HP Bar related fields
     private Texture enemyHpBarTexture;
     private TextureRegion[] enemyHpBarRegions;
-    private int enemyMaxHp = 500;
-    private int enemyCurrentHp = 500;
+    private int enemyMaxHp;
+    private int enemyCurrentHp;
 
     // Enemy turn related fields
     private boolean isEnemyTurn = false;
@@ -162,7 +171,7 @@ public class BattleClass implements Screen {
     private float openTransitionStateTime = 0;
     private boolean playOpenTransition = true;
 
-    public BattleClass(GameTransitions game,String universeName, boolean hasUmbra, boolean hasNova, boolean hasJina,
+    public BattleClass(GameTransitions game,String universeName,EnemyClass enemy, boolean hasUmbra, boolean hasNova, boolean hasJina,
                        String background, String roadTile, String musicFile, Runnable onBattleComplete) {
         this.game = game;
         this.onBattleComplete = onBattleComplete;
@@ -170,6 +179,7 @@ public class BattleClass implements Screen {
         spriteBatch = new SpriteBatch();
         bitmapFont = new BitmapFont();
         fontHandler = new FontManager();
+        this.enemy = enemy;
         stage = new Stage();
         skin = new Skin(Gdx.files.internal("uiskin.json"));
         viewport = new FitViewport(1600, 900);
@@ -182,7 +192,8 @@ public class BattleClass implements Screen {
         fontHandler.loadFont("skillsfont", "Fonts/SKILLS_FONTS/Orbitron-SemiBold.ttf");
 
         // Generate fonts
-        UNIVERSE_FONT = fontHandler.getFont("Poppins-Bold", 32, Color.RED);
+        ENEMY_TURN_FONT = fontHandler.getFont("Poppins-Bold", 32, Color.RED);
+        UNIVERSE_FONT = fontHandler.getFont("Poppins-Bold", 32, Color.WHITE);
         SKILLS_FONT = fontHandler.getFont("skillsfont", 20, Color.WHITE);
 
         // Create a large font for "Enemy's Turn" text
@@ -216,7 +227,7 @@ public class BattleClass implements Screen {
             openTransitionFrames[i] = tmpOpen[0][14 - i];
         }
         openTransitionAnimation = new Animation<>(0.1f, openTransitionFrames);
-
+        System.out.println("The Battle is starting!");
         // Load textures
         backgroundTexture = new Texture(Gdx.files.internal("Backgrounds/" + background));
         roadTileTexture = new Texture(Gdx.files.internal("Tiles/" + roadTile));
@@ -257,10 +268,9 @@ public class BattleClass implements Screen {
         }
 
         TestBossClass testBoss = new TestBossClass();
-        enemyMaxHp = testBoss.getMaxHP();
-        enemyCurrentHp = testBoss.getMaxHP();
+        enemyMaxHp = enemy.getMaxHP();
+        enemyCurrentHp = enemy.getMaxHP();
 
-        sfx.playMusic(musicFile);
         this.musicFile = musicFile;
         characters = new ArrayList<>();
         if (hasUmbra) characters.add("Umbra");
@@ -527,11 +537,12 @@ public class BattleClass implements Screen {
         String characterName = characters.get(currentTurn);
 
         // If current character is defeated, find next alive one
-        if (isCharacterDefeated(characterName)) {
+        if (currentTurn >= 0 && currentTurn < characters.size() &&
+            isCharacterDefeated(characters.get(currentTurn))) {
             currentTurn = findFirstAliveCharacter();
             if (currentTurn == -1) {
                 checkBattleConditions();
-                return;
+                return;  // Add this return to prevent further execution
             }
             characterName = characters.get(currentTurn);
             debugTurnState("Turn changed to " + characters.get(currentTurn));
@@ -596,6 +607,10 @@ public class BattleClass implements Screen {
 
     @Override
     public void show() {
+        if (!musicStarted) {
+            sfx.playMusic(musicFile);
+            musicStarted = true;
+        }
     }
 
     @Override
@@ -605,10 +620,12 @@ public class BattleClass implements Screen {
             if (umbra != null) {
                 umbra.updateUltimate(delta);
             }
+            enemy.update(delta);
             renderBattle(delta);
         } else {
             renderGameControls(delta);
         }
+
     }
 
     public void renderBattle(float delta) {
@@ -624,16 +641,26 @@ public class BattleClass implements Screen {
                 currentUltimateFrame = umbra.getCurrentFrame();
             }
         }
-        spriteBatch.begin();
 
+        spriteBatch.begin();
+        // Draw Enemy
+        TextureRegion currentEnemyFrame = enemy.getCurrentFrame();
+        spriteBatch.draw(currentEnemyFrame,
+            enemyX, enemyY,
+            enemyWidth, enemyHeight);
         // Draw background and other elements
         spriteBatch.draw(backgroundTexture, 0, 0, viewport.getWorldWidth(), viewport.getWorldHeight());
-        UNIVERSE_FONT.draw(spriteBatch, universeName, 750, 850);
-        bitmapFont.draw(spriteBatch, "Boss Name", 750, 550);
-        bitmapFont.draw(spriteBatch, "[ BOSS ]", 780, 500);
+
 
         // Draw Enemy HP Bar
         float enemyHpPercentage = (float) enemyCurrentHp / enemyMaxHp;
+
+// Draw enemy name:
+
+
+// Draw enemy sprite:
+        TextureRegion enemyFrame = enemy.getCurrentFrame();
+        spriteBatch.draw(enemyFrame, enemyX, enemyY, enemyWidth, enemyHeight);
         int enemyHpIndex = (int) (61 * (1 - enemyHpPercentage));
         TextureRegion enemyHpRegion = enemyHpBarRegions[enemyHpIndex];
         float enemyHpBarWidth = 800;
@@ -641,13 +668,18 @@ public class BattleClass implements Screen {
         float enemyHpBarX = (viewport.getWorldWidth() - enemyHpBarWidth) / 2;
         float enemyHpBarY = viewport.getWorldHeight() - 48;
         spriteBatch.draw(enemyHpRegion, enemyHpBarX, enemyHpBarY, enemyHpBarWidth, enemyHpBarHeight);
+        UNIVERSE_FONT.draw(spriteBatch, universeName, 50, 880);
 
+// Draw enemy hp
         String enemyHpText = String.format("%.0f%%", enemyHpPercentage * 100);
         GlyphLayout enemyHpLayout = new GlyphLayout(SKILLS_FONT, enemyHpText);
         float enemyHpTextX = enemyHpBarX - enemyHpLayout.width + 90;
         float enemyHpTextY = enemyHpBarY + enemyHpBarHeight / 2 + enemyHpLayout.height / 2 + 8;
+        float enemyNameTextX = enemyHpBarX - enemyHpLayout.width + 710;
+        float enemyNameTextY = enemyHpBarY + enemyHpBarHeight / 2 + enemyHpLayout.height / 2 + 8;
         SKILLS_FONT.setColor(Color.WHITE);
         SKILLS_FONT.draw(spriteBatch, enemyHpText, enemyHpTextX, enemyHpTextY);
+        SKILLS_FONT.draw(spriteBatch, enemy.getName(), enemyNameTextX, enemyNameTextY);
 
         // Draw platform and tiles
         spriteBatch.setColor(0, 0, 0, 1);
@@ -760,9 +792,9 @@ public class BattleClass implements Screen {
 
         // Draw Enemy Turn Indicator if it's the enemy's turn
         if (isEnemyTurn) {
-            float indicatorX = (viewport.getWorldWidth() - 20) / 2;
-            float indicatorY = viewport.getWorldHeight() - 140;
-            spriteBatch.draw(enemyTurnIndicatorTexture, indicatorX, indicatorY, 40, 62);
+            float indicatorX = (viewport.getWorldWidth() - 55) / 2;
+            float indicatorY = viewport.getWorldHeight() - 160;
+            spriteBatch.draw(enemyTurnIndicatorTexture, indicatorX, indicatorY, 60, 95);
         }
 
         // Disable buttons and display "Enemy's Turn" text during the enemy's turn
@@ -824,9 +856,8 @@ public class BattleClass implements Screen {
 
 
 
-        if (!isEnemyTurn) {
+        if (!isEnemyTurn && currentTurn >= 0 && currentTurn < characters.size()) {
             spriteBatch.begin();
-
             // Draw Skill Cost Text
             String skillCostText = currentCharacter.getSkillCost() + " SP";
             GlyphLayout skillGlyphLayout = new GlyphLayout(SKILLS_FONT, skillCostText);
@@ -836,6 +867,7 @@ public class BattleClass implements Screen {
 
             // Draw Ultimate Cooldown Text
             int currentCooldown = ultimateCooldowns.get(characters.get(currentTurn));
+
             if (currentCooldown > 0) {
                 String cooldownText = currentCooldown + (currentCooldown == 1 ? " turn" : " turns");
                 GlyphLayout ultimateGlyphLayout = new GlyphLayout(SKILLS_FONT, cooldownText);
@@ -894,7 +926,7 @@ public class BattleClass implements Screen {
                     playOpenTransition = false;
                     openTransitionStateTime = 0;
                 }
-                return; // Skip rest of rendering during opening transition
+                return;
             }
             hasStarted=false;
         }
@@ -1387,6 +1419,7 @@ public class BattleClass implements Screen {
                         () -> {
                             game.setScreen(new BattleClass(
                                 game, universeName,
+                                enemy,
                                 umbra != null, nova != null, jina != null,
                                 backgroundTexture.toString().replace("Backgrounds/", ""),
                                 roadTileTexture.toString().replace("Tiles/", ""),
