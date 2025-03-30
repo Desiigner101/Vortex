@@ -8,10 +8,10 @@ import com.vortex.SFX.PlayAudio;
 
 public class TestBossClass implements EnemyClass {
     // Stats
-    private int HP = 100;
-    private int maxHP = 100;
-    private int Atk = 200;
-    private String name = "WhatTheSigma";
+    private int HP = 1000;
+    private int maxHP = 1000;
+    private int Atk = 175;
+    private String name = "Moking The Great";
     private boolean isBoss = true;
     // Animation
     private final String idleAnimationPath = "Enemies/TestBoss.png";
