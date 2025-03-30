@@ -9,60 +9,75 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PlayAudio implements SoundEffects {
-    /*
-     * Instructions for soundClass by Danidani
-     * There's 5 methods:
-     * - playMusic(String) → Enter the music name as a parameter (with the .wav). It will continuously loop until the stopMusic() method is called.
-     * - playSoundEffect(String, double) → Enter the SFX name as a parameter (with the .wav). It will automatically stop once the SFX finishes.
-     * - stopMusic() → Stops the music loop.
-     * - stopSoundEffect() → Stops all sound effects currently playing.
-     * - stopAudio() → Stops both the music loop and sound effects.
-     *
-     * Requirements:
-     * - You need to have 2 folders inside `assets/`:
-     *   1. `MusicFolder` → Should contain your background music.
-     *   2. `SoundEffectsFolder` → Should contain your SFX files.
-     */
-
-    private Music musicClip;
-    private final Map<String, Sound> soundCache = new HashMap<>(); // Stores sound effects to avoid reloading
+    private Music currentMusic;
+    private final Map<String, Sound> soundCache = new HashMap<>();
+    private float musicVolume = 1.0f;
+    private float soundVolume = 1.0f;
+    private long currentSoundId = -1;
 
     @Override
     public void playSoundEffect(String soundFile, double delay) {
+        if (soundVolume <= 0.001f) return; // Don't play if muted
+
         Timer.schedule(new Timer.Task() {
             @Override
             public void run() {
-                FileHandle file = Gdx.files.internal("SoundEffectsFolder/" + soundFile);
-                if (!file.exists()) {
-                    Gdx.app.error("PlayAudio", "Sound effect file not found: " + soundFile);
-                    return;
+                try {
+                    FileHandle file = Gdx.files.internal("SoundEffectsFolder/" + soundFile);
+                    if (!file.exists()) {
+                        Gdx.app.error("PlayAudio", "Sound effect not found: " + soundFile);
+                        return;
+                    }
+
+                    Sound sound = soundCache.computeIfAbsent(soundFile,
+                            key -> Gdx.audio.newSound(file));
+
+                    // Stop previous sound if still playing
+                    if (currentSoundId != -1) {
+                        sound.stop(currentSoundId);
+                    }
+
+                    // Play with current volume
+                    currentSoundId = sound.play(soundVolume);
+                    sound.setVolume(currentSoundId, soundVolume);
+
+                    Gdx.app.debug("PlayAudio", "Playing: " + soundFile +
+                            " at volume: " + soundVolume);
+                } catch (Exception e) {
+                    Gdx.app.error("PlayAudio", "Error playing sound: " + e.getMessage());
                 }
-
-                // Load or retrieve from cache
-                Sound sound = soundCache.computeIfAbsent(soundFile, key -> Gdx.audio.newSound(file));
-
-                // Play sound effect
-                long soundId = sound.play();
-                Gdx.app.log("PlayAudio", "Playing sound effect: " + soundFile + " (ID: " + soundId + ")");
             }
         }, (float) delay);
     }
 
     @Override
     public void playMusic(String musicFile) {
-        stopMusic(); // Stop any currently playing music
+        stopMusic(); // Stop current music first
 
-        FileHandle file = Gdx.files.internal("MusicFolder/" + musicFile);
-        if (!file.exists()) {
-            Gdx.app.error("PlayAudio", "Music file not found: " + musicFile);
-            return;
+        try {
+            FileHandle file = Gdx.files.internal("MusicFolder/" + musicFile);
+            if (!file.exists()) {
+                Gdx.app.error("PlayAudio", "Music file not found: " + musicFile);
+                return;
+            }
+
+            currentMusic = Gdx.audio.newMusic(file);
+            currentMusic.setLooping(true);
+
+            // Apply current volume settings
+            if (musicVolume <= 0.001f) {
+                currentMusic.setVolume(0);
+                currentMusic.pause(); // Pause instead of stop to maintain state
+            } else {
+                currentMusic.setVolume(musicVolume);
+                currentMusic.play();
+            }
+
+            Gdx.app.debug("PlayAudio", "Playing music: " + musicFile +
+                    " at volume: " + musicVolume);
+        } catch (Exception e) {
+            Gdx.app.error("PlayAudio", "Error loading music: " + e.getMessage());
         }
-
-        musicClip = Gdx.audio.newMusic(file);
-        musicClip.setLooping(true);
-        musicClip.play();
-
-        Gdx.app.log("PlayAudio", "Music is playing: " + musicFile);
     }
 
     @Override
@@ -73,40 +88,74 @@ public class PlayAudio implements SoundEffects {
 
     @Override
     public void stopMusic() {
-        if (musicClip != null) {
-            musicClip.stop();
-            musicClip.dispose(); // Free memory
-            musicClip = null;
-            Gdx.app.log("PlayAudio", "Music stopped.");
+        if (currentMusic != null) {
+            currentMusic.stop();
+            currentMusic.dispose();
+            currentMusic = null;
+            Gdx.app.debug("PlayAudio", "Music stopped");
         }
     }
 
     @Override
     public void stopSoundEffect() {
-        for (Sound sound : soundCache.values()) {
-            sound.stop();
+        soundCache.values().forEach(Sound::stop);
+        currentSoundId = -1;
+        Gdx.app.debug("PlayAudio", "All sound effects stopped");
+    }
+
+    public void setSoundVolume(float volume) {
+        float newVolume = Math.max(0, Math.min(1, volume)); // Clamp 0-1
+        if (Math.abs(newVolume - soundVolume) > 0.01f) { // Only if significant change
+            soundVolume = newVolume;
+
+            // Update all playing sounds
+            soundCache.values().forEach(sound -> {
+                if (currentSoundId != -1) {
+                    sound.setVolume(currentSoundId, soundVolume);
+                }
+            });
+
+            Gdx.app.debug("PlayAudio", "Sound volume set to: " + soundVolume);
         }
-        Gdx.app.log("PlayAudio", "All sound effects stopped.");
+    }
+
+    public void setMusicVolume(float volume) {
+        float newVolume = Math.max(0, Math.min(1, volume)); // Clamp 0-1
+        if (Math.abs(newVolume - musicVolume) > 0.01f) { // Only if significant change
+            musicVolume = newVolume;
+
+            if (currentMusic != null) {
+                if (musicVolume <= 0.001f) {
+                    currentMusic.setVolume(0);
+                    currentMusic.pause();
+                } else {
+                    if (!currentMusic.isPlaying()) {
+                        currentMusic.play();
+                    }
+                    currentMusic.setVolume(musicVolume);
+                }
+            }
+
+            Gdx.app.debug("PlayAudio", "Music volume set to: " + musicVolume);
+        }
+    }
+
+    public float getMusicVolume() {
+        return musicVolume;
+    }
+
+    public float getSoundVolume() {
+        return soundVolume;
+    }
+
+    public boolean isMusicPlaying() {
+        return currentMusic != null && currentMusic.isPlaying();
     }
 
     public void dispose() {
-        stopMusic();
-        for (Sound sound : soundCache.values()) {
-            sound.dispose();
-        }
+        stopAudio();
+        soundCache.values().forEach(Sound::dispose);
         soundCache.clear();
-        Gdx.app.log("PlayAudio", "All audio resources disposed.");
-    }
-
-
-    public boolean isMusicPlaying() {
-        return musicClip != null && musicClip.isPlaying();
-    }
-
-
-    public void setSoundVolume(float soundVolume) {
-    }
-
-    public void setMusicVolume(float musicVolume) {
+        Gdx.app.debug("PlayAudio", "All resources disposed");
     }
 }

@@ -1,36 +1,71 @@
 package com.vortex.game;
+
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.utils.Timer;
+import com.badlogic.gdx.Preferences;
+import com.vortex.SFX.PlayAudio;
 import com.vortex.game.BattleClasses.BattleClass;
 import com.vortex.game.BattleClasses.TestBossClass;
 
 public class GameTransitions extends Game {
-    // A flag to track if the intro video has been played (resets when the app restarts)
     private static boolean introPlayed = false;
-    private int sequenceCount=0;
+    private int sequenceCount = 0;
     private Screen currentScreen;
+    private Preferences prefs;
+    private PlayAudio audioManager;
+
+    // Volume settings
+    private float musicVolume = 1.0f;
+    private float soundVolume = 1.0f;
+
     @Override
     public void create() {
-        //Check if the intro has already played
-        /*
-       if (!introPlayed) {
-          introPlayed = true; // Mark the intro as played for this session
-            this.setScreen(new VideoIntro(this)); // Show the intro video
-      } else {*/
-            this.setScreen(new GameMenu(this)); // Skip the intro and go straight to the menu
-      //}
+        prefs = com.badlogic.gdx.Gdx.app.getPreferences("game_settings");
+        audioManager = new PlayAudio();
+        loadSettings();
+
+        if (!introPlayed) {
+            introPlayed = true;
+            this.setScreen(new VideoIntro(this));
+        } else {
+            this.setScreen(new GameMenu(this));
+        }
     }
 
-    // }
-    // Method to switch to the game menu
+    public void loadSettings() {
+        musicVolume = prefs.getFloat("musicVolume", 1.0f);
+        soundVolume = prefs.getFloat("soundVolume", 1.0f);
+    }
+
+    public float getMusicVolume() {
+        return musicVolume;
+    }
+
+    public float getSoundVolume() {
+        return soundVolume;
+    }
+
+    public void setMusicVolume(float volume) {
+        this.musicVolume = volume;
+        prefs.putFloat("musicVolume", volume);
+        prefs.flush();
+        audioManager.setMusicVolume(volume); // Propagate to audio system
+    }
+
+    public void setSoundVolume(float volume) {
+        this.soundVolume = volume;
+        prefs.putFloat("soundVolume", volume);
+        prefs.flush();
+        audioManager.setSoundVolume(volume); // Propagate to audio system
+    }
+    public PlayAudio getAudioManager() {
+        return audioManager;
+    }
+
     public void startGameMenu() {
         this.setScreen(new GameMenu(this));
     }
-
-    // Method to start a new game session
-
-
 
     public void newGame() {
         sequenceCount = 0;
@@ -45,44 +80,39 @@ public class GameTransitions extends Game {
                 "Nova", "First dialogue line", "Lab", "#FFFFFF",
                 "AI", "Finally you istoopid!", "ResultScreenBG", "#008080"
             }, () -> {
-                // Store the battle creation logic in a variable so we can reuse it for retries
                 Runnable createBattle1 = () -> {
                     currentScreen = new BattleClass(
                         this, "NYXARION",
-                        new TestBossClass(), // Create enemy instance here
+                        new TestBossClass(),
                         true, true, true,
                         "ResultScreenBG.png", "RoadTile.png", "Boss-BattleMusic.wav",
                         () -> startNextSequence()
                     );
                     setScreen(currentScreen);
                 };
-
-                createBattle1.run(); // Create and start the first battle
+                createBattle1.run();
             });
             setScreen(currentScreen);
-        }else if(sequenceCount == 2) {
+        } else if(sequenceCount == 2) {
             currentScreen = new StoryScene(this, new String[]{
                 "Nova", "Second dialogue line", "Lab", "#FFFFFF"
             }, () -> {
                 Runnable createBattle1 = () -> {
                     currentScreen = new BattleClass(
                         this, "Battle 2",
-                        new TestBossClass(), // Create enemy instance here
+                        new TestBossClass(),
                         true, true, true,
                         "ResultScreenBG.png", "RoadTile.png", "Boss-BattleMusic.wav",
                         () -> startNextSequence()
                     );
                     setScreen(currentScreen);
                 };
-
                 createBattle1.run();
             });
             setScreen(currentScreen);
         }
-        // ... rest of your sequences
     }
 
-    // Method to open the character selection screen
     public void displayCharacters() {
         this.setScreen(new DisplayCharacters(this));
     }
@@ -90,5 +120,4 @@ public class GameTransitions extends Game {
     public void showControls() {
         setScreen(new GameControls(this));
     }
-
 }

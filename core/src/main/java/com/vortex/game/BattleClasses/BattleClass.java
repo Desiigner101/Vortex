@@ -1223,6 +1223,7 @@ public class BattleClass implements Screen {
     private void handleControlsInput() {
         float mouseX = Gdx.input.getX();
         float mouseY = screenHeight - Gdx.input.getY();
+        boolean volumeChanged = false;
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             if (backButton.contains(mouseX, mouseY)) {
@@ -1244,8 +1245,10 @@ public class BattleClass implements Screen {
 
             if (isPointNearSlider(musicSlider, mouseX, mouseY, musicVolume)) {
                 isDraggingMusic = true;
+                volumeChanged = true;
             } else if (isPointNearSlider(soundSlider, mouseX, mouseY, soundVolume)) {
                 isDraggingSound = true;
+                volumeChanged = true;
             } else if (isPointNearSlider(brightnessSlider, mouseX, mouseY, brightness)) {
                 isDraggingBrightness = true;
             }
@@ -1253,25 +1256,52 @@ public class BattleClass implements Screen {
 
         if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
             if (isDraggingMusic) {
-                musicVolume = calculateSliderValue(musicSlider, mouseX);
+                float newVolume = calculateSliderValue(musicSlider, mouseX);
+                if (newVolume != musicVolume) {
+                    musicVolume = newVolume;
+                    sfx.setMusicVolume(musicVolume);
+                    volumeChanged = true;
+                }
             } else if (isDraggingSound) {
-                soundVolume = calculateSliderValue(soundSlider, mouseX);
+                float newVolume = calculateSliderValue(soundSlider, mouseX);
+                if (newVolume != soundVolume) {
+                    soundVolume = newVolume;
+                    sfx.setSoundVolume(soundVolume);
+                    volumeChanged = true;
+
+                    // Play test sound when adjusting sound volume (if not muted)
+                    if (soundVolume > 0.01f && !Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+                        sfx.playSoundEffect("hover_button.wav", 0.1f);
+                    }
+                }
             } else if (isDraggingBrightness) {
                 brightness = calculateSliderValue(brightnessSlider, mouseX);
             }
         } else {
+            // When mouse is released
+            if (isDraggingMusic || isDraggingSound) {
+                saveSettings(); // Save when done adjusting
+                if (isDraggingSound && soundVolume > 0.01f) {
+                    sfx.playSoundEffect("ui_confirm.wav", 0);
+                }
+            }
             isDraggingMusic = false;
             isDraggingSound = false;
             isDraggingBrightness = false;
         }
+        if (volumeChanged && !Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+            saveSettings();
+        }
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             if (musicSlider.contains(mouseX, mouseY)) {
-                musicVolume = calculateSliderValue(musicSlider, mouseX);
+                isDraggingMusic = true;
+                volumeChanged = true;
             } else if (soundSlider.contains(mouseX, mouseY)) {
-                soundVolume = calculateSliderValue(soundSlider, mouseX);
+                isDraggingSound = true;
+                volumeChanged = true;
             } else if (brightnessSlider.contains(mouseX, mouseY)) {
-                brightness = calculateSliderValue(brightnessSlider, mouseX);
+                isDraggingBrightness = true;
             }
         }
     }

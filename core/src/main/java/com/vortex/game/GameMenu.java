@@ -24,11 +24,9 @@ public class GameMenu implements Screen {
     private float textScale = 2f;
     private float glowAlpha = 0.5f;
     private boolean glowIncreasing = true;
-    private int lastHoveredIndex = -1; // Keeps track of the last hovered option
-
-
-    private MainMenuAnimator mainMenuAnimator; // Handles the animated background
-    private PlayAudio sfx; // Handles music playback
+    private int lastHoveredIndex = -1;
+    private MainMenuAnimator mainMenuAnimator;
+    private PlayAudio sfx;
 
     public GameMenu(GameTransitions game) {
         this.game = game;
@@ -37,22 +35,23 @@ public class GameMenu implements Screen {
     @Override
     public void show() {
         batch = new SpriteBatch();
-        font = generateFont("fonts/Poppins-ExtraBold.ttf", 42); // Load custom font
+        font = generateFont("fonts/Poppins-ExtraBold.ttf", 42);
         screenWidth = Gdx.graphics.getWidth();
         screenHeight = Gdx.graphics.getHeight();
         optionPositions = new Vector2[menuOptions.length];
         float startX = screenWidth * 0.15f;
         float startY = screenHeight * 0.5f;
 
-        // Calculate menu item positions
         for (int i = 0; i < menuOptions.length; i++) {
             optionPositions[i] = new Vector2(startX, startY - (i * 80));
         }
 
-        mainMenuAnimator = new MainMenuAnimator(); // Initialize animated background
-        sfx = new PlayAudio(); // Initialize PlayAudio
+        mainMenuAnimator = new MainMenuAnimator();
+        sfx = new PlayAudio();
+        sfx = game.getAudioManager();
+        sfx.setMusicVolume(game.getMusicVolume());
+        sfx.setSoundVolume(game.getSoundVolume());
 
-        // Play menu background music only if it's not already playing
         if (!sfx.isMusicPlaying()) {
             sfx.playMusic("MainMenuMusic.wav");
         }
@@ -60,79 +59,42 @@ public class GameMenu implements Screen {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(0, 0, 0, 1); // Clear screen with black color
-
-       mainMenuAnimator.update(delta); // Update background animation
+        ScreenUtils.clear(0, 0, 0, 1);
+        mainMenuAnimator.update(delta);
 
         batch.begin();
-       mainMenuAnimator.render(); // Render animated background
+        mainMenuAnimator.render();
         batch.end();
 
         batch.begin();
-        updateGlowEffect(delta); // Update glow effect on selected text
-        updateMouseSelection(); // Check if mouse is hovering over an option
+        updateGlowEffect(delta);
+        updateMouseSelection();
 
-        // Render menu options
         for (int i = 0; i < menuOptions.length; i++) {
             boolean isSelected = (i == selectedIndex);
-            font.setColor(isSelected ? new Color(1, 1, 0, glowAlpha) : Color.LIGHT_GRAY); //COLOR OF THE HOVER EFFECT
+            font.setColor(isSelected ? new Color(1, 1, 0, glowAlpha) : Color.LIGHT_GRAY);
             font.draw(batch, menuOptions[i], optionPositions[i].x, optionPositions[i].y);
         }
         batch.end();
 
-        handleInput(); // Handle user input
+        handleInput();
     }
 
-    @Override
-    public void resize(int width, int height) {
-        mainMenuAnimator.resize(width, height); // Adjust background on resize
-    }
-
-    @Override
-    public void pause() {}
-
-    @Override
-    public void resume() {}
-
-    @Override
-    public void hide() {
-        // Stop music when exiting the menu
-        if (sfx != null) {
-            sfx.stopMusic();
-        }
-    }
-
-    @Override
-    public void dispose() {
-        batch.dispose();
-        font.dispose();
-        mainMenuAnimator.dispose(); // Free resources
-        if (sfx != null) {
-            sfx.stopMusic(); // Ensure music stops when disposing
-        }
-    }
-
-    /**
-     * Handles a pulsing glow effect on the selected menu option.
-     */
     private void updateGlowEffect(float delta) {
         glowAlpha += (glowIncreasing ? delta : -delta);
         if (glowAlpha >= 1 || glowAlpha <= 0.5f) glowIncreasing = !glowIncreasing;
     }
 
-    /**
-     * Detects if the mouse is hovering over any menu option and updates selection.
-     */
     private void updateMouseSelection() {
         float mouseX = Gdx.input.getX();
-        float mouseY = screenHeight - Gdx.input.getY(); // Convert to LibGDX coordinates
+        float mouseY = screenHeight - Gdx.input.getY();
         int previousIndex = selectedIndex;
         selectedIndex = -1;
 
         GlyphLayout layout = new GlyphLayout();
 
         for (int i = 0; i < menuOptions.length; i++) {
-            layout.setText(font, menuOptions[i]); // Get actual text dimensions
+            layout.setText(font, menuOptions[i]);
             float textWidth = layout.width;
             float textHeight = font.getCapHeight();
 
@@ -143,17 +105,12 @@ public class GameMenu implements Screen {
             }
         }
 
-        // Play hover sound only if the hovered option changed
         if (selectedIndex != -1 && selectedIndex != lastHoveredIndex) {
-            sfx.playSoundEffect("hover_button.wav",0); // Use sound effect instead of music
+            sfx.playSoundEffect("hover_button.wav", 0);
             lastHoveredIndex = selectedIndex;
         }
     }
 
-
-    /**
-     * Handles keyboard and mouse input for menu navigation.
-     */
     private void handleInput() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
             selectedIndex = (selectedIndex + 1) % menuOptions.length;
@@ -161,28 +118,21 @@ public class GameMenu implements Screen {
             selectedIndex = (selectedIndex - 1 + menuOptions.length) % menuOptions.length;
         }
 
-        // Select option on Enter key or left mouse click
         if ((Gdx.input.isKeyJustPressed(Input.Keys.ENTER) || Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) && selectedIndex != -1) {
             executeAction(selectedIndex);
-            sfx.playSoundEffect("whenTextIsClicked.wav",0);
+            sfx.playSoundEffect("whenTextIsClicked.wav", 0);
         }
     }
 
-    /**
-     * Executes an action based on the selected menu option.
-     */
     private void executeAction(int index) {
         switch (index) {
-            case 0: game.newGame(); break; // Start a new game
-            case 2: game.displayCharacters(); break; // Open character selection
-            case 3: this.game.showControls(); break; // Open controls screen
-            case 4: Gdx.app.exit(); break; // Exit game
+            case 0: game.newGame(); break;
+            case 2: game.displayCharacters(); break;
+            case 3: game.showControls(); break;
+            case 4: Gdx.app.exit(); break;
         }
     }
 
-    /**
-     * Generates a custom font from a TTF file.
-     */
     private BitmapFont generateFont(String fontPath, int fontSize) {
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal(fontPath));
         FreeTypeFontParameter parameter = new FreeTypeFontParameter();
@@ -195,7 +145,35 @@ public class GameMenu implements Screen {
         parameter.shadowColor = new Color(0, 0, 0, 0.75f);
 
         BitmapFont font = generator.generateFont(parameter);
-        generator.dispose(); // Free font generator
+        generator.dispose();
         return font;
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        mainMenuAnimator.resize(width, height);
+    }
+
+    @Override
+    public void pause() {}
+
+    @Override
+    public void resume() {}
+
+    @Override
+    public void hide() {
+        if (sfx != null) {
+            sfx.stopMusic();
+        }
+    }
+
+    @Override
+    public void dispose() {
+        batch.dispose();
+        font.dispose();
+        mainMenuAnimator.dispose();
+        if (sfx != null) {
+            sfx.stopMusic();
+        }
     }
 }

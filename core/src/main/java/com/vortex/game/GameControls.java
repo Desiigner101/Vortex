@@ -327,6 +327,11 @@ public class GameControls implements Screen {
         float mouseX = Gdx.input.getX();
         float mouseY = screenHeight - Gdx.input.getY();
 
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            saveSettings();
+            game.startGameMenu();
+            return;
+        }
         // Check for button clicks
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             // Check buttons
@@ -336,6 +341,7 @@ public class GameControls implements Screen {
                 return;
             }
             if (restartButton.contains(mouseX, mouseY)) {
+
                 saveSettings();
                 game.newGame();
                 return;
@@ -360,8 +366,10 @@ public class GameControls implements Screen {
         if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
             if (isDraggingMusic) {
                 musicVolume = calculateSliderValue(musicSlider, mouseX);
+                game.setMusicVolume(musicVolume);
             } else if (isDraggingSound) {
                 soundVolume = calculateSliderValue(soundSlider, mouseX);
+                game.setSoundVolume(soundVolume);
             } else if (isDraggingBrightness) {
                 brightness = calculateSliderValue(brightnessSlider, mouseX);
             }
@@ -375,8 +383,10 @@ public class GameControls implements Screen {
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             if (musicSlider.contains(mouseX, mouseY)) {
                 musicVolume = calculateSliderValue(musicSlider, mouseX);
+                game.setMusicVolume(musicVolume);
             } else if (soundSlider.contains(mouseX, mouseY)) {
                 soundVolume = calculateSliderValue(soundSlider, mouseX);
+                game.setSoundVolume(soundVolume);
             } else if (brightnessSlider.contains(mouseX, mouseY)) {
                 brightness = calculateSliderValue(brightnessSlider, mouseX);
             }
