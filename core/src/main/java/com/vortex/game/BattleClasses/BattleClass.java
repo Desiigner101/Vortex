@@ -129,6 +129,7 @@ public class BattleClass implements Screen {
     private float pulseSpeed = 2f;
     private String musicFile;
     private boolean musicStarted = false;
+    private int roundCount = 0;
 
     private Color backgroundColor = new Color(0.05f, 0.07f, 0.15f, 1f);
     private Color accentColor = new Color(0f, 0.8f, 0.8f, 1f);
@@ -797,7 +798,8 @@ public class BattleClass implements Screen {
         float enemyHpBarY = viewport.getWorldHeight() - 48;
         spriteBatch.draw(enemyHpRegion, enemyHpBarX, enemyHpBarY, enemyHpBarWidth, enemyHpBarHeight);
         UNIVERSE_FONT.draw(spriteBatch, universeName, 50, 880);
-
+        UNIVERSE_FONT.draw(spriteBatch, universeName, 50, 880);
+        UNIVERSE_FONT.draw(spriteBatch, "Round: " + roundCount, 50, 840);
 // Draw enemy hp
         // Draw enemy hp
         String enemyHpText = String.format("%.0f%%", enemyHpPercentage * 100);
@@ -1084,6 +1086,7 @@ public class BattleClass implements Screen {
     private void enemyAttack() {
         isEnemyTurn = true;
         enemyTurnTimer = ENEMY_TURN_DURATION;
+        roundCount++;
 
         // Schedule the attack to happen after 3 seconds
         Timer.schedule(new Timer.Task() {
@@ -1570,10 +1573,11 @@ public class BattleClass implements Screen {
                         "ResultScreenBG.png",
                         "MainMenuMusic.wav",
                         onBattleComplete,
-                        () -> {}
+                        () -> {},
+                        roundCount // Add round count here
                     ));
                 }
-            }, .75f); // 1 second delay
+            }, .75f);
             return;
         }
 
@@ -1606,7 +1610,8 @@ public class BattleClass implements Screen {
                                 musicFile,
                                 onBattleComplete
                             ));
-                        }
+                        },
+                        0 // Pass 0 for defeat (won't be shown anyway)
                     ));
                 }
             }, .75f);
@@ -1644,5 +1649,10 @@ public class BattleClass implements Screen {
                 "========================="
         );
     }
+
+    public int getRoundCount() {
+        return roundCount;
+    }
+
 
 }

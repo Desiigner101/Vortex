@@ -25,72 +25,100 @@ public class BattleResultScreen implements Screen {
     private final String musicFile;
     private final Runnable onContinueAction;
     private final Runnable onRetryAction;
+    private final int roundCount;
+    private BitmapFont roundFont;
 
     private SpriteBatch batch;
     private Texture background;
+    private Texture resultTexture;
     private Stage stage;
-    private BitmapFont titleFont;
     private BitmapFont messageFont;
     private BitmapFont buttonFont;
     private PlayAudio sfx;
 
+    // Animation variables
+    private float animationTime = 0;
+    private final float animationDuration = 1f;
+    private final float startYOffset = 10f;
+    private float currentYOffset = startYOffset;
+    private float currentAlpha = 0.5f;
+
     private String resultMessage;
     private String[] victoryMessages = {
-            "That wasn't so bad.",
-            "Woah.. The tech works wonders!",
-            "That was a close one, wasn't it",
-            "Another victory for the team!",
-            "The enemy didn't stand a chance!"
+        "That wasn't so bad.",
+        "Woah.. The tech works wonders!",
+        "That was a close one, wasn't it",
+        "Another victory for the team!",
+        "The enemy didn't stand a chance!"
     };
 
     private String[] defeatMessages = {
-            "My Gear!! I worked really hard on those...",
-            "Ouch... That's gonna leave a scar.",
-            "That hurts... Let's go again",
-            "We'll get them next time!",
-            "I need to rethink my strategy..."
+        "My Gear!! I worked really hard on those...",
+        "Ouch... That's gonna leave a scar.",
+        "That hurts... Let's go again",
+        "We'll get them next time!",
+        "I need to rethink my strategy..."
     };
 
-    public BattleResultScreen(GameTransitions game, boolean isVictory, String backgroundPath, String musicFile, Runnable onContinueAction, Runnable onRetryAction) {
+    public BattleResultScreen(GameTransitions game, boolean isVictory, String backgroundPath,
+                              String musicFile, Runnable onContinueAction,
+                              Runnable onRetryAction, int roundCount) {
         this.game = game;
         this.isVictory = isVictory;
         this.backgroundPath = backgroundPath;
         this.musicFile = musicFile;
         this.onContinueAction = onContinueAction;
         this.onRetryAction = onRetryAction;
+        this.roundCount = roundCount;
     }
 
     @Override
     public void show() {
         batch = new SpriteBatch();
         background = new Texture(Gdx.files.internal("Backgrounds/" + backgroundPath));
+        resultTexture = new Texture(Gdx.files.internal("BattleAssets/" + (isVictory ? "VictoryText.png" : "DefeatText.png")));
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
 
         // Initialize audio
         sfx = new PlayAudio();
-        sfx.playMusic(musicFile);
 
-        // Generate fonts
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Fonts/Poppins-Bold.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        if(!isVictory){
+            sfx.playSoundEffect("defeat_sfx.wav", 0);
+            sfx.playMusic("defeat_ambience.wav");
+        }else{
+            sfx.playSoundEffect("victory_sfx.wav",0);
+            sfx.playMusic(musicFile);
+        }
 
-        // Title font
-        parameter.size = 72;
-        parameter.color = isVictory ? Color.GOLD : Color.RED;
-        titleFont = generator.generateFont(parameter);
+        // Font generation with proper resource management
+        FreeTypeFontGenerator generator = null;
+        try {
+            generator = new FreeTypeFontGenerator(Gdx.files.internal("Fonts/Poppins-Bold.ttf"));
 
-        // Message font
-        parameter.size = 36;
-        parameter.color = Color.WHITE;
-        messageFont = generator.generateFont(parameter);
+            // Round font
+            FreeTypeFontGenerator.FreeTypeFontParameter roundParam = new FreeTypeFontGenerator.FreeTypeFontParameter();
+            roundParam.size = 24;
+            roundParam.color = Color.WHITE;
+            roundFont = generator.generateFont(roundParam);
 
-        // Button font
-        parameter.size = 32;
-        parameter.color = Color.WHITE;
-        buttonFont = generator.generateFont(parameter);
+            // Message font
+            FreeTypeFontGenerator.FreeTypeFontParameter messageParam = new FreeTypeFontGenerator.FreeTypeFontParameter();
+            messageParam.size = 36;
+            messageParam.color = Color.WHITE;
+            messageFont = generator.generateFont(messageParam);
 
-        generator.dispose();
+            // Button font
+            FreeTypeFontGenerator.FreeTypeFontParameter buttonParam = new FreeTypeFontGenerator.FreeTypeFontParameter();
+            buttonParam.size = 32;
+            buttonParam.color = Color.WHITE;
+            buttonFont = generator.generateFont(buttonParam);
+
+        } finally {
+            if (generator != null) {
+                generator.dispose();
+            }
+        }
 
         // Select random message
         Random random = new Random();
@@ -115,7 +143,7 @@ public class BattleResultScreen implements Screen {
                 if (isVictory) {
                     onContinueAction.run();
                 } else {
-                    onRetryAction.run(); // Use the retry action instead of newGame()
+                    onRetryAction.run();
                 }
             }
         });
@@ -127,18 +155,39 @@ public class BattleResultScreen implements Screen {
     public void render(float delta) {
         ScreenUtils.clear(0, 0, 0, 1);
 
+        // Update animation
+        if (animationTime < animationDuration) {
+            animationTime += delta;
+            float progress = Math.min(animationTime / animationDuration, 1f);
+            float easedProgress = 1 - (1 - progress) * (1 - progress);
+            currentYOffset = startYOffset * (1 - easedProgress);
+            currentAlpha = 0.5f + (0.5f * easedProgress);
+        }
+
         batch.begin();
         // Draw background
         batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
-        // Create GlyphLayout instances for text measurement
-        GlyphLayout titleLayout = new GlyphLayout(titleFont, isVictory ? "VICTORY" : "DEFEAT");
+        // Create GlyphLayout for text measurement
         GlyphLayout messageLayout = new GlyphLayout(messageFont, resultMessage);
 
-        // Draw title
-        titleFont.draw(batch, titleLayout,
-            Gdx.graphics.getWidth()/2f - titleLayout.width/2,
-            Gdx.graphics.getHeight() * 0.7f);
+        if (isVictory) {
+            String roundText = "Total Rounds: " + roundCount;
+            GlyphLayout roundLayout = new GlyphLayout(roundFont, roundText);
+            roundFont.draw(batch, roundLayout,
+                Gdx.graphics.getWidth()/2f - roundLayout.width/2,
+                Gdx.graphics.getHeight() * 0.5f);
+        }
+
+        // Draw result image with animation
+        float resultWidth = resultTexture.getWidth();
+        float resultHeight = resultTexture.getHeight();
+        float resultX = Gdx.graphics.getWidth()/2f - resultWidth/2;
+        float resultY = Gdx.graphics.getHeight() * 0.7f - currentYOffset;
+
+        batch.setColor(1, 1, 1, currentAlpha);
+        batch.draw(resultTexture, resultX, resultY, resultWidth, resultHeight);
+        batch.setColor(1, 1, 1, 1); // Reset color/alpha
 
         // Draw message
         messageFont.draw(batch, messageLayout,
@@ -171,12 +220,13 @@ public class BattleResultScreen implements Screen {
 
     @Override
     public void dispose() {
-        batch.dispose();
-        background.dispose();
-        stage.dispose();
-        titleFont.dispose();
-        messageFont.dispose();
-        buttonFont.dispose();
-        sfx.dispose();
+        if (batch != null) batch.dispose();
+        if (background != null) background.dispose();
+        if (resultTexture != null) resultTexture.dispose();
+        if (stage != null) stage.dispose();
+        if (messageFont != null) messageFont.dispose();
+        if (buttonFont != null) buttonFont.dispose();
+        if (roundFont != null) roundFont.dispose();
+        if (sfx != null) sfx.dispose();
     }
 }

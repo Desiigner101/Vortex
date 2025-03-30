@@ -4,15 +4,15 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.vortex.SFX.PlayAudio;
 
 public class TestBossClass implements EnemyClass {
     // Stats
-    private int HP = 5000;
-    private int maxHP = 5000;
-    private int Atk = 100;
+    private int HP = 100;
+    private int maxHP = 100;
+    private int Atk = 200;
     private String name = "WhatTheSigma";
     private boolean isBoss = true;
-
     // Animation
     private final String idleAnimationPath = "Enemies/TestBoss.png";
     private Texture idleSheet;
