@@ -339,7 +339,8 @@ public class BattleClass implements Screen {
         skillButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                if (skillPoints >= currentCharacter.getSkillCost()) {
+                if (currentTurn >= 0 && currentTurn < characters.size() &&
+                    skillPoints >= currentCharacter.getSkillCost()) {
                     dealSkillDamage();
                     useSkill();
                     nextTurn();
@@ -349,23 +350,26 @@ public class BattleClass implements Screen {
                     skillFlashing = true;
                     SKILLS_FONT.setColor(0.53f, 0.81f, 0.92f, 1f);
                 }
-
-                SKILLS_FONT.setColor(1f, 0f, 0f, 1f);
             }
 
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                if (skillPoints >= currentCharacter.getSkillCost()) {
+                // Add bounds checking
+                if (currentTurn >= 0 && currentTurn < characters.size() &&
+                    skillPoints >= currentCharacter.getSkillCost()) {
                     skillButton.getColor().a = 1.0f;
                 }
             }
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                if (skillPoints >= currentCharacter.getSkillCost()) {
-                    skillButton.getColor().a = 0.85f;
-                } else {
-                    skillButton.getColor().a = 0.5f;
+                // Add bounds checking
+                if (currentTurn >= 0 && currentTurn < characters.size()) {
+                    if (skillPoints >= currentCharacter.getSkillCost()) {
+                        skillButton.getColor().a = 0.85f;
+                    } else {
+                        skillButton.getColor().a = 0.5f;
+                    }
                 }
             }
         });
@@ -373,32 +377,38 @@ public class BattleClass implements Screen {
         ultimateButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                int currentCooldown = ultimateCooldowns.get(characters.get(currentTurn));
-                if (currentCooldown <= 0) {
-                    dealUltimateDamage();
-                    useUltimate();
-                    nextTurn();
-                } else {
-                    ultimateFlashing = true;
+                if (currentTurn >= 0 && currentTurn < characters.size()) {
+                    int currentCooldown = ultimateCooldowns.get(characters.get(currentTurn));
+                    if (currentCooldown <= 0) {
+                        dealUltimateDamage();
+                        useUltimate();
+                        nextTurn();
+                    } else {
+                        ultimateFlashing = true;
+                    }
+                    debugTurnState("ult attack used");
                 }
-                debugTurnState("ult attack used");
             }
 
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
-                int currentCooldown = ultimateCooldowns.get(characters.get(currentTurn));
-                if (currentCooldown <= 0) {
-                    ultimateButton.getColor().a = 1.0f;
+                if (currentTurn >= 0 && currentTurn < characters.size()) {
+                    int currentCooldown = ultimateCooldowns.get(characters.get(currentTurn));
+                    if (currentCooldown <= 0) {
+                        ultimateButton.getColor().a = 1.0f;
+                    }
                 }
             }
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
-                int currentCooldown = ultimateCooldowns.get(characters.get(currentTurn));
-                if (currentCooldown <= 0) {
-                    ultimateButton.getColor().a = 0.85f;
-                } else {
-                    ultimateButton.getColor().a = 0.5f;
+                if (currentTurn >= 0 && currentTurn < characters.size()) {
+                    int currentCooldown = ultimateCooldowns.get(characters.get(currentTurn));
+                    if (currentCooldown <= 0) {
+                        ultimateButton.getColor().a = 0.85f;
+                    } else {
+                        ultimateButton.getColor().a = 0.5f;
+                    }
                 }
             }
         });
@@ -578,13 +588,23 @@ public class BattleClass implements Screen {
     }
 
     public void updateButtons() {
-        boolean isDefeated = isCharacterDefeated(characters.get(currentTurn));
+        // Disable all buttons if no valid turn
+        if (currentTurn < 0 || currentTurn >= characters.size() ||
+            isCharacterDefeated(characters.get(currentTurn))) {
+            attackButton.setDisabled(true);
+            skillButton.setDisabled(true);
+            ultimateButton.setDisabled(true);
+            attackButton.getColor().a = 0.5f;
+            skillButton.getColor().a = 0.5f;
+            ultimateButton.getColor().a = 0.5f;
+            return;
+        }
 
         attackButton.getStyle().imageUp = new TextureRegionDrawable(new Texture(Gdx.files.internal(currentCharacter.getBasicAtkImage())));
         skillButton.getStyle().imageUp = new TextureRegionDrawable(new Texture(Gdx.files.internal(currentCharacter.getSkillImage())));
         ultimateButton.getStyle().imageUp = new TextureRegionDrawable(new Texture(Gdx.files.internal(currentCharacter.getUltImage())));
 
-        if (isDefeated || skillPoints < currentCharacter.getSkillCost()) {
+        if (skillPoints < currentCharacter.getSkillCost()) {
             skillButton.getColor().a = 0.5f;
             skillButton.setDisabled(true);
         } else {
@@ -593,7 +613,7 @@ public class BattleClass implements Screen {
         }
 
         int currentCooldown = ultimateCooldowns.get(characters.get(currentTurn));
-        if (isDefeated || currentCooldown > 0) {
+        if (currentCooldown > 0) {
             ultimateButton.getColor().a = 0.5f;
             ultimateButton.setDisabled(true);
         } else {
@@ -601,8 +621,8 @@ public class BattleClass implements Screen {
             ultimateButton.setDisabled(false);
         }
 
-        attackButton.setDisabled(isDefeated);
-        attackButton.getColor().a = isDefeated ? 0.5f : 0.85f;
+        attackButton.setDisabled(false);
+        attackButton.getColor().a = 0.85f;
     }
 
     @Override
@@ -952,7 +972,7 @@ public class BattleClass implements Screen {
                 if (!targets.isEmpty()) {
                     int randomIndex = (int) (Math.random() * targets.size());
                     Character_BattleStats target = targets.get(randomIndex);
-                    int damage = 500;
+                    int damage = enemy.getAtk();
                     target.takeDamage(damage);
 
                     if (target instanceof Character_Umbra) {
