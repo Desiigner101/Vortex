@@ -10,7 +10,7 @@ public class TestBossClass implements EnemyClass {
     // Stats
     private int HP = 1000;
     private int maxHP = 1000;
-    private int Atk = 800 ;
+    private int Atk = 200 ;
     private String name = "Moking The Great";
     private boolean isBoss = true;
     // Animation

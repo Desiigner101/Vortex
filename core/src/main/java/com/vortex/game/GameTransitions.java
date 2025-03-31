@@ -140,6 +140,9 @@ public class GameTransitions extends Game {
             });
             setScreen(currentScreen);
         }
+
+
+
     }
 
     public void displayCharacters() {
