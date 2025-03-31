@@ -60,10 +60,10 @@ public class GameMenu implements Screen {
     @Override
     public void render(float delta) {
         ScreenUtils.clear(0, 0, 0, 1);
-        mainMenuAnimator.update(delta);
+       mainMenuAnimator.update(delta);
 
         batch.begin();
-        mainMenuAnimator.render();
+      mainMenuAnimator.render();
         batch.end();
 
         batch.begin();
@@ -149,9 +149,9 @@ public class GameMenu implements Screen {
         return font;
     }
 
-    @Override
+   @Override
     public void resize(int width, int height) {
-        mainMenuAnimator.resize(width, height);
+      mainMenuAnimator.resize(width, height);
     }
 
     @Override

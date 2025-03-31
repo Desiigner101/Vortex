@@ -30,12 +30,13 @@ public class GameTransitions extends Game {
         audioManager = new PlayAudio();
         loadSettings();
 
-        if (!introPlayed) {
-            introPlayed = true;
-            this.setScreen(new VideoIntro(this));
-        } else {
-            this.setScreen(new GameMenu(this));
-        }
+     //  if (!introPlayed) {
+        //    introPlayed = true;
+          //  this.setScreen(new VideoIntro(this));
+     //  } else {
+          this.setScreen(new GameMenu(this));
+         //this.setScreen(new WorldTransitions(this));
+       //  }
     }
 
     public void loadSettings() {
