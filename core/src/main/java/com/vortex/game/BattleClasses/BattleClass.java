@@ -77,7 +77,7 @@ public class BattleClass implements Screen {
     private float enemyHeight = 900f;
     private float enemyX = (1600 - enemyWidth) / 2f;;  // X position on screen
     private float enemyY = (900 - enemyHeight) / 2f + 100f;   // Y position on screen
-     // Drawing height
+    // Drawing height
 
     private Map<String, Integer> ultimateCooldowns;
     //HealAnimation
