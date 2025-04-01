@@ -698,8 +698,10 @@ public class DisplayCharacters implements Screen {
                     "Skill Attack: Precision Shot",
                     "A calculated shot that pierces,",
                     "enemy defenses.",
+                    "And heals allies.",
                     "Physical Attack: 120",
-                    "Skill Points (SP): -1",
+                    "Health Given: 350",
+                    "Skill Points (SP): -2",
                     "Deals skill attack damage."
                 },
                 {
