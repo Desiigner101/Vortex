@@ -152,6 +152,8 @@ public class BattleClass implements Screen {
     private float scaleFactor = 1.2f;
 
     private boolean showControls = false;
+    private boolean askingToQuit = false;
+  // For controls screen text rendering
 
     // HP Bar related fields
     private Texture hpBarTexture;
@@ -764,8 +766,69 @@ public class BattleClass implements Screen {
             renderBattle(delta);
         } else {
             renderGameControls(delta);
+
+            // Render quit confirmation message on top of controls if needed
+            if (askingToQuit) {
+                controlsBatch.begin();
+                String message = "Are you sure? Click QUIT again to exit.";
+                controlsLayout.setText(controlsFont, message);
+                float messageX = screenWidth / 2 - controlsLayout.width / 2;
+                float messageY = quitButton.y - 30 * scaleFactor;  // Position below the button
+
+                // New color settings - using bright red for warning message
+                Color warningColor = new Color(1f, 0.2f, 0.2f, 1f); // Bright red
+                Color outlineColor = new Color(0.2f, 0f, 0f, 1f);   // Dark red outline
+
+                // Draw outline (for better visibility)
+                controlsFont.setColor(outlineColor);
+                controlsFont.draw(controlsBatch, message, messageX-1, messageY-1);
+                controlsFont.draw(controlsBatch, message, messageX+1, messageY-1);
+                controlsFont.draw(controlsBatch, message, messageX-1, messageY+1);
+                controlsFont.draw(controlsBatch, message, messageX+1, messageY+1);
+
+                // Draw main text
+                controlsFont.setColor(warningColor);
+                controlsFont.draw(controlsBatch, message, messageX, messageY);
+
+                controlsFont.setColor(Color.WHITE); // Reset to default
+                controlsBatch.end();
+            }
         }
 
+        // Handle transition animations (keep these outside the showControls check)
+        if (playCloseTransition) {
+            renderCloseTransition(delta);
+        }
+        if (playOpenTransition) {
+            renderOpenTransition(delta);
+        }
+    }
+
+    private void renderCloseTransition(float delta) {
+        spriteBatch.begin();
+        closeTransitionStateTime += delta;
+        TextureRegion currentFrame = closeTransitionAnimation.getKeyFrame(closeTransitionStateTime, false);
+        spriteBatch.draw(currentFrame, 0, viewport.getWorldHeight()-900, 1600, 900);
+
+        if (closeTransitionAnimation.isAnimationFinished(closeTransitionStateTime)) {
+            playCloseTransition = false;
+            closeTransitionStateTime = 0;
+        }
+        spriteBatch.end();
+    }
+
+    private void renderOpenTransition(float delta) {
+        openTransitionStateTime += delta;
+        spriteBatch.begin();
+        TextureRegion currentFrame = openTransitionAnimation.getKeyFrame(openTransitionStateTime, false);
+        spriteBatch.draw(currentFrame, 0, viewport.getWorldHeight() - 900, 1600, 900);
+        spriteBatch.end();
+
+        if (openTransitionAnimation.isAnimationFinished(openTransitionStateTime)) {
+            playOpenTransition = false;
+            openTransitionStateTime = 0;
+            hasStarted = false;
+        }
     }
 
     public void renderBattle(float delta) {
@@ -1260,15 +1323,27 @@ public class BattleClass implements Screen {
 
             if (restartButton.contains(mouseX, mouseY)) {
                 saveSettings();
-                resetCurrentBattle(); // Renamed to avoid conflict
+                resetCurrentBattle();
                 showControls = false;
                 return;
             }
 
             if (quitButton.contains(mouseX, mouseY)) {
-                saveSettings();
-                Gdx.app.exit();
+                if (!askingToQuit) {
+                    // First click - show confirmation
+                    askingToQuit = true;
+                    sfx.playSoundEffect("ui_confirm.wav", 0.5f);
+                } else {
+                    // Second click - actually quit
+                    saveSettings();
+                    Gdx.app.exit();
+                }
                 return;
+            }
+
+            // If clicked elsewhere after asking to quit, cancel the quit confirmation
+            if (askingToQuit) {
+                askingToQuit = false;
             }
 
             // Slider handling remains the same
@@ -1316,6 +1391,17 @@ public class BattleClass implements Screen {
             isDraggingMusic = false;
             isDraggingSound = false;
             isDraggingBrightness = false;
+        }
+        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+            if (musicSlider.contains(mouseX, mouseY)) {
+                musicVolume = calculateSliderValue(musicSlider, mouseX);
+                game.setMusicVolume(musicVolume);
+            } else if (soundSlider.contains(mouseX, mouseY)) {
+                soundVolume = calculateSliderValue(soundSlider, mouseX);
+                game.setSoundVolume(soundVolume);
+            } else if (brightnessSlider.contains(mouseX, mouseY)) {
+                brightness = calculateSliderValue(brightnessSlider, mouseX);
+            }
         }
 
         if (volumeChanged && !Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {

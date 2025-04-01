@@ -32,11 +32,15 @@ public class GameControls implements Screen {
     private float brightness = 1.0f;
 
     // UI elements
+    // Add these with your other constants
+    private static final Color WARNING_RED = new Color(1f, 0.2f, 0.2f, 1f);
+    private static final Color WARNING_OUTLINE = new Color(0.2f, 0f, 0f, 1f);
     private Rectangle musicSlider, soundSlider, brightnessSlider;
     private Rectangle backButton, restartButton, quitButton;
     private boolean isDraggingMusic = false;
     private boolean isDraggingSound = false;
     private boolean isDraggingBrightness = false;
+    private boolean askingToQuit = false;
 
     // Animation
     private float[] buttonAnimations = new float[3]; // For back, restart, quit
@@ -176,8 +180,8 @@ public class GameControls implements Screen {
 
     private void drawText() {
         // Draw title with shadow and added space above and below
-        layout.setText(titleFont, "SETTINGS");
-        titleFont.draw(batch, "SETTINGS",
+        layout.setText(titleFont, "VORTEX CONTROLS");
+        titleFont.draw(batch, "VORTEX CONTROLS",
             screenWidth / 2 - layout.width / 2,
             screenHeight * 0.88f + 20 * scaleFactor); // Added 20 pixels above
 
@@ -220,6 +224,30 @@ public class GameControls implements Screen {
         drawCenteredButtonText(batch, backButton, "BACK", 0);
         drawCenteredButtonText(batch, restartButton, "RESTART", 1);
         drawCenteredButtonText(batch, quitButton, "QUIT", 2);
+
+        if (askingToQuit) {
+            String message = "Are you sure? Click QUIT again to exit.";
+            layout.setText(font, message);
+            float messageX = screenWidth / 2 - layout.width / 2;
+            float messageY = quitButton.y - 30 * scaleFactor;
+
+            // Warning colors
+            Color warningRed = new Color(1f, 0.2f, 0.2f, 1f);  // Bright red
+            Color outlineColor = new Color(0.2f, 0f, 0f, 1f);   // Dark red outline
+
+            // Draw outline (for visibility)
+            font.setColor(outlineColor);
+            font.draw(batch, message, messageX-1, messageY-1);
+            font.draw(batch, message, messageX+1, messageY-1);
+            font.draw(batch, message, messageX-1, messageY+1);
+            font.draw(batch, message, messageX+1, messageY+1);
+
+            // Draw main text
+            font.setColor(warningRed);
+            font.draw(batch, message, messageX, messageY);
+
+            font.setColor(Color.WHITE); // Reset to default
+        }
     }
 
     private void drawCenteredButtonText(SpriteBatch batch, Rectangle button, String text, int buttonIndex) {
@@ -337,6 +365,7 @@ public class GameControls implements Screen {
             game.startGameMenu();
             return;
         }
+
         // Check for button clicks
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             // Check buttons
@@ -348,14 +377,22 @@ public class GameControls implements Screen {
             if (restartButton.contains(mouseX, mouseY)) {
                 sfx.stopAudio();
                 saveSettings();
-                game.restartCurrentGame(); // Uses the new reset logic
+                game.restartCurrentGame();
                 return;
             }
             if (quitButton.contains(mouseX, mouseY)) {
-                saveSettings();
-                Gdx.app.exit();
-                return;
+                if (!askingToQuit) {
+                    askingToQuit = true;
+                    return; // Don't proceed further on first click
+                } else {
+                    saveSettings();
+                    Gdx.app.exit();
+                    return;
+                }
             }
+
+            // Cancel quit confirmation if clicking elsewhere
+            askingToQuit = false;
 
             // Check slider interactions
             if (isPointNearSlider(musicSlider, mouseX, mouseY, musicVolume)) {
@@ -364,6 +401,17 @@ public class GameControls implements Screen {
                 isDraggingSound = true;
             } else if (isPointNearSlider(brightnessSlider, mouseX, mouseY, brightness)) {
                 isDraggingBrightness = true;
+            }
+
+            // Allow clicking directly on slider
+            if (musicSlider.contains(mouseX, mouseY)) {
+                musicVolume = calculateSliderValue(musicSlider, mouseX);
+                game.setMusicVolume(musicVolume);
+            } else if (soundSlider.contains(mouseX, mouseY)) {
+                soundVolume = calculateSliderValue(soundSlider, mouseX);
+                game.setSoundVolume(soundVolume);
+            } else if (brightnessSlider.contains(mouseX, mouseY)) {
+                brightness = calculateSliderValue(brightnessSlider, mouseX);
             }
         }
 
@@ -497,4 +545,3 @@ public class GameControls implements Screen {
 
     }
 }
-
