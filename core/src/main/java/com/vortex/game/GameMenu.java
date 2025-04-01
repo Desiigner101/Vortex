@@ -16,7 +16,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 public class GameMenu implements Screen {
     private SpriteBatch batch;
     private BitmapFont font;
-    private String[] menuOptions = {"New Game", "View Characters", "Settings", "Exit"};
+    private String[] menuOptions = {"Start Game", "View Characters", "Settings", "Exit"};
     private Vector2[] optionPositions;
     private int selectedIndex = -1;
     private final GameTransitions game;
@@ -35,7 +35,7 @@ public class GameMenu implements Screen {
     @Override
     public void show() {
         batch = new SpriteBatch();
-        font = generateFont("fonts/Poppins-ExtraBold.ttf", 42);
+        font = generateFont("fonts/Poppins-ExtraBold.ttf", 52);
         screenWidth = Gdx.graphics.getWidth();
         screenHeight = Gdx.graphics.getHeight();
         optionPositions = new Vector2[menuOptions.length];
@@ -43,7 +43,8 @@ public class GameMenu implements Screen {
         float startY = screenHeight * 0.5f;
 
         for (int i = 0; i < menuOptions.length; i++) {
-            optionPositions[i] = new Vector2(startX, startY - (i * 80));
+            optionPositions[i] = new Vector2(startX, startY - (i * 100));
+            // Each option is 80 units below the previous one
         }
 
         mainMenuAnimator = new MainMenuAnimator();

@@ -118,7 +118,7 @@ public class StoryScene implements Screen {
         final TextButton skipButton = new TextButton("SKIP", skin);
         skipButton.setSize(180, 60);  // Width, height
         skipButton.setPosition(Gdx.graphics.getWidth() - (-80), 280);  // X, Y position
-        skipButton.getLabel().setFontScale(0.8f);  // Slightly smaller text
+        skipButton.getLabel().setFontScale(1.0f);  // Slightly smaller text
 
         // Hover sound effect
         skipButton.addListener(new ChangeListener() {

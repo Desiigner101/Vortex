@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -69,6 +70,10 @@ public class GameControls implements Screen {
     // Scale factor for UI elements
     private float scaleFactor = 1.2f;
 
+    //FOR BACKGROUND
+    private Texture backgroundTexture;  // Stores the background image
+    private Color backgroundTint = new Color(1, 1, 1, 0.9f);  // Optional: Adjusts brightness/transparency
+
     public GameControls(GameTransitions game) {
         this.game = game;
         prefs = Gdx.app.getPreferences("game_settings");
@@ -83,6 +88,10 @@ public class GameControls implements Screen {
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Fonts/Poppins-Bold.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+
+        //BACKGROUND
+        backgroundTexture = new Texture(Gdx.files.internal("Backgrounds/ResultScreenBG.png"));
+
 
         // Title font
         parameter.size = (int)(42 * scaleFactor);
@@ -164,6 +173,9 @@ public class GameControls implements Screen {
 
         // Draw text
         batch.begin();
+        batch.setColor(backgroundTint); // Optional: Adjusts image brightness/transparency
+        batch.draw(backgroundTexture, 0, 0, screenWidth, screenHeight); // Stretches to full screen
+        batch.setColor(Color.WHITE); // Reset color for other elements
         drawText();
         batch.end();
 
@@ -173,8 +185,8 @@ public class GameControls implements Screen {
 
     private void drawText() {
         // Draw title with shadow and added space above and below
-        layout.setText(titleFont, "VORTEX CONTROLS");
-        titleFont.draw(batch, "VORTEX CONTROLS",
+        layout.setText(titleFont, "SETTINGS");
+        titleFont.draw(batch, "SETTINGS",
             screenWidth / 2 - layout.width / 2,
             screenHeight * 0.88f + 20 * scaleFactor); // Added 20 pixels above
 
@@ -491,6 +503,8 @@ public class GameControls implements Screen {
         titleFont.dispose();
         buttonFont.dispose();
         shapeRenderer.dispose();
+
+        if (backgroundTexture != null) backgroundTexture.dispose();
     }
 }
 
