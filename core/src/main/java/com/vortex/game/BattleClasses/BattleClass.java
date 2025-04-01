@@ -447,6 +447,8 @@ public class BattleClass implements Screen {
 
         if (currentCharacter instanceof Character_Umbra) {
             umbra.playBasicAttackAnimation();
+        }else if (currentCharacter instanceof Character_Nova) {
+            nova.playBasicAttackAnimation();
         }
         debugEnemyHP();
         checkBattleConditions();
@@ -469,6 +471,8 @@ public class BattleClass implements Screen {
         // Play appropriate animation
         if (currentCharacter instanceof Character_Umbra) {
             umbra.playSkillAnimation();
+        } else if (currentCharacter instanceof Character_Nova) {
+            nova.playSkillAnimation();
         } else if (currentCharacter instanceof Character_Jina) {
             jina.playSkillAnimation();
         }
@@ -569,6 +573,9 @@ public class BattleClass implements Screen {
 
         if (currentCharacter instanceof Character_Umbra) {
             umbra.startUltimate();
+            sfx.playSoundEffect("umbra_ult_sfx.wav",0);
+        }else if (currentCharacter instanceof Character_Nova) {
+            nova.startUltimate();
             sfx.playSoundEffect("umbra_ult_sfx.wav",0);
         }
         debugEnemyHP();
@@ -675,6 +682,7 @@ public class BattleClass implements Screen {
                 break;
             case "Nova":
                 currentCharacter = nova;
+                if(nova!= null) nova.setAnimation(nova.getIdleAnimation());
                 break;
             case "Jina":
                 currentCharacter = jina;
@@ -748,6 +756,9 @@ public class BattleClass implements Screen {
             // Update ultimate animation
             if (umbra != null) {
                 umbra.updateUltimate(delta);
+            }
+            if (nova != null) {
+                nova.updateUltimate(delta);
             }
             enemy.update(delta);
             renderBattle(delta);
@@ -849,6 +860,7 @@ public class BattleClass implements Screen {
                 TextureRegion currentFrame = umbra.getCurrentFrame();
                 spriteBatch.draw(currentFrame, characterX, characterY, 250, 250);
             } else if (character.equals("Nova")) {
+                nova.update(delta);
                 TextureRegion currentFrame = nova.getCurrentFrame();
                 spriteBatch.draw(currentFrame, characterX, characterY, 250, 250);
             } else if (character.equals("Jina")) {
@@ -966,6 +978,22 @@ public class BattleClass implements Screen {
 
         if (umbra != null && umbra.isUltimatePlaying()) {
             TextureRegion ultimateFrame = umbra.getCurrentUltimateFrame();
+
+            // Save original color
+            Color original = spriteBatch.getColor();
+            spriteBatch.setColor(Color.WHITE);
+
+            // Draw fullscreen
+            spriteBatch.draw(ultimateFrame,
+                0, 0,
+                viewport.getWorldWidth(),
+                viewport.getWorldHeight());
+
+            // Restore color
+            spriteBatch.setColor(original);
+        }
+        if (nova != null && nova.isUltimatePlaying()) {
+            TextureRegion ultimateFrame = nova.getCurrentUltimateFrame();
 
             // Save original color
             Color original = spriteBatch.getColor();

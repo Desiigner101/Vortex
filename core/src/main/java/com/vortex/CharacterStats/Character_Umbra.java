@@ -30,7 +30,7 @@ public class Character_Umbra implements Character_BattleStats {
     // Animation textures
     private Texture idleSheet, basicAtkSheet, skillSheet, hitSheet;
     private Texture[] ultFrames;
-    private Animation<TextureRegion> idleAnimation, basicAtkAnimation, skillAnimation, hitAnimation, ultAnimation;
+    private Animation<TextureRegion> idleAnimation, basicAtkAnimation, skillAnimation, hitAnimation,ultAnimation;
     private float stateTime;
     private Animation<TextureRegion> currentAnimation;
 
