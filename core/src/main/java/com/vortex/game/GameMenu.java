@@ -16,7 +16,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 public class GameMenu implements Screen {
     private SpriteBatch batch;
     private BitmapFont font;
-    private String[] menuOptions = {"New Game", "Load Game", "View Characters", "Settings", "Exit"};
+    private String[] menuOptions = {"New Game", "View Characters", "Settings", "Exit"};
     private Vector2[] optionPositions;
     private int selectedIndex = -1;
     private final GameTransitions game;
@@ -127,9 +127,9 @@ public class GameMenu implements Screen {
     private void executeAction(int index) {
         switch (index) {
             case 0: game.newGame(); break;
-            case 2: game.displayCharacters(); break;
-            case 3: game.showControls(); break;
-            case 4: Gdx.app.exit(); break;
+            case 1: game.displayCharacters(); break;
+            case 2: game.showControls(); break;
+            case 3: Gdx.app.exit(); break;
         }
     }
 
