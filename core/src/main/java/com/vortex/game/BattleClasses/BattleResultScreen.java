@@ -140,7 +140,7 @@ public class BattleResultScreen implements Screen {
                 resultMessage = victoryMessages[random.nextInt(victoryMessages.length)];
                 totalWins++;
             }else{
-                resultMessage = victoryMessages[random.nextInt(victoryMessages.length)];
+                resultMessage = defeatMessages[random.nextInt(defeatMessages.length)];
                 totalDefeats++;
             }
 
