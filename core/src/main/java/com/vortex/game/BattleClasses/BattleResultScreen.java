@@ -7,11 +7,14 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.vortex.game.GameTransitions;
 import com.vortex.SFX.PlayAudio;
@@ -66,6 +69,7 @@ public class BattleResultScreen implements Screen {
     private int totalDefeats = 0;
     private long startTime; // new: to track match start time
 
+
     public BattleResultScreen(GameTransitions game, boolean isVictory, String backgroundPath,
                               String musicFile, Runnable onContinueAction,
                               Runnable onRetryAction, int roundCount) {
@@ -79,95 +83,149 @@ public class BattleResultScreen implements Screen {
         this.startTime = System.currentTimeMillis(); // new: Track match start time
     }
 
+
     @Override
     public void show() {
-        batch = new SpriteBatch();
-        background = new Texture(Gdx.files.internal("Backgrounds/" + backgroundPath));
-        resultTexture = new Texture(Gdx.files.internal("BattleAssets/" + (isVictory ? "VictoryText.png" : "DefeatText.png")));
-        stage = new Stage();
-        Gdx.input.setInputProcessor(stage);
-
-        // Initialize audio
-        sfx = new PlayAudio();
-
-        if(!isVictory){
-            sfx.playSoundEffect("defeat_sfx.wav", 0);
-            sfx.playMusic("defeat_ambience.wav");
-        }else{
-            sfx.playSoundEffect("victory_sfx.wav",0);
-            sfx.playMusic(musicFile);
-        }
-
-        // Font generation with proper resource management
-        FreeTypeFontGenerator generator = null;
         try {
-            generator = new FreeTypeFontGenerator(Gdx.files.internal("Fonts/Poppins-Bold.ttf"));
+            batch = new SpriteBatch();
+            background = new Texture(Gdx.files.internal("Backgrounds/" + backgroundPath));
+            resultTexture = new Texture(Gdx.files.internal("BattleAssets/" + (isVictory ? "VictoryText.png" : "DefeatText.png")));
+            stage = new Stage();
+            Gdx.input.setInputProcessor(stage);
 
-            // Round font
+            // Initialize audio
+            sfx = new PlayAudio();
+
+            // Play appropriate sounds
+            if(!isVictory) {
+                sfx.playSoundEffect("defeat_sfx.wav", 0);
+                sfx.playMusic("defeat_ambience.wav");
+            } else {
+                sfx.playSoundEffect("victory_sfx.wav", 0);
+                sfx.playMusic(musicFile);
+            }
+
+            // Font generation - create separate font for buttons
+            FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Fonts/Poppins-Bold.ttf"));
+            FreeTypeFontGenerator buttonGenerator = new FreeTypeFontGenerator(Gdx.files.internal("Fonts/Poppins-Bold.ttf")); // Replace with your font file
+
+            // Generate fonts
             FreeTypeFontGenerator.FreeTypeFontParameter roundParam = new FreeTypeFontGenerator.FreeTypeFontParameter();
             roundParam.size = 24;
             roundParam.color = Color.WHITE;
             roundFont = generator.generateFont(roundParam);
 
-            // Message font
             FreeTypeFontGenerator.FreeTypeFontParameter messageParam = new FreeTypeFontGenerator.FreeTypeFontParameter();
             messageParam.size = 36;
             messageParam.color = Color.WHITE;
             messageFont = generator.generateFont(messageParam);
 
-            // Button font
+            // Special font for buttons with outline
             FreeTypeFontGenerator.FreeTypeFontParameter buttonParam = new FreeTypeFontGenerator.FreeTypeFontParameter();
-            buttonParam.size = 32;
+            buttonParam.size = 36; // Slightly larger for buttons
             buttonParam.color = Color.WHITE;
-            buttonFont = generator.generateFont(buttonParam);
+            buttonParam.borderWidth = 2f; // Add outline
+            buttonParam.borderColor = Color.BLACK; // Outline color
+            buttonParam.shadowOffsetX = 2; // Text shadow
+            buttonParam.shadowOffsetY = 2;
+            buttonParam.shadowColor = new Color(0, 0, 0, 0.7f);
+            buttonFont = buttonGenerator.generateFont(buttonParam);
 
-        } finally {
-            if (generator != null) {
-                generator.dispose();
+            generator.dispose();
+            buttonGenerator.dispose();
+
+            // NEW
+            Random random = new Random();
+            if(isVictory){
+                resultMessage = victoryMessages[random.nextInt(victoryMessages.length)];
+                totalWins++;
+            }else{
+                resultMessage = victoryMessages[random.nextInt(victoryMessages.length)];
+                totalDefeats++;
             }
-        }
 
-        // Select random message
-        Random random = new Random();
-        if (isVictory) {
-            resultMessage = victoryMessages[random.nextInt(victoryMessages.length)];
-            totalWins++;  // new: Track wins
-        } else {
-            resultMessage = defeatMessages[random.nextInt(defeatMessages.length)];
-            totalDefeats++;  // new: Track defeats
-        }
+            //NEW
+            totalSkillPointsUsed += random.nextInt(50) + 1;
 
-        // new: Simulating skill points used (you should replace this with actual logic)
-        totalSkillPointsUsed += random.nextInt(50) + 1; // new: Random skill points between 1-50
+            //NEW
+            long endTime = System.currentTimeMillis();
+            long duration = (endTime - startTime) / 1000;
 
-        // new: Calculate match duration
-        long endTime = System.currentTimeMillis();
-        long duration = (endTime - startTime) / 1000; // new: Convert milliseconds to seconds
+            //NEW
+            FileHandler.saveStats(totalSkillPointsUsed, totalWins, totalDefeats, duration);
 
-        // new: Save match stats to file
-        FileHandler.saveStats(totalSkillPointsUsed, totalWins, totalDefeats, duration); // new: Save stats
 
-        // Create button
-        TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
-        buttonStyle.font = buttonFont;
+            // Create button style with the new font
+            TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
+            buttonStyle.font = buttonFont;
 
-        TextButton actionButton = new TextButton(isVictory ? "Continue your journey" : "Try Again", buttonStyle);
-        actionButton.setSize(400, 80);
-        actionButton.setPosition(Gdx.graphics.getWidth()/2f - 200, Gdx.graphics.getHeight()/4f);
+            // Load button textures
+            if (isVictory) {
+                buttonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/CONTINUE_BUTTON.png"))));
+                buttonStyle.down = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/CONTINUE_BUTTON_CLICKED.png"))));
+                buttonStyle.over = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/CONTINUE_BUTTON_HOVER.png"))));
+            } else {
+                buttonStyle.up = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/RETRY_BUTTON.png"))));
+                buttonStyle.down = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/RETRY_BUTTON_CLICKED.png"))));
+                buttonStyle.over = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/RETRY_BUTTON_HOVER.png"))));
+            }
 
-        actionButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                sfx.stopMusic();
-                if (isVictory) {
-                    onContinueAction.run();
-                } else {
-                    onRetryAction.run();
+
+            // Create button with proper text padding
+            TextButton actionButton = new TextButton(isVictory ? "CONTINUE YOUR JOURNEY" : "TRY AGAIN", buttonStyle);
+            actionButton.getLabel().setFontScale(0.8f); // Adjust if text is too big
+            actionButton.pad(10); // Add padding around text
+
+            // Calculate button size based on text width
+            GlyphLayout buttonLayout = new GlyphLayout(buttonFont, actionButton.getText().toString());
+            float buttonWidth = Math.max(500, buttonLayout.width + 80); // Minimum 500px or text width + padding
+            float buttonHeight = 90;
+
+            actionButton.setSize(buttonWidth, buttonHeight);
+            actionButton.setPosition(
+                Gdx.graphics.getWidth() / 2f - buttonWidth / 2, // Perfectly centered
+                Gdx.graphics.getHeight() * 0.25f // Positioned at 25% from bottom
+            );
+
+            actionButton.addListener(new ClickListener() {
+                @Override
+                public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                    try {
+                        sfx.playSoundEffect("hover_button.wav", 0.3f);
+                        actionButton.getLabel().setFontScale(0.85f); // Slightly enlarge on hover
+                    } catch (Exception e) {
+                        Gdx.app.error("Audio", "Failed to play hover sound", e);
+                    }
+                    super.enter(event, x, y, pointer, fromActor);
                 }
-            }
-        });
 
-        stage.addActor(actionButton);
+                @Override
+                public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                    actionButton.getLabel().setFontScale(0.8f); // Return to normal size
+                    super.exit(event, x, y, pointer, toActor);
+                }
+
+                @Override
+                public void clicked(InputEvent event, float x, float y) {
+                    try {
+                        sfx.playSoundEffect("whenTextIsClicked.wav", 0.5f);
+                        sfx.stopMusic();
+                        if (isVictory) {
+                            onContinueAction.run();
+                        } else {
+                            onRetryAction.run();
+                        }
+                    } catch (Exception e) {
+                        Gdx.app.error("ButtonClick", "Error handling button click", e);
+                    }
+                }
+            });
+
+            stage.addActor(actionButton);
+
+        } catch (Exception e) {
+            Gdx.app.error("BattleResultScreen", "Error in show()", e);
+        }
     }
 
     @Override
