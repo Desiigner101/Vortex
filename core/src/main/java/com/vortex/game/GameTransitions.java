@@ -34,8 +34,8 @@ public class GameTransitions extends Game {
         //    introPlayed = true;
           //  this.setScreen(new VideoIntro(this));
      //  } else {
-          this.setScreen(new GameMenu(this));
-         //this.setScreen(new WorldTransitions(this));
+         // this.setScreen(new GameMenu(this));
+         this.setScreen(new WorldTransitions(this));
        //  }
     }
 
