@@ -1810,7 +1810,4 @@ public class BattleClass implements Screen {
     public int getRoundCount() {
         return roundCount;
     }
-
-
-
 }
