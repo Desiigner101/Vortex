@@ -12,7 +12,7 @@ public class Character_Nova implements Character_BattleStats {
     private int skillDamage = 200;
     private int skillCost = 2;
     private int ultimateDamage = 350;
-    private int ultCooldown = 5;
+    private int ultCooldown = 1;
     private int currentUltCooldown = 0;
 
     // File paths
@@ -25,7 +25,7 @@ public class Character_Nova implements Character_BattleStats {
     private final String basicAtkAnimationPath = "Pictures/Nova/CharacterView/nova_battle_basicAtk.png";
     private final String skillAnimationPath = "Pictures/Nova/CharacterView/nova_battle_skill.png";
     private final String hitAnimationPath = "Pictures/Nova/CharacterView/nova_battle_hit.png";
-    private final String ultAnimationBasePath = "Pictures/Umbra/BattleView/UmbraUltFrames/umbra_ult_battle";
+    private final String ultAnimationBasePath = "Pictures/Nova/CharacterView/NovaUltFrames/nova_ultframe";
 
     private Texture idleSheet, basicAtkSheet, skillSheet, hitSheet;
     private Texture[] ultFrames;
@@ -87,7 +87,7 @@ public class Character_Nova implements Character_BattleStats {
             throw new RuntimeException("Failed to load Nova's ultimate animation frames", e);
         }
 
-        fullscreenUltAnimation = new Animation<>(0.09f, ultRegions);
+        fullscreenUltAnimation = new Animation<>(0.1f, ultRegions);
         fullscreenUltAnimation.setPlayMode(Animation.PlayMode.NORMAL);
     }
 

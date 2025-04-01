@@ -227,7 +227,7 @@ public class BattleClass implements Screen {
         for (int i = 0; i < 8; i++) {
             closeTransitionFrames[i] = tmp[0][i];
         }
-        closeTransitionAnimation = new Animation<>(0.1f, closeTransitionFrames);
+        closeTransitionAnimation = new Animation<>(0.11f, closeTransitionFrames);
 
         openTransitionTexture = new Texture(Gdx.files.internal("Backgrounds/closeTransitionSpriteSheet.png"));
         TextureRegion[][] tmpOpen = TextureRegion.split(openTransitionTexture,
@@ -580,7 +580,7 @@ public class BattleClass implements Screen {
             sfx.playSoundEffect("umbra_ult_sfx.wav",0);
         }else if (currentCharacter instanceof Character_Nova) {
             nova.startUltimate();
-            sfx.playSoundEffect("umbra_ult_sfx.wav",0);
+            sfx.playSoundEffect("nova_ult_sfx.wav",0);
         }
         debugEnemyHP();
 
