@@ -1214,6 +1214,87 @@ public class BattleClass implements Screen {
         saveSettings();
     }
 
+    private void handleControlsInput() {
+        float mouseX = Gdx.input.getX();
+        float mouseY = screenHeight - Gdx.input.getY();
+        boolean volumeChanged = false;
+
+        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+            // Play click sound for any button press
+            sfx.playSoundEffect("ui_confirm.wav", 0.5f);
+
+            if (backButton.contains(mouseX, mouseY)) {
+                saveSettings();
+                showControls = false;
+                Gdx.input.setInputProcessor(stage);
+                return;
+            }
+
+            if (restartButton.contains(mouseX, mouseY)) {
+                saveSettings();
+                resetCurrentBattle(); // Renamed to avoid conflict
+                showControls = false;
+                return;
+            }
+
+            if (quitButton.contains(mouseX, mouseY)) {
+                saveSettings();
+                Gdx.app.exit();
+                return;
+            }
+
+            // Slider handling remains the same
+            if (isPointNearSlider(musicSlider, mouseX, mouseY, musicVolume)) {
+                isDraggingMusic = true;
+                volumeChanged = true;
+            } else if (isPointNearSlider(soundSlider, mouseX, mouseY, soundVolume)) {
+                isDraggingSound = true;
+                volumeChanged = true;
+            } else if (isPointNearSlider(brightnessSlider, mouseX, mouseY, brightness)) {
+                isDraggingBrightness = true;
+            }
+        }
+
+        // Rest of the method remains unchanged...
+        if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+            if (isDraggingMusic) {
+                float newVolume = calculateSliderValue(musicSlider, mouseX);
+                if (newVolume != musicVolume) {
+                    musicVolume = newVolume;
+                    sfx.setMusicVolume(musicVolume);
+                    volumeChanged = true;
+                }
+            } else if (isDraggingSound) {
+                float newVolume = calculateSliderValue(soundSlider, mouseX);
+                if (newVolume != soundVolume) {
+                    soundVolume = newVolume;
+                    sfx.setSoundVolume(soundVolume);
+                    volumeChanged = true;
+
+                    if (soundVolume > 0.01f && !Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
+                        sfx.playSoundEffect("hover_button.wav", 0.1f);
+                    }
+                }
+            } else if (isDraggingBrightness) {
+                brightness = calculateSliderValue(brightnessSlider, mouseX);
+            }
+        } else {
+            if (isDraggingMusic || isDraggingSound) {
+                saveSettings();
+                if (isDraggingSound && soundVolume > 0.01f) {
+                    sfx.playSoundEffect("ui_confirm.wav", 0);
+                }
+            }
+            isDraggingMusic = false;
+            isDraggingSound = false;
+            isDraggingBrightness = false;
+        }
+
+        if (volumeChanged && !Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+            saveSettings();
+        }
+    }
+
     private void drawControlsSliders() {
         Color musicSliderColor = new Color(0.1f, 0.5f, 0.8f, 1f);
         Color soundSliderColor = new Color(0.8f, 0.6f, 0.2f, 1f);
@@ -1352,90 +1433,52 @@ public class BattleClass implements Screen {
         }
     }
 
-    private void handleControlsInput() {
-        float mouseX = Gdx.input.getX();
-        float mouseY = screenHeight - Gdx.input.getY();
-        boolean volumeChanged = false;
-
-        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            if (backButton.contains(mouseX, mouseY)) {
-                saveSettings();
-                showControls = false;
-                Gdx.input.setInputProcessor(stage);
-                return;
-            }
-            if (restartButton.contains(mouseX, mouseY)) {
-                saveSettings();
-                game.newGame();
-                return;
-            }
-            if (quitButton.contains(mouseX, mouseY)) {
-                saveSettings();
-                Gdx.app.exit();
-                return;
-            }
-
-            if (isPointNearSlider(musicSlider, mouseX, mouseY, musicVolume)) {
-                isDraggingMusic = true;
-                volumeChanged = true;
-            } else if (isPointNearSlider(soundSlider, mouseX, mouseY, soundVolume)) {
-                isDraggingSound = true;
-                volumeChanged = true;
-            } else if (isPointNearSlider(brightnessSlider, mouseX, mouseY, brightness)) {
-                isDraggingBrightness = true;
-            }
+    public void resetCurrentBattle() {
+        // Reset character stats
+        if (umbra != null) {
+            umbra.setHP(umbra.getMaxHP());
+            umbra.setAnimation(umbra.getIdleAnimation());
+        }
+        if (nova != null) {
+            nova.setHP(nova.getMaxHP());
+            nova.setAnimation(nova.getIdleAnimation());
+        }
+        if (jina != null) {
+            jina.setHP(jina.getMaxHP());
+            jina.setAnimation(jina.getIdleAnimation());
         }
 
-        if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
-            if (isDraggingMusic) {
-                float newVolume = calculateSliderValue(musicSlider, mouseX);
-                if (newVolume != musicVolume) {
-                    musicVolume = newVolume;
-                    sfx.setMusicVolume(musicVolume);
-                    volumeChanged = true;
-                }
-            } else if (isDraggingSound) {
-                float newVolume = calculateSliderValue(soundSlider, mouseX);
-                if (newVolume != soundVolume) {
-                    soundVolume = newVolume;
-                    sfx.setSoundVolume(soundVolume);
-                    volumeChanged = true;
+        // Reset enemy
+        enemyCurrentHp = enemy.getMaxHP();
 
-                    // Play test sound when adjusting sound volume (if not muted)
-                    if (soundVolume > 0.01f && !Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-                        sfx.playSoundEffect("hover_button.wav", 0.1f);
-                    }
-                }
-            } else if (isDraggingBrightness) {
-                brightness = calculateSliderValue(brightnessSlider, mouseX);
-            }
-        } else {
-            // When mouse is released
-            if (isDraggingMusic || isDraggingSound) {
-                saveSettings(); // Save when done adjusting
-                if (isDraggingSound && soundVolume > 0.01f) {
-                    sfx.playSoundEffect("ui_confirm.wav", 0);
-                }
-            }
-            isDraggingMusic = false;
-            isDraggingSound = false;
-            isDraggingBrightness = false;
-        }
-        if (volumeChanged && !Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
-            saveSettings();
-        }
+        // Reset battle state
+        currentTurn = 0;
+        skillPoints = 1;
+        roundCount = 0;
+        isEnemyTurn = false;
 
-        if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
-            if (musicSlider.contains(mouseX, mouseY)) {
-                isDraggingMusic = true;
-                volumeChanged = true;
-            } else if (soundSlider.contains(mouseX, mouseY)) {
-                isDraggingSound = true;
-                volumeChanged = true;
-            } else if (brightnessSlider.contains(mouseX, mouseY)) {
-                isDraggingBrightness = true;
-            }
-        }
+        // Reset cooldowns
+        ultimateCooldowns.clear();
+        if (umbra != null) ultimateCooldowns.put("Umbra", umbra.getUltCooldown());
+        if (nova != null) ultimateCooldowns.put("Nova", nova.getUltCooldown());
+        if (jina != null) ultimateCooldowns.put("Jina", jina.getUltCooldown());
+
+        // Reset animations
+        isPlayingUltimate = false;
+        isPlayingHeal = false;
+
+        // Update UI
+        updateCurrentCharacter();
+        updateButtons();
+
+        // Restart music
+        sfx.stopAudio();
+        sfx.playMusic(musicFile);
+
+        // Play opening transition
+        playOpenTransition = true;
+        openTransitionStateTime = 0;
+        hasStarted = true;
     }
 
     private boolean isPointNearSlider(Rectangle slider, float x, float y, float value) {
@@ -1653,6 +1696,7 @@ public class BattleClass implements Screen {
     public int getRoundCount() {
         return roundCount;
     }
+
 
 
 }

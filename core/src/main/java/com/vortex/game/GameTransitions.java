@@ -30,13 +30,13 @@ public class GameTransitions extends Game {
         audioManager = new PlayAudio();
         loadSettings();
 
-     //  if (!introPlayed) {
-        //    introPlayed = true;
-          //  this.setScreen(new VideoIntro(this));
-     //  } else {
-          this.setScreen(new GameMenu(this));
-         //this.setScreen(new WorldTransitions(this));
-       //  }
+      //if (!introPlayed) {
+            //introPlayed = true;
+            //this.setScreen(new VideoIntro(this));
+      //} else {
+          //this.setScreen(new GameMenu(this));
+         this.setScreen(new WorldTransitions(this));
+         //}
     }
 
     public void loadSettings() {
@@ -1064,5 +1064,13 @@ public class GameTransitions extends Game {
 
     public void showControls() {
         setScreen(new GameControls(this));
+    }
+
+    public void restartCurrentGame() {
+        if (currentScreen instanceof BattleClass) {
+            ((BattleClass) currentScreen).resetCurrentBattle();  // Call the existing method
+        } else {
+            newGame();  // Fallback for non-battle screens
+        }
     }
 }
