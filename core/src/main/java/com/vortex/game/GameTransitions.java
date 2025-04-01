@@ -1049,13 +1049,6 @@ public class GameTransitions extends Game {
 
 
 
-
-
-
-
-
-
-
     }
 
     public void displayCharacters() {
@@ -1064,5 +1057,13 @@ public class GameTransitions extends Game {
 
     public void showControls() {
         setScreen(new GameControls(this));
+    }
+
+    public void restartCurrentGame() {
+        if (currentScreen instanceof BattleClass) {
+            ((BattleClass) currentScreen).resetCurrentBattle();  // Call the existing method
+        } else {
+            newGame();  // Fallback for non-battle screens
+        }
     }
 }
