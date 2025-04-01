@@ -15,6 +15,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.Align;
+import com.vortex.SFX.PlayAudio;
 
 public class GameControls implements Screen {
     private final GameTransitions game;
@@ -22,6 +23,7 @@ public class GameControls implements Screen {
     private BitmapFont font, titleFont, buttonFont;
     private ShapeRenderer shapeRenderer;
     private GlyphLayout layout;
+    private PlayAudio sfx = new PlayAudio();
 
     // Settings
     private float musicVolume = 1.0f;
@@ -341,9 +343,9 @@ public class GameControls implements Screen {
                 return;
             }
             if (restartButton.contains(mouseX, mouseY)) {
-
+                sfx.stopAudio();
                 saveSettings();
-                game.newGame();
+                game.restartCurrentGame(); // Uses the new reset logic
                 return;
             }
             if (quitButton.contains(mouseX, mouseY)) {
