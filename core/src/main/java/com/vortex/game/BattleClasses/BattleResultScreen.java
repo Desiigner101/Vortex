@@ -63,12 +63,8 @@ public class BattleResultScreen implements Screen {
         "I need to rethink my strategy..."
     };
 
-    // new: Variables for tracking skill points, wins, defeats, and time duration
+    // new: Variables for tracking skill points used
     private int totalSkillPointsUsed = 0;
-    private int totalWins = 0;
-    private int totalDefeats = 0;
-    private long startTime; // new: to track match start time
-
 
     public BattleResultScreen(GameTransitions game, boolean isVictory, String backgroundPath,
                               String musicFile, Runnable onContinueAction,
@@ -80,7 +76,8 @@ public class BattleResultScreen implements Screen {
         this.onContinueAction = onContinueAction;
         this.onRetryAction = onRetryAction;
         this.roundCount = roundCount;
-        this.startTime = System.currentTimeMillis(); // new: Track match start time
+
+        FileHandler.startMatchTimer(); // new: Start match timer when the result screen is initialized
     }
 
 
@@ -134,26 +131,20 @@ public class BattleResultScreen implements Screen {
             generator.dispose();
             buttonGenerator.dispose();
 
-            // NEW
+            // Select random message
             Random random = new Random();
             if(isVictory){
                 resultMessage = victoryMessages[random.nextInt(victoryMessages.length)];
-                totalWins++;
             }else{
-                resultMessage = defeatMessages[random.nextInt(defeatMessages.length)];
-                totalDefeats++;
+                resultMessage = victoryMessages[random.nextInt(victoryMessages.length)];
             }
 
-            //NEW
-            totalSkillPointsUsed += random.nextInt(50) + 1;
+            // new: Simulating skill points used (replace this with actual logic)
+            totalSkillPointsUsed = random.nextInt(50) + 1; // Random skill points between 1-50
 
-            //NEW
-            long endTime = System.currentTimeMillis();
-            long duration = (endTime - startTime) / 1000;
-
-            //NEW
-            FileHandler.saveStats(totalSkillPointsUsed, totalWins, totalDefeats, duration);
-
+            // new: Save match stats to file
+            int wins = isVictory ? 1 : 0;
+            int defeats = isVictory ? 0 : 1;
 
             // Create button style with the new font
             TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
@@ -169,7 +160,6 @@ public class BattleResultScreen implements Screen {
                 buttonStyle.down = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/RETRY_BUTTON_CLICKED.png"))));
                 buttonStyle.over = new TextureRegionDrawable(new TextureRegion(new Texture(Gdx.files.internal("ui/RETRY_BUTTON_HOVER.png"))));
             }
-
 
             // Create button with proper text padding
             TextButton actionButton = new TextButton(isVictory ? "CONTINUE YOUR JOURNEY" : "TRY AGAIN", buttonStyle);
@@ -215,6 +205,8 @@ public class BattleResultScreen implements Screen {
                         } else {
                             onRetryAction.run();
                         }
+                        // **Call saveStats() only once when the button is clicked**:
+                        FileHandler.saveStats(totalSkillPointsUsed, wins, defeats);  // Moved here to ensure only one call
                     } catch (Exception e) {
                         Gdx.app.error("ButtonClick", "Error handling button click", e);
                     }
@@ -222,6 +214,9 @@ public class BattleResultScreen implements Screen {
             });
 
             stage.addActor(actionButton);
+
+            // new: Simulating skill points used (replace this with actual logic)
+            totalSkillPointsUsed = random.nextInt(50) + 1;
 
         } catch (Exception e) {
             Gdx.app.error("BattleResultScreen", "Error in show()", e);

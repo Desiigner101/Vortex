@@ -185,6 +185,8 @@ public class BattleClass implements Screen {
 
     public BattleClass(GameTransitions game,String universeName,EnemyClass enemy, boolean hasUmbra, boolean hasNova, boolean hasJina,
                        String background, String roadTile, String musicFile, Runnable onBattleComplete) {
+        //new
+        FileHandler.startMatchTimer();
         this.game = game;
         this.onBattleComplete = onBattleComplete;
         this.universeName = universeName;
