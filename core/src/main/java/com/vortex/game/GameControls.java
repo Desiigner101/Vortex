@@ -70,9 +70,6 @@ public class GameControls implements Screen {
     // Scale factor for UI elements
     private float scaleFactor = 1.2f;
 
-    //FOR BACKGROUND
-    private Texture backgroundTexture;  // Stores the background image
-    private Color backgroundTint = new Color(1, 1, 1, 0.9f);  // Optional: Adjusts brightness/transparency
 
     public GameControls(GameTransitions game) {
         this.game = game;
@@ -88,10 +85,6 @@ public class GameControls implements Screen {
 
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("Fonts/Poppins-Bold.ttf"));
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-
-        //BACKGROUND
-        backgroundTexture = new Texture(Gdx.files.internal("Backgrounds/ResultScreenBG.png"));
-
 
         // Title font
         parameter.size = (int)(42 * scaleFactor);
@@ -173,9 +166,7 @@ public class GameControls implements Screen {
 
         // Draw text
         batch.begin();
-        batch.setColor(backgroundTint); // Optional: Adjusts image brightness/transparency
-        batch.draw(backgroundTexture, 0, 0, screenWidth, screenHeight); // Stretches to full screen
-        batch.setColor(Color.WHITE); // Reset color for other elements
+
         drawText();
         batch.end();
 
@@ -504,7 +495,6 @@ public class GameControls implements Screen {
         buttonFont.dispose();
         shapeRenderer.dispose();
 
-        if (backgroundTexture != null) backgroundTexture.dispose();
     }
 }
 
