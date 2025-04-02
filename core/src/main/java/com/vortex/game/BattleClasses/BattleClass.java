@@ -89,6 +89,15 @@ public class BattleClass implements Screen {
     private float healAnimationDuration = 0.1f * 23; // 23 frames at 0.1s each
     private Vector2 healTargetPosition;
 
+    // Target selection animation
+    private Texture targetTexture;
+    private float targetSelectionTimer = 0f;
+    private final float TARGET_SELECTION_DURATION = 1.5f; // Time spent cycling through targets
+    private final float TARGET_LOCK_DURATION = 1f;     // Time target stays on selected character
+    private Character_BattleStats selectedTarget = null;
+    private Character_BattleStats cyclingTarget = null; // Currently highlighted target during cycling
+    private float targetCycleSpeed = 0.15f;            // How fast target cycles between characters
+    private boolean isTargetLocked = false;
 
     private String universeName;
     private final int PLATFORM_Y = 200;
@@ -227,7 +236,7 @@ public class BattleClass implements Screen {
         for (int i = 0; i < 8; i++) {
             closeTransitionFrames[i] = tmp[0][i];
         }
-        closeTransitionAnimation = new Animation<>(0.11f, closeTransitionFrames);
+        closeTransitionAnimation = new Animation<>(0.2f, closeTransitionFrames);
 
         openTransitionTexture = new Texture(Gdx.files.internal("Backgrounds/closeTransitionSpriteSheet.png"));
         TextureRegion[][] tmpOpen = TextureRegion.split(openTransitionTexture,
@@ -240,7 +249,7 @@ public class BattleClass implements Screen {
         for (int i = 13; i < 20; i++) {
             openTransitionFrames[i] = tmpOpen[0][19 - i];
         }
-        openTransitionAnimation = new Animation<>(0.1f, openTransitionFrames);
+        openTransitionAnimation = new Animation<>(0.2f, openTransitionFrames);
         System.out.println("The Battle is starting!");
         // Load textures
         backgroundTexture = new Texture(Gdx.files.internal("Backgrounds/" + background));
@@ -248,6 +257,7 @@ public class BattleClass implements Screen {
         enabledSkillPointTexture = new Texture(Gdx.files.internal("BattleAssets/enabledSkillpoint.png"));
         disabledSkillPointTexture = new Texture(Gdx.files.internal("BattleAssets/disabledSkillpoint.png"));
         turnIndicatorTexture = new Texture(Gdx.files.internal("BattleAssets/turnIndicator.png"));
+        targetTexture = new Texture(Gdx.files.internal("BattleAssets/target.png"));
         enemyTurnIndicatorTexture = new Texture(Gdx.files.internal("BattleAssets/EnemyTurnIndicator.png"));
 
         // Load HP Bar sprite sheet
@@ -765,6 +775,12 @@ public class BattleClass implements Screen {
                 nova.updateUltimate(delta);
             }
             enemy.update(delta);
+
+            // Update target selection during enemy's turn
+            if (isEnemyTurn) {
+                updateTargetSelection(delta);
+            }
+
             renderBattle(delta);
         } else {
             renderGameControls(delta);
@@ -999,7 +1015,46 @@ public class BattleClass implements Screen {
             }
         }
 
+        // Draw target selection if enemy's turn
+        // Draw target selection if enemy's turn
+        if (isEnemyTurn) {
+            Character_BattleStats targetToDraw = isTargetLocked ? selectedTarget : cyclingTarget;
 
+            if (targetToDraw != null) {
+                float targetX = 0, targetY = 0;
+                float charWidth = 250;
+                float charHeight = 50;
+
+                if (targetToDraw instanceof Character_Umbra && characters.contains("Umbra")) {
+                    int index = characters.indexOf("Umbra");
+                    targetX = startX + index * 300 + (charWidth/2) - (targetTexture.getWidth()/2);
+                    targetY = PLATFORM_Y + 60 + charHeight;
+                }
+                else if (targetToDraw instanceof Character_Nova && characters.contains("Nova")) {
+                    int index = characters.indexOf("Nova");
+                    targetX = startX + index * 300 + (charWidth/2) - (targetTexture.getWidth()/2);
+                    targetY = PLATFORM_Y + 60 + charHeight;
+                }
+                else if (targetToDraw instanceof Character_Jina && characters.contains("Jina")) {
+                    int index = characters.indexOf("Jina");
+                    targetX = startX + index * 300 + (charWidth/2) - (targetTexture.getWidth()/2);
+                    targetY = PLATFORM_Y + 60 + charHeight;
+                }
+
+                if (targetX != 0 && targetY != 0) {
+                    // Pulse effect when locked on
+                    float scale = isTargetLocked ? 1.1f + (float)Math.sin(stateTime * 10) * 0.1f : 1.0f;
+                    float sizeScale = 4f;
+                    spriteBatch.draw(targetTexture,
+                        targetX, targetY,
+                        targetTexture.getWidth()/2f, targetTexture.getHeight()/2f,
+                        targetTexture.getWidth(), targetTexture.getHeight(),
+                        scale*sizeScale, scale*sizeScale, 0,
+                        0, 0, targetTexture.getWidth(), targetTexture.getHeight(),
+                        false, false);
+                }
+            }
+        }
 
         // Draw Enemy Turn Indicator if it's the enemy's turn
         if (isEnemyTurn) {
@@ -1181,33 +1236,95 @@ public class BattleClass implements Screen {
         enemyTurnTimer = ENEMY_TURN_DURATION;
         roundCount++;
 
-        // Schedule the attack to happen after 3 seconds
+        // Reset target selection state
+        selectedTarget = null;
+        cyclingTarget = null;
+        isTargetLocked = false;
+        targetSelectionTimer = 0f;
+
+        // Schedule the target selection
         Timer.schedule(new Timer.Task() {
             @Override
             public void run() {
-                if (!isEnemyTurn) return; // In case turn ended early
+                if (!isEnemyTurn) return;
 
-                // Find valid targets (only alive characters)
-                List<Character_BattleStats> targets = new ArrayList<>();
-                if (umbra != null && umbra.getHP() > 0) targets.add(umbra);
-                if (nova != null && nova.getHP() > 0) targets.add(nova);
-                if (jina != null && jina.getHP() > 0) targets.add(jina);
+                // Select a random target from alive characters
+                List<Character_BattleStats> aliveTargets = getAliveCharacters();
+                if (!aliveTargets.isEmpty()) {
+                    int randomIndex = (int)(Math.random() * aliveTargets.size());
+                    selectedTarget = aliveTargets.get(randomIndex);
+                    isTargetLocked = true;
 
-                // Attack a random alive target if any exist
-                if (!targets.isEmpty()) {
-                    int randomIndex = (int) (Math.random() * targets.size());
-                    Character_BattleStats target = targets.get(randomIndex);
-                    int damage = enemy.getAtk();
-                    target.takeDamage(damage);
+                    // Schedule the actual attack to happen after a brief delay
+                    Timer.schedule(new Timer.Task() {
+                        @Override
+                        public void run() {
+                            if (selectedTarget != null && selectedTarget.getHP() > 0) {
+                                int damage = enemy.getAtk();
+                                selectedTarget.takeDamage(damage);
 
-                    if (target instanceof Character_Umbra) {
-                        umbra.playHitAnimation();
-                    }
+                                if (selectedTarget instanceof Character_Umbra) {
+                                    umbra.playHitAnimation();
+                                } else if (selectedTarget instanceof Character_Nova) {
+                                    nova.playHitAnimation();
+                                } else if (selectedTarget instanceof Character_Jina) {
+                                    jina.playHitAnimation();
+                                }
+
+                                // Clear the target after damage is dealt
+                                selectedTarget = null;
+                                isTargetLocked = false;
+                            }
+                            debugTurnState("Enemy attacked");
+                        }
+                    }, 0.5f); // Short delay after locking to show the target
                 }
-
-                debugTurnState("Enemy attacked");
             }
-        }, ENEMY_ATTACK_DELAY);
+        }, TARGET_SELECTION_DURATION);
+    }
+    private void updateTargetSelection(float delta) {
+        if (!isEnemyTurn) return;
+
+        targetSelectionTimer += delta;
+
+        List<Character_BattleStats> aliveTargets = getAliveCharacters();
+        if (aliveTargets.isEmpty()) return;
+
+        // If we're past both phases, don't show any target
+        if (targetSelectionTimer >= TARGET_SELECTION_DURATION + TARGET_LOCK_DURATION) {
+            cyclingTarget = null;
+            selectedTarget = null;
+            return;
+        }
+
+        // Cycling phase
+        if (targetSelectionTimer < TARGET_SELECTION_DURATION) {
+            // Calculate which target to highlight based on time
+            int targetIndex = (int)((targetSelectionTimer / targetCycleSpeed) % aliveTargets.size());
+            cyclingTarget = aliveTargets.get(targetIndex);
+            isTargetLocked = false;
+        }
+        // Locking phase
+        else if (!isTargetLocked) {
+            // Randomly select final target
+            int randomIndex = (int)(Math.random() * aliveTargets.size());
+            selectedTarget = aliveTargets.get(randomIndex);
+            cyclingTarget = null; // Clear cycling target
+            isTargetLocked = true;
+        }
+    }
+    private List<Character_BattleStats> getAliveCharacters() {
+        List<Character_BattleStats> aliveTargets = new ArrayList<>();
+        if (umbra != null && umbra.getHP() > 0 && characters.contains("Umbra")) {
+            aliveTargets.add(umbra);
+        }
+        if (nova != null && nova.getHP() > 0 && characters.contains("Nova")) {
+            aliveTargets.add(nova);
+        }
+        if (jina != null && jina.getHP() > 0 && characters.contains("Jina")) {
+            aliveTargets.add(jina);
+        }
+        return aliveTargets;
     }
 
     private int findFirstAliveCharacter() {
@@ -1701,7 +1818,7 @@ public class BattleClass implements Screen {
         disabledSkillPointTexture.dispose();
         turnIndicatorTexture.dispose();
         enemyTurnIndicatorTexture.dispose();
-
+        if (targetTexture != null) targetTexture.dispose();
         if (umbra != null) umbra.dispose();
         if (nova != null) nova.dispose();
         if (jina != null) jina.dispose();
