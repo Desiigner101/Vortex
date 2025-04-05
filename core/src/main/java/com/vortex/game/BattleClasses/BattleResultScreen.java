@@ -136,7 +136,7 @@ public class BattleResultScreen implements Screen {
             if(isVictory){
                 resultMessage = victoryMessages[random.nextInt(victoryMessages.length)];
             }else{
-                resultMessage = victoryMessages[random.nextInt(victoryMessages.length)];
+                resultMessage = defeatMessages[random.nextInt(defeatMessages.length)];
             }
 
             // new: Simulating skill points used (replace this with actual logic)

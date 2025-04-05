@@ -76,6 +76,7 @@ public class GameTransitions extends Game {
     public void newGame() {
         sequenceCount = 0;
         startNextSequence();
+        audioManager.stopAudio();
     }
 
     private void startNextSequence() {
