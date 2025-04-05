@@ -192,6 +192,10 @@ public class BattleClass implements Screen {
     private float openTransitionStateTime = 0;
     private boolean playOpenTransition = true;
 
+    public BattleClass(){
+
+    }
+
     public BattleClass(GameTransitions game,String universeName,EnemyClass enemy, boolean hasUmbra, boolean hasNova, boolean hasJina,
                        String background, String roadTile, String musicFile, Runnable onBattleComplete) {
         //new
@@ -1834,7 +1838,7 @@ public class BattleClass implements Screen {
         if (healAnimationSheet != null) healAnimationSheet.dispose();
     }
 
-    private void checkBattleConditions() {
+    public void checkBattleConditions() {
         // Check if enemy is defeated
         if (enemyCurrentHp <= 0) {
             playCloseTransition = true;
@@ -1853,7 +1857,7 @@ public class BattleClass implements Screen {
                         roundCount // Add round count here
                     ));
                 }
-            }, .75f);
+            }, 3.75f);
             return;
         }
 
@@ -1890,9 +1894,11 @@ public class BattleClass implements Screen {
                         0 // Pass 0 for defeat (won't be shown anyway)
                     ));
                 }
-            }, .75f);
+            }, 3.75f);
         }
     }
+
+
     private void debugTurnState(String event) {
         String turnCharacter = (currentTurn >= 0 && currentTurn < characters.size())
             ? characters.get(currentTurn) : "NONE";
