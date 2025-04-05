@@ -81,7 +81,7 @@ public class GameTransitions extends Game {
 
     private void startNextSequence() {
         sequenceCount++;
-        BattleClass plotTwist = new BattleClass();
+
 
         if(sequenceCount == 1) {
             currentScreen = new StoryScene(this, new String[]{

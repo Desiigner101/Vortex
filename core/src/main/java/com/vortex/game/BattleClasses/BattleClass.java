@@ -1514,7 +1514,7 @@ public class BattleClass implements Screen {
 
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             // Play click sound for any button press
-            sfx.playSoundEffect("ui_confirm.wav", 0.5f);
+            sfx.playSoundEffect("buttonClicked.wav", 0.5f);
 
             if (backButton.contains(mouseX, mouseY)) {
                 saveSettings();
@@ -1534,7 +1534,7 @@ public class BattleClass implements Screen {
                 if (!askingToQuit) {
                     // First click - show confirmation
                     askingToQuit = true;
-                    sfx.playSoundEffect("ui_confirm.wav", 0.5f);
+                    sfx.playSoundEffect("ui.wav", 0.5f);
                 } else {
                     // Second click - actually quit
                     saveSettings();
@@ -1587,7 +1587,7 @@ public class BattleClass implements Screen {
             if (isDraggingMusic || isDraggingSound) {
                 saveSettings();
                 if (isDraggingSound && soundVolume > 0.01f) {
-                    sfx.playSoundEffect("ui_confirm.wav", 0);
+                    sfx.playSoundEffect("ui.wav", 0);
                 }
             }
             isDraggingMusic = false;
