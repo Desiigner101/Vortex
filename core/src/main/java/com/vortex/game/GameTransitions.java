@@ -1037,7 +1037,9 @@ public class GameTransitions extends Game {
                             new TestBossClass(),
                             true, true, true,
                             "NYXARION_BACKGROUND.png", "NYXARION_TILE.png", "NYXARION_MUSIC.wav",
-                            () -> startNextSequence()
+                            () -> {
+                                setScreen(new EndCreditsScreen(this));
+                            }
                         );
                         setScreen(currentScreen);
                     };
