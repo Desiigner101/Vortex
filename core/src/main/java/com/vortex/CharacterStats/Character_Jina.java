@@ -15,16 +15,17 @@ public class Character_Jina implements Character_BattleStats {
     private int ultCooldown = 6;
     private int currentUltCooldown = 0;
     private int HealAmount = 350;
+
     // Static image paths
     private final String basicAtkImage = "Pictures/Jina/CharacterView/Jina_SledgeStrike.png";
     private final String skillImage = "Pictures/Jina/CharacterView/Jina_PrecisionShot.png";
     private final String ultImage = "Pictures/Jina/CharacterView/Jina_VanguardsResolve.png";
 
-    // Animation paths (corrected from Umbra to Jina)
+    // Animation paths
     private final String idleAnimationPath = "Pictures/Umbra/BattleView/umbra_idle_battle.png";
-    private final String basicAtkAnimationPath = "Pictures/Umbra/BattleView/umbra_basicAtk_battle.png";//12 frames
-    private final String skillAnimationPath = "Pictures/Umbra/BattleView/umbra_skill_battle.png";//12 frames
-    private final String hitAnimationPath = "Pictures/Umbra/BattleView/umbra_hit_battle.png";//6 frames
+    private final String basicAtkAnimationPath = "Pictures/Umbra/BattleView/umbra_basicAtk_battle.png"; // 12 frames
+    private final String skillAnimationPath = "Pictures/Umbra/BattleView/umbra_skill_battle.png"; // 12 frames
+    private final String hitAnimationPath = "Pictures/Umbra/BattleView/umbra_hit_battle.png"; // 6 frames
     private final String ultAnimationPath = "Pictures/Umbra/BattleView/umbra_ult_battle.png";
 
     // Animation fields
@@ -46,26 +47,31 @@ public class Character_Jina implements Character_BattleStats {
     private void loadIdleAnimation() {
         idleSheet = new Texture(Gdx.files.internal(idleAnimationPath));
         idleAnimation = createAnimation(idleSheet, 64, 64, 7, 1, 0.1f);
+        idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
     }
 
     private void loadBasicAttackAnimation() {
         basicAtkSheet = new Texture(Gdx.files.internal(basicAtkAnimationPath));
         basicAtkAnimation = createAnimation(basicAtkSheet, 64, 64, 5, 1, 0.08f);
+        basicAtkAnimation.setPlayMode(Animation.PlayMode.NORMAL);
     }
 
     private void loadSkillAnimation() {
         skillSheet = new Texture(Gdx.files.internal(skillAnimationPath));
         skillAnimation = createAnimation(skillSheet, 64, 64, 6, 1, 0.1f);
+        skillAnimation.setPlayMode(Animation.PlayMode.NORMAL);
     }
 
     private void loadHitAnimation() {
         hitSheet = new Texture(Gdx.files.internal(hitAnimationPath));
         hitAnimation = createAnimation(hitSheet, 64, 64, 3, 1, 0.15f);
+        hitAnimation.setPlayMode(Animation.PlayMode.NORMAL);
     }
 
     private void loadUltimateAnimation() {
         ultSheet = new Texture(Gdx.files.internal(ultAnimationPath));
         ultAnimation = createAnimation(ultSheet, 64, 64, 8, 1, 0.12f);
+        ultAnimation.setPlayMode(Animation.PlayMode.NORMAL);
     }
 
     private Animation<TextureRegion> createAnimation(Texture sheet, int frameWidth, int frameHeight,
@@ -113,7 +119,6 @@ public class Character_Jina implements Character_BattleStats {
         setAnimation(ultAnimation);
     }
 
-
     public void dispose() {
         if (idleSheet != null) idleSheet.dispose();
         if (basicAtkSheet != null) basicAtkSheet.dispose();
@@ -123,16 +128,19 @@ public class Character_Jina implements Character_BattleStats {
     }
 
     // Cooldown management
+    @Override
     public void startUltimateCooldown() {
         currentUltCooldown = ultCooldown;
     }
 
+    @Override
     public void reduceCooldowns() {
         if (currentUltCooldown > 0) {
             currentUltCooldown--;
         }
     }
 
+    @Override
     public boolean isUltimateReady() {
         return currentUltCooldown == 0;
     }
@@ -162,7 +170,26 @@ public class Character_Jina implements Character_BattleStats {
     @Override public String getHitAnimation() { return hitAnimationPath; }
     @Override public String getUltAnimation() { return ultAnimationPath; }
 
-    public int getHealAmount(){
+    public int getHealAmount() {
         return HealAmount;
-    };
+    }
+
+    @Override
+    public String getBasicAtkDescription() {
+        return "Sledge Strike: A powerful melee attack with Jina's weapon, dealing " +
+            basicAttackDamage + " damage.";
+    }
+
+    @Override
+    public String getSkillDescription() {
+        return "Precision Shot: A carefully aimed attack dealing " + skillDamage +
+            " damage. Costs " + skillCost + " SP.";
+    }
+
+    @Override
+    public String getUltDescription() {
+        return "Vanguard's Resolve: A defensive ultimate that deals " + ultimateDamage +
+            " damage to enemies and heals allies for " + HealAmount +
+            " HP. Cooldown: " + ultCooldown + " turns.";
+    }
 }

@@ -255,4 +255,21 @@ public class Character_Umbra implements Character_BattleStats {
     public boolean isUltimateFinished() {
         return ultAnimation.isAnimationFinished(stateTime);
     }
+
+    @Override
+    public String getBasicAtkDescription() {
+        return "Shadow Strike: A quick melee attack dealing " + basicAttackDamage + " damage.";
+    }
+
+    @Override
+    public String getSkillDescription() {
+        return "Distracting Illusions: Creates shadow clones that deal " + skillDamage +
+            " damage. Costs " + skillCost + " SP.";
+    }
+
+    @Override
+    public String getUltDescription() {
+        return "Veil of Shadows: Engulfs enemies in darkness, dealing " + ultimateDamage +
+            " damage. Cooldown: " + ultCooldown + " turn(s).";
+    }
 }

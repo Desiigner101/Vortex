@@ -37,6 +37,15 @@ import java.util.List;
 import java.util.Map;
 
 public class BattleClass implements Screen {
+
+    // Add these near the top with other fields
+    private BitmapFont tooltipFont;
+    private String currentTooltip = "";
+    private float tooltipTimer = 0;
+    private final float TOOLTIP_DELAY = 0.5f; // seconds before tooltip appears
+    private boolean showTooltip = false;
+    private float tooltipX = 0, tooltipY = 0;
+
     private SpriteBatch spriteBatch;
     private BitmapFont bitmapFont;
     private Stage stage;
@@ -192,6 +201,12 @@ public class BattleClass implements Screen {
     private float openTransitionStateTime = 0;
     private boolean playOpenTransition = true;
 
+    private ShapeRenderer shapeRenderer;
+
+
+
+
+
     public BattleClass(GameTransitions game,String universeName,EnemyClass enemy, boolean hasUmbra, boolean hasNova, boolean hasJina,
                        String background, String roadTile, String musicFile, Runnable onBattleComplete) {
         //new
@@ -227,6 +242,16 @@ public class BattleClass implements Screen {
         parameter.color = Color.RED;
         enemyTurnFont = generator.generateFont(parameter);
         generator.dispose();
+
+        // Add this in the constructor after other font initializations
+        FreeTypeFontGenerator tooltipGenerator = new FreeTypeFontGenerator(Gdx.files.internal("Fonts/Poppins-Regular.ttf"));
+        FreeTypeFontGenerator.FreeTypeFontParameter tooltipParam = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        tooltipParam.size = 18;
+        tooltipParam.color = Color.WHITE;
+        tooltipFont = tooltipGenerator.generateFont(tooltipParam);
+        tooltipGenerator.dispose();
+
+        shapeRenderer = new ShapeRenderer();
 
         //for transition
         closeTransitionTexture = new Texture(Gdx.files.internal("Backgrounds/closeTransitionSpriteSheet.png"));
@@ -353,11 +378,18 @@ public class BattleClass implements Screen {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
                 attackButton.getColor().a = 1.0f;
+                currentTooltip = currentCharacter.getBasicAtkDescription();
+                tooltipX = event.getStageX();
+                tooltipY = event.getStageY();
+                tooltipTimer = 0;
+                showTooltip = false;
             }
 
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
                 attackButton.getColor().a = 0.85f;
+                currentTooltip = "";
+                showTooltip = false;
             }
         });
 
@@ -383,6 +415,11 @@ public class BattleClass implements Screen {
                 if (currentTurn >= 0 && currentTurn < characters.size() &&
                     skillPoints >= currentCharacter.getSkillCost()) {
                     skillButton.getColor().a = 1.0f;
+                    currentTooltip = currentCharacter.getSkillDescription();
+                    tooltipX = event.getStageX();
+                    tooltipY = event.getStageY();
+                    tooltipTimer = 0;
+                    showTooltip = false;
                 }
             }
 
@@ -396,6 +433,8 @@ public class BattleClass implements Screen {
                         skillButton.getColor().a = 0.5f;
                     }
                 }
+                currentTooltip = "";
+                showTooltip = false;
             }
         });
 
@@ -421,6 +460,11 @@ public class BattleClass implements Screen {
                     int currentCooldown = ultimateCooldowns.get(characters.get(currentTurn));
                     if (currentCooldown <= 0) {
                         ultimateButton.getColor().a = 1.0f;
+                        currentTooltip = currentCharacter.getUltDescription();
+                        tooltipX = event.getStageX();
+                        tooltipY = event.getStageY();
+                        tooltipTimer = 0;
+                        showTooltip = false;
                     }
                 }
             }
@@ -435,6 +479,8 @@ public class BattleClass implements Screen {
                         ultimateButton.getColor().a = 0.5f;
                     }
                 }
+                currentTooltip = "";
+                showTooltip = false;
             }
         });
 
@@ -1137,6 +1183,13 @@ public class BattleClass implements Screen {
         }
         spriteBatch.end();
 
+        // Add this in the render method, before the stage.draw() call
+        if (!currentTooltip.isEmpty()) {
+            tooltipTimer += Gdx.graphics.getDeltaTime();
+            if (tooltipTimer >= TOOLTIP_DELAY) {
+                showTooltip = true;
+            }
+        }
 
         stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
@@ -1235,6 +1288,29 @@ public class BattleClass implements Screen {
                 return;
             }
             hasStarted=false;
+        }
+
+        if (showTooltip && !currentTooltip.isEmpty()) {
+            // Calculate tooltip dimensions
+            GlyphLayout layout = new GlyphLayout(tooltipFont, currentTooltip);
+            float padding = 10f;
+            float width = layout.width + padding * 2;
+            float height = layout.height + padding * 2;
+
+            // Position tooltip (adjust as needed)
+            float x = Math.min(tooltipX, viewport.getWorldWidth() - width - 10);
+            float y = Math.min(tooltipY + 30, viewport.getWorldHeight() - height - 10);
+
+            // Draw background
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+            shapeRenderer.setColor(0.1f, 0.1f, 0.1f, 0.9f);
+            shapeRenderer.rect(x, y, width, height);
+            shapeRenderer.end();
+
+            // Draw text
+            spriteBatch.begin();
+            tooltipFont.draw(spriteBatch, currentTooltip, x + padding, y + height - padding);
+            spriteBatch.end();
         }
     }
 
@@ -1839,6 +1915,10 @@ public class BattleClass implements Screen {
         if (hpBarTexture != null) hpBarTexture.dispose();
         if (enemyHpBarTexture != null) enemyHpBarTexture.dispose();
         if (healAnimationSheet != null) healAnimationSheet.dispose();
+
+        // Add to dispose() method
+        if (tooltipFont != null) tooltipFont.dispose();
+        if (shapeRenderer != null) shapeRenderer.dispose();
     }
 
     private void checkBattleConditions() {

@@ -34,6 +34,10 @@ public interface Character_BattleStats {
     String getHitAnimation();
     String getUltAnimation();
 
+    String getBasicAtkDescription();
+    String getSkillDescription();
+    String getUltDescription();
+
     // Animation control
     void update(float deltaTime);
     TextureRegion getCurrentFrame();

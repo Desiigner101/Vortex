@@ -203,6 +203,23 @@ public class Character_Nova implements Character_BattleStats {
     @Override public void reduceCooldowns() { if (currentUltCooldown > 0) currentUltCooldown--; }
     @Override public boolean isUltimateReady() { return currentUltCooldown == 0; }
 
+    @Override
+    public String getBasicAtkDescription() {
+        return "Energy Punch: A powerful melee attack charged with energy, dealing " + basicAttackDamage + " damage.";
+    }
+
+    @Override
+    public String getSkillDescription() {
+        return "Energy Blaster: Fires a concentrated beam of energy, dealing " + skillDamage +
+            " damage. Costs " + skillCost + " SP.";
+    }
+
+    @Override
+    public String getUltDescription() {
+        return "Multidimensional Blast: Unleashes energy from multiple dimensions, dealing " +
+            ultimateDamage + " damage. Cooldown: " + ultCooldown + " turn(s).";
+    }
+
     public TextureRegion getUltimateFirstFrame() {
         return fullscreenUltAnimation.getKeyFrame(0, false);
     }
