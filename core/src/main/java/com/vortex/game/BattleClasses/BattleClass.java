@@ -201,6 +201,7 @@ public class BattleClass implements Screen {
         //new
         FileHandler.startMatchTimer();
         this.game = game;
+        this.sfx = game.getAudioManager();
         this.onBattleComplete = onBattleComplete;
         this.universeName = universeName;
         spriteBatch = new SpriteBatch();
@@ -762,6 +763,12 @@ public class BattleClass implements Screen {
 
     @Override
     public void show() {
+        // Load current volume settings from GameTransitions
+        musicVolume = game.getMusicVolume();
+        soundVolume = game.getSoundVolume();
+        sfx.setMusicVolume(musicVolume);
+        sfx.setSoundVolume(soundVolume);
+
         if (!musicStarted) {
             sfx.playMusic(musicFile);
             musicStarted = true;
@@ -1518,12 +1525,12 @@ public class BattleClass implements Screen {
         if (Gdx.input.isButtonJustPressed(Input.Buttons.LEFT)) {
             if (musicSlider.contains(mouseX, mouseY)) {
                 musicVolume = calculateSliderValue(musicSlider, mouseX);
-                game.setMusicVolume(musicVolume);
+                sfx.setMusicVolume(musicVolume);
+                game.setMusicVolume(musicVolume); // Update GameTransitions
             } else if (soundSlider.contains(mouseX, mouseY)) {
                 soundVolume = calculateSliderValue(soundSlider, mouseX);
-                game.setSoundVolume(soundVolume);
-            } else if (brightnessSlider.contains(mouseX, mouseY)) {
-                brightness = calculateSliderValue(brightnessSlider, mouseX);
+                sfx.setSoundVolume(soundVolume);
+                game.setSoundVolume(soundVolume); // Update GameTransitions
             }
         }
 
