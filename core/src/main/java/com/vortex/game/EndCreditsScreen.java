@@ -1,8 +1,8 @@
 package com.vortex.game;
 
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -10,36 +10,58 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.utils.Align;
+import com.vortex.SFX.PlayAudio;
 
 public class EndCreditsScreen implements Screen {
     private final SpriteBatch batch;
     private final Texture background;
-    private BitmapFont font; // Changed to non-final since we initialize it after generator
+    private BitmapFont titleFont;
+    private BitmapFont nameFont;
+    private BitmapFont headerFont;
     private final String[] credits;
     private final float scrollSpeed;
     private float yPosition;
     private final GameTransitions game;
+    private Music creditsMusic;
+    private PlayAudio playAudio;
+    private boolean isTransitioning = false;
 
     public EndCreditsScreen(GameTransitions game) {
+        playAudio = new PlayAudio();
         this.game = game;
-        batch = new SpriteBatch();
+        this.batch = new SpriteBatch();
+        this.background = new Texture(Gdx.files.internal("Backgrounds/LabMenu_temp.png"));
 
-        // Load background image
-        background = new Texture(Gdx.files.internal("Backgrounds/LabMenu_temp.png"));
+        // Initialize fonts
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Poppins-SemiBold.ttf"));
 
-        // Set up font - IMPORTANT: Make sure the font file exists in the correct path
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Poppins-Bold.ttf")); // Changed path to lowercase 'fonts'
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        // Header font
+        FreeTypeFontGenerator.FreeTypeFontParameter headerParams = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        headerParams.size = 48;
+        headerParams.color = Color.WHITE;
+        headerParams.borderWidth = 2f;
+        headerParams.borderColor = Color.BLACK;
+        headerParams.spaceX = 5;
+        headerFont = generator.generateFont(headerParams);
 
-        // Configure font parameters
-        parameter.size = 36; // Set font size
-        parameter.color = Color.GOLD;
-        parameter.borderWidth = 1.5f;
-        parameter.borderColor = Color.BLACK;
+        // Title font
+        FreeTypeFontGenerator.FreeTypeFontParameter titleParams = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        titleParams.size = 36;
+        titleParams.color = Color.WHITE;
+        titleParams.borderWidth = 2f;
+        titleParams.borderColor = Color.BLACK;
+        titleParams.spaceX = 3;
+        titleFont = generator.generateFont(titleParams);
 
-        font = generator.generateFont(parameter);
-        generator.dispose(); // Important to dispose the generator after creating the font
+        // Name font
+        FreeTypeFontGenerator.FreeTypeFontParameter nameParams = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        nameParams.size = 32;
+        nameParams.color = Color.GOLD;
+        nameParams.borderWidth = 1.5f;
+        nameParams.borderColor = Color.BLACK;
+        nameFont = generator.generateFont(nameParams);
+
+        generator.dispose();
 
         // Credits text
         credits = new String[] {
@@ -47,46 +69,58 @@ public class EndCreditsScreen implements Screen {
             "",
             "Game Development Team",
             "",
-            "Lead Programmer",
-            "Your Name",
+            "Lead Programmers",
+            "Daniel luis P. Garcia",
+            "Gino M. Sarsonas",
+            "Sophia Bianca Aloria",
             "",
             "Game Design",
-            "Team Member 1",
-            "Team Member 2",
+            "Daniel Luis P. Garcia",
+            "Michelle Marie P. Habon",
+            "Ashley Igonia",
             "",
             "Art & Animation",
-            "Artist 1",
-            "Artist 2",
+            "Daniel Luis P. Garcia",
+            "",
             "",
             "Sound & Music",
-            "Composer 1",
+            "Gino M. Sarsonas",
+            "Michelle Marie P. Habon",
+            "Ashley Igonia",
             "",
             "Special Thanks",
             "Testers",
             "Supporters",
+            "Sir Khai the Goat Gumonan",
             "",
-            "© 2023 Your Studio Name",
+            "© 2025 Vortex",
             "All Rights Reserved"
         };
 
         scrollSpeed = 60f;
-        yPosition = 0;
+        yPosition = Gdx.graphics.getHeight();
     }
 
     @Override
     public void show() {
-        yPosition = -50;
+        yPosition = Gdx.graphics.getHeight();
+        isTransitioning = false;
+
+       playAudio.playMusic("EndCreditMusic.wav");
     }
 
     @Override
     public void render(float delta) {
+        if (isTransitioning) return;
+
         // Update scroll position
-        yPosition += scrollSpeed * delta;
+        yPosition -= scrollSpeed * delta;
 
         // Clear screen
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        // Draw background and credits
         batch.begin();
         batch.draw(background, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
@@ -99,37 +133,47 @@ public class EndCreditsScreen implements Screen {
                 continue;
             }
 
-            GlyphLayout layout = new GlyphLayout(font, line);
+            boolean isMainHeader = line.equals("VORTEX") ||
+                line.equals("Game Development Team") ||
+                line.equals("Special Thanks");
 
-            // Header styling
-            if (line.equals("VORTEX") || line.equals("Game Development Team") ||
-                line.equals("Special Thanks")) {
-                font.setColor(Color.SKY);
-                font.getData().setScale(1.5f);
-            } else {
-                font.setColor(Color.WHITE);
-                font.getData().setScale(1.0f);
-            }
+            boolean isTitle = !isMainHeader && (line.equals("Lead Programmers") ||
+                line.equals("Game Design") ||
+                line.equals("Art & Animation") ||
+                line.equals("Sound & Music") ||
+                line.equals("Testers") ||
+                line.equals("Supporters") ||
+                line.equals("© 2025 Vortex") ||
+                line.equals("All Rights Reserved"));
 
-            font.draw(batch, layout, centerX - layout.width/2, currentY);
-            currentY += layout.height + 40;
-
-            // Reset styling
-            font.setColor(Color.WHITE);
-            font.getData().setScale(1.0f);
+            BitmapFont currentFont = isMainHeader ? headerFont : (isTitle ? titleFont : nameFont);
+            GlyphLayout layout = new GlyphLayout(currentFont, line);
+            currentFont.draw(batch, layout, centerX - layout.width/2, currentY);
+            currentY += layout.height + (isMainHeader ? 60 : 40);
         }
 
         batch.end();
 
-        // Check if credits finished scrolling
-        if (currentY - calculateTotalCreditsHeight() > Gdx.graphics.getHeight()) {
-            game.setScreen(new GameMenu(game));
+        // Check if credits finished or screen was touched
+        if (currentY < -calculateTotalCreditsHeight() || Gdx.input.justTouched()) {
+            returnToMenu();
+        }
+    }
+
+    private void returnToMenu() {
+        if (isTransitioning) return;
+
+        isTransitioning = true;
+
+        // Stop music if playing
+        if (creditsMusic != null && creditsMusic.isPlaying()) {
+            creditsMusic.stop();
         }
 
-        // Skip credits on touch/click
-        if (Gdx.input.justTouched()) {
-            game.setScreen(new GameMenu(game));
-        }
+
+
+        // Return to main menu
+        game.setScreen(new GameMenu(game));
     }
 
     private float calculateTotalCreditsHeight() {
@@ -142,8 +186,22 @@ public class EndCreditsScreen implements Screen {
                 continue;
             }
 
-            layout.setText(font, line);
-            totalHeight += layout.height + 40;
+            boolean isMainHeader = line.equals("VORTEX") ||
+                line.equals("Game Development Team") ||
+                line.equals("Special Thanks");
+
+            boolean isTitle = !isMainHeader && (line.equals("Lead Programmers") ||
+                line.equals("Game Design") ||
+                line.equals("Art & Animation") ||
+                line.equals("Sound & Music") ||
+                line.equals("Testers") ||
+                line.equals("Supporters") ||
+                line.equals("© 2025 Vortex") ||
+                line.equals("All Rights Reserved"));
+
+            BitmapFont currentFont = isMainHeader ? headerFont : (isTitle ? titleFont : nameFont);
+            layout.setText(currentFont, line);
+            totalHeight += layout.height + (isMainHeader ? 60 : 40);
         }
 
         return totalHeight;
@@ -155,18 +213,24 @@ public class EndCreditsScreen implements Screen {
     }
 
     @Override
-    public void pause() {}
+    public void pause() {
+    }
 
     @Override
-    public void resume() {}
+    public void resume() {
+    }
 
     @Override
-    public void hide() {}
+    public void hide() {
+        // Don't dispose here - let dispose() handle cleanup
+    }
 
     @Override
     public void dispose() {
         batch.dispose();
         background.dispose();
-        font.dispose();
+        headerFont.dispose();
+        titleFont.dispose();
+        nameFont.dispose();
     }
 }

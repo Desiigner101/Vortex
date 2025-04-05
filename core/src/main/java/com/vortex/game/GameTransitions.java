@@ -76,11 +76,11 @@ public class GameTransitions extends Game {
     public void newGame() {
         sequenceCount = 0;
         startNextSequence();
+        audioManager.stopAudio();
     }
 
     private void startNextSequence() {
         sequenceCount++;
-
 
 
         if(sequenceCount == 1) {
@@ -118,11 +118,13 @@ public class GameTransitions extends Game {
             }, () -> {
                 Runnable createBattle1 = () -> {
                     currentScreen = new BattleClass(
-                        this, "XYBERIA",
+                        this, "NYXARION",
                         new TestBossClass(),
                         true, true, true,
                         "XYBERIA_BACKGROUND.png", "RoadTile.png", "XYBERIA_MUSIC.wav",
-                        () -> startNextSequence()
+                        () -> {
+                            setScreen(new EndCreditsScreen(this));
+                        }
                     );
                     setScreen(currentScreen);
                 };
@@ -130,6 +132,7 @@ public class GameTransitions extends Game {
             });
             setScreen(currentScreen);
         }
+
 
         //Fight Scene Begins - Nova vs. Bounty Hunters
         else if(sequenceCount == 2) {
@@ -658,7 +661,7 @@ public class GameTransitions extends Game {
                             this, "NYXARION",
                             new TestBossClass(),
                             true, true, true,
-                            "NYXARION_BACKGROUND.png", "SNYXARION_TILE.png", "NYXARION_MUSIC.wav",
+                            "NYXARION_BACKGROUND.png", "NYXARION_TILE.png", "NYXARION_MUSIC.wav",
                             () -> startNextSequence()
                         );
                         setScreen(currentScreen);
@@ -1036,7 +1039,9 @@ public class GameTransitions extends Game {
                             new TestBossClass(),
                             true, true, true,
                             "NYXARION_BACKGROUND.png", "NYXARION_TILE.png", "NYXARION_MUSIC.wav",
-                            () -> startNextSequence()
+                            () -> {
+                                setScreen(new EndCreditsScreen(this));
+                            }
                         );
                         setScreen(currentScreen);
                     };
@@ -1044,9 +1049,6 @@ public class GameTransitions extends Game {
                 });
             setScreen(currentScreen);
         }
-
-        //Version 1: When Nova Wins
-
 
 
     }
