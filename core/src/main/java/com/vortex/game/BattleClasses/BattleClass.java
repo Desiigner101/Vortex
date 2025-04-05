@@ -1940,7 +1940,7 @@ public class BattleClass implements Screen {
                         roundCount // Add round count here
                     ));
                 }
-            }, .75f);
+            }, 3.75f);
             return;
         }
 
@@ -1977,7 +1977,7 @@ public class BattleClass implements Screen {
                         0 // Pass 0 for defeat (won't be shown anyway)
                     ));
                 }
-            }, .75f);
+            }, 3.75f);
         }
     }
     private void debugTurnState(String event) {

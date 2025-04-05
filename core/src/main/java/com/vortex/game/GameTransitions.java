@@ -121,7 +121,7 @@ public class GameTransitions extends Game {
                         this, "XYBERIA",
                         new TestBossClass(),
                         true, true, true,
-                        "XYBERIA_BACKGROUND.png", "RoadTile.png", "Boss-BattleMusic.wav",
+                        "XYBERIA_BACKGROUND.png", "RoadTile.png", "XYBERIA_MUSIC.wav",
                         () -> startNextSequence()
                     );
                     setScreen(currentScreen);
@@ -179,7 +179,7 @@ public class GameTransitions extends Game {
                         this, "XYBERIA",
                         new TestBossClass(),
                         true, true, true,
-                        "XYBERIA_BACKGROUND.png", "RoadTile.png", "Boss-BattleMusic.wav",
+                        "XYBERIA_BACKGROUND.png", "RoadTile.png", "XYBERIA_MUSIC.wav",
                         () -> startNextSequence()
                     );
                     setScreen(currentScreen);
@@ -276,7 +276,7 @@ public class GameTransitions extends Game {
                         this, "AETHERIS",
                         new TestBossClass(),
                         true, true, true,
-                        "AETHERIS_BACKGROUND.png", "AETHERIS_TILES.png", "Boss-BattleMusic.wav",
+                        "AETHERIS_BACKGROUND.png", "AETHERIS_TILES.png", "AETHERIS_MUSIC.wav",
                         () -> startNextSequence()
                     );
                     setScreen(currentScreen);
@@ -341,7 +341,7 @@ public class GameTransitions extends Game {
                             this, "AETHERIS",
                             new TestBossClass(),
                             true, true, true,
-                            "AETHERIS_BACKGROUND.png", "AETHERIS_TILES.png", "Boss-BattleMusic.wav",
+                            "AETHERIS_BACKGROUND.png", "AETHERIS_TILES.png", "AETHERIS_MUSIC.wav",
                             () -> startNextSequence()
                         );
                         setScreen(currentScreen);
@@ -378,7 +378,7 @@ public class GameTransitions extends Game {
                             this, "AETHERIS",
                             new TestBossClass(),
                             true, true, true,
-                            "AETHERIS_BACKGROUND.png", "AETHERIS_TILES.png", "Boss-BattleMusic.wav",
+                            "AETHERIS_BACKGROUND.png", "AETHERIS_TILES.png", "AETHERIS_MUSIC.wav",
                             () -> startNextSequence()
                         );
                         setScreen(currentScreen);
@@ -424,7 +424,7 @@ public class GameTransitions extends Game {
                             this, "AETHERIS",
                             new TestBossClass(),
                             true, true, true,
-                            "AETHERIS_BACKGROUND.png", "AETHERIS_TILES.png", "Boss-BattleMusic.wav",
+                            "AETHERIS_BACKGROUND.png", "AETHERIS_TILES.png", "AETHERIS_MUSIC.wav",
                             () -> startNextSequence()
                         );
                         setScreen(currentScreen);
@@ -658,7 +658,7 @@ public class GameTransitions extends Game {
                             this, "NYXARION",
                             new TestBossClass(),
                             true, true, true,
-                            "NYXARION_BACKGROUND.gif", "StoneTile.png", "Boss-BattleMusic.wav",
+                            "NYXARION_BACKGROUND.png", "SNYXARION_TILE.png", "NYXARION_MUSIC.wav",
                             () -> startNextSequence()
                         );
                         setScreen(currentScreen);
@@ -749,7 +749,7 @@ public class GameTransitions extends Game {
                             this, "NYXARION",
                             new TestBossClass(),
                             true, true, true,
-                            "NYXARION_BACKGROUND.gif", "StoneTile.png", "Boss-BattleMusic.wav",
+                            "NYXARION_BACKGROUND.png", "NYXARION_TILE.png", "NYXARION_MUSIC.wav",
                             () -> startNextSequence()
                         );
                         setScreen(currentScreen);
@@ -1035,7 +1035,7 @@ public class GameTransitions extends Game {
                             this, "NYXARION",
                             new TestBossClass(),
                             true, true, true,
-                            "NYXARION_BACKGROUND.gif", "StoneTile.png", "Boss-BattleMusic.wav",
+                            "NYXARION_BACKGROUND.png", "NYXARION_TILE.png", "NYXARION_MUSIC.wav",
                             () -> startNextSequence()
                         );
                         setScreen(currentScreen);
