@@ -14,8 +14,11 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -23,10 +26,11 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ScreenUtils;
 
 public class WorldTransitions implements Screen {
     // Transition constants
-    private static final float PLANET_INITIAL_X = -100f;
     private static final float PLANET_FINAL_X = -250f;
     private static final float PLANET_ZOOM_FACTOR = 0.5f;
     private static final float TRANSITION_DURATION = 1.0f;
@@ -35,21 +39,21 @@ public class WorldTransitions implements Screen {
 
     // Color constants
     private static final Color CYBER_PURPLE = new Color(150/255f, 0/255f, 255/255f, 0.85f);
-    private static final Color NEON_BLUE = new Color(30/255f, 144/255f, 255/255f, 0.7f);
-    private static final Color DARK_OVERLAY = new Color(20/255f, 0/255f, 40/255f, 0.8f);
-    private static final Color GRID_COLOR = new Color(100/255f, 255/255f, 255/255f, 0.15f);
     private static final Color INFO_PANEL_COLOR = new Color(0.1f, 0.1f, 0.2f, 0.85f);
     private static final Color INFO_TITLE_COLOR = new Color(0.6f, 0.2f, 1f, 1f);
     private static final Color INFO_SUBTITLE_COLOR = new Color(0.4f, 0.7f, 1f, 1f);
     private static final Color INFO_TEXT_COLOR = new Color(0.8f, 0.8f, 1f, 1f);
+    private static final Color PARTICLE_COLOR = new Color(100/255f, 200/255f, 255/255f, 0.8f);
 
     // Animation constants
     private static final float FRAME_DURATION = 0.1f;
     private static final int FRAME_COUNT = 50;
     private static final String IMAGE_PATH = "Backgrounds/worldBackGrounds_Images/spriteDrinksFor_eachWorld/tile";
+    private static final int PARTICLE_COUNT = 150;
+    private static final float SCANLINE_SPEED = 100f;
+    private static final float PULSE_DURATION = 2f;
 
     // Game objects
-    private final Game game;
     private final Texture background;
     private final SpriteBatch batch;
     private final ShapeRenderer shapeRenderer;
@@ -57,12 +61,17 @@ public class WorldTransitions implements Screen {
     private final Stage stage;
     private final Skin skin;
     private TextButton viewButton;
-    private TextButton closeButton;
-
+    private final Texture scanlineTexture;
+    private final Array<Particle> particles = new Array<>();
+    private final GameTransitions game;
     // Animation state
     private int frameIndex = 0;
     private float elapsedTime = 0f;
     private float rotation;
+    private float scanlineOffset = 0;
+    private float pulseTimer = 0;
+    private float glitchTimer = 0;
+    private boolean showGlitchEffect = false;
 
     // Transition state
     private boolean transitionStarted = false;
@@ -87,6 +96,8 @@ public class WorldTransitions implements Screen {
     private final float descriptionDelay = 0.05f;
     private final GlyphLayout titleLayout = new GlyphLayout();
     private final GlyphLayout descLayout = new GlyphLayout();
+    private static final Color NEON_PURPLE = new Color(0.6f, 0.4f, 1f, 1f); // Neon purple
+
 
     // Info panel
     private boolean showInfoPanel = false;
@@ -109,7 +120,17 @@ public class WorldTransitions implements Screen {
     private float panelWidth = 950;
     private float panelHeight = 600;
 
-    public WorldTransitions(Game game) {
+    // Particle class for effects
+    private static class Particle {
+        float x, y;
+        float vx, vy;
+        float size;
+        float life;
+        float maxLife;
+        Color color;
+    }
+
+    public WorldTransitions(GameTransitions game) {
         this.game = game;
         this.batch = new SpriteBatch();
         this.shapeRenderer = new ShapeRenderer();
@@ -122,19 +143,76 @@ public class WorldTransitions implements Screen {
         this.menuFont = createMenuFont();
         this.xyberiaFrames = loadFrames();
         this.skin = new Skin(Gdx.files.internal("uiskin.json"));
-        createButtons();
 
+        this.scanlineTexture = createScanlineTexture();
+        // Initialize particles
+        for (int i = 0; i < PARTICLE_COUNT; i++) {
+            particles.add(createParticle());
+        }
+
+        createButtons();
         calculateTextLayouts();
+    }
+
+    private Texture createScanlineTexture() {
+        Pixmap pixmap = new Pixmap(4, 4, Pixmap.Format.RGBA8888);
+        pixmap.setColor(new Color(1, 1, 1, 0.1f));
+        pixmap.fill();
+        pixmap.setColor(new Color(1, 1, 1, 0.05f));
+        pixmap.drawLine(0, 1, 4, 1);
+        pixmap.drawLine(0, 3, 4, 3);
+        Texture texture = new Texture(pixmap);
+        pixmap.dispose();
+        return texture;
+    }
+
+
+    private Particle createParticle() {
+        Particle p = new Particle();
+        p.x = MathUtils.random(Gdx.graphics.getWidth());
+        p.y = MathUtils.random(Gdx.graphics.getHeight());
+        p.vx = MathUtils.random(-50f, 50f);
+        p.vy = MathUtils.random(-50f, 50f);
+        p.size = MathUtils.random(2f, 8f);
+        p.life = MathUtils.random(0f, 5f);
+        p.maxLife = MathUtils.random(3f, 8f);
+
+        // Change particle color to purple with slight variation
+        p.color = new Color(
+            0.5f * MathUtils.random(0.8f, 1.2f),  // Adjust red to a purple shade
+            0f,                                  // No green
+            0.5f * MathUtils.random(0.8f, 1.2f),  // Adjust blue to a purple shade
+            PARTICLE_COLOR.a * MathUtils.random(0.5f, 1f) // Keep the original alpha range
+        );
+        return p;
+    }
+
+    private void updateParticles(float delta) {
+        for (Particle p : particles) {
+            p.x += p.vx * delta;
+            p.y += p.vy * delta;
+            p.life += delta;
+
+            if (p.life > p.maxLife ||
+                p.x < 0 || p.x > Gdx.graphics.getWidth() ||
+                p.y < 0 || p.y > Gdx.graphics.getHeight()) {
+                particles.removeValue(p, true);
+                particles.add(createParticle());
+            }
+        }
     }
 
     private BitmapFont createTitleFont() {
         try {
             FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Geoform-Bold.otf"));
             FreeTypeFontParameter parameter = new FreeTypeFontParameter();
-            parameter.size = 75;
+            parameter.size = 85;
             parameter.color = Color.WHITE;
             parameter.borderColor = CYBER_PURPLE;
             parameter.borderWidth = 2;
+            parameter.shadowOffsetX = 3;
+            parameter.shadowOffsetY = 3;
+            parameter.shadowColor = new Color(0, 0, 0, 0.5f);
             BitmapFont font = generator.generateFont(parameter);
             generator.dispose();
             return font;
@@ -185,6 +263,19 @@ public class WorldTransitions implements Screen {
         return frames;
     }
 
+    private void fadeOutAllElements(Runnable onComplete) {
+        // Fade out all stage actors
+        for (Actor actor : stage.getActors()) {
+            actor.addAction(Actions.fadeOut(0.5f));
+        }
+
+        // Fade out other visual elements by setting a global fade
+        stage.addAction(Actions.sequence(
+            Actions.fadeOut(0.5f),
+            Actions.run(onComplete)
+        ));
+    }
+
     private void createButtons() {
         BitmapFont font;
         try {
@@ -225,9 +316,99 @@ public class WorldTransitions implements Screen {
         viewButton.setSize(120, 40);
         viewButton.setPosition(Gdx.graphics.getWidth() - 428, 92);
 
+        // Add hover and zoom effects to the View button
+        viewButton.addListener(new InputListener() {
+            @Override
+            public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                viewButton.addAction(Actions.parallel(
+                    Actions.color(Color.BLUE, 0.3f),
+                    Actions.scaleTo(1.1f, 1.1f, 0.3f),
+                    Actions.sequence(
+                        Actions.moveBy(-2, 0, 0.05f),
+                        Actions.moveBy(4, 0, 0.1f),
+                        Actions.moveBy(-2, 0, 0.05f)
+                    )
+                ));
+            }
+
+            @Override
+            public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                viewButton.addAction(Actions.parallel(
+                    Actions.color(Color.WHITE, 0.3f),
+                    Actions.scaleTo(1f, 1f, 0.3f)
+                ));
+            }
+        });
+
         viewButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                viewButton.addAction(Actions.sequence(
+                    Actions.parallel(
+                        Actions.fadeOut(0.5f),
+                        Actions.scaleTo(0.8f, 0.8f, 0.5f)
+                    ),
+                    Actions.removeActor()
+                ));
+
+                TextButton traverseButton = new TextButton("Traverse", textButtonStyle);
+                traverseButton.setSize(120, 40);
+                traverseButton.setPosition(Gdx.graphics.getWidth() - 600, 92);
+                traverseButton.setColor(1, 1, 1, 0);
+                traverseButton.setScale(0.8f);
+
+                traverseButton.addListener(new ClickListener() {
+                    @Override
+                    public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
+                        traverseButton.addAction(Actions.parallel(
+                            Actions.color(Color.BLUE, 0.3f),
+                            Actions.scaleTo(1.1f, 1.1f, 0.3f),
+                            Actions.sequence(
+                                Actions.moveBy(-2, 0, 0.05f),
+                                Actions.moveBy(4, 0, 0.1f),
+                                Actions.moveBy(-2, 0, 0.05f)
+                            )
+                        ));
+                    }
+
+                    @Override
+                    public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
+                        traverseButton.addAction(Actions.parallel(
+                            Actions.color(Color.WHITE, 0.3f),
+                            Actions.scaleTo(1f, 1f, 0.3f)
+                        ));
+                    }
+
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+
+                        // Disable button to prevent multiple clicks
+                        traverseButton.setDisabled(true);
+
+                        // Fade out all elements
+                        fadeOutAllElements(new Runnable() {
+                            @Override
+                            public void run() {
+                                // Transition to DisplayCharacters screen
+                                game.displayCharacters();
+                                dispose();
+                            }
+                        });
+                    }
+                });
+
+
+
+                traverseButton.addAction(Actions.sequence(
+                    Actions.parallel(
+                        Actions.fadeIn(0.5f),
+                        Actions.scaleTo(1f, 1f, 0.5f)
+                    )
+                ));
+
+                stage.addActor(traverseButton);
+
+
                 transitionStarted = true;
                 transitionProgress = 0f;
                 showInfoPanel = true;
@@ -245,23 +426,7 @@ public class WorldTransitions implements Screen {
             }
         });
 
-        // Close Button
-        closeButton = new TextButton("X", textButtonStyle);
-        closeButton.setSize(40, 40);
-        closeButton.setVisible(false);
-
-        closeButton.addListener(new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                wipeClosing = true;
-                wipeOpening = false;
-                returningToOriginal = true;
-                returnProgress = 0f;
-            }
-        });
-
         stage.addActor(viewButton);
-        stage.addActor(closeButton);
     }
 
     private void calculateTextLayouts() {
@@ -272,23 +437,38 @@ public class WorldTransitions implements Screen {
 
     @Override
     public void render(float delta) {
+        // Clear screen with black (or your preferred background)
+        ScreenUtils.clear(0, 0, 0, 1);
+
+        // Update all animations and transitions
         updateTransition(delta);
         updateAnimation(delta);
         updateTypewriterEffect(delta);
         updateWipeAnimation(delta);
         updateReturnAnimation(delta);
+        updateParticles(delta);
+        updatePulseEffect(delta);
 
-        // Correct rendering order:
-        renderBackground();  // Back layer
-        renderOverlay();     // Mid layer (text behind planet)
-        renderPlanet(delta); // Front layer (planet on top)
-        renderInfoPanel();   // UI elements (always on top)
+        // Render all elements (they will fade out with the stage's alpha)
+        renderBackground();
+        renderParticles();
+        renderOverlay();
+        renderPlanet(delta);
+        renderInfoPanel();
+        renderScanlines();
 
         stage.act(delta);
         stage.draw();
-
-        checkTransitionComplete();
     }
+
+    private void updatePulseEffect(float delta) {
+        pulseTimer += delta;
+        if (pulseTimer > PULSE_DURATION) {
+            pulseTimer = 0;
+        }
+    }
+
+
 
     private void updateReturnAnimation(float delta) {
         if (returningToOriginal && returnProgress < 1f) {
@@ -296,7 +476,6 @@ public class WorldTransitions implements Screen {
             if (returnProgress >= 1f) {
                 returningToOriginal = false;
                 showInfoPanel = false;
-                closeButton.setVisible(false);
             }
         }
     }
@@ -306,10 +485,6 @@ public class WorldTransitions implements Screen {
             wipeProgress = Math.min(1f, wipeProgress + delta / WIPE_DURATION);
             if (wipeProgress >= 1f) {
                 wipeOpening = false;
-                closeButton.setVisible(true);
-                float panelX = Gdx.graphics.getWidth() - panelWidth - 70;
-                float panelY = (Gdx.graphics.getHeight() - panelHeight) / 2;
-                closeButton.setPosition(panelX + panelWidth - 50, panelY + panelHeight - 50);
             }
         } else if (wipeClosing) {
             wipeProgress = Math.max(0f, wipeProgress - delta / WIPE_DURATION);
@@ -344,11 +519,20 @@ public class WorldTransitions implements Screen {
         batch.end();
     }
 
+    private void renderParticles() {
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        for (Particle p : particles) {
+            float alpha = (1 - (p.life / p.maxLife)) * stage.getRoot().getColor().a;
+            shapeRenderer.setColor(p.color.r, p.color.g, p.color.b, p.color.a * alpha);
+            shapeRenderer.rect(p.x, p.y, p.size, p.size);
+        }
+        shapeRenderer.end();
+    }
+
     private void renderPlanet(float delta) {
         Texture currentFrame = xyberiaFrames[frameIndex];
         float floatOffset = calculateFloatOffset();
 
-        // Calculate progress based on whether we're returning
         float progress;
         if (returningToOriginal) {
             progress = (1f - returnProgress) * transitionProgress;
@@ -357,16 +541,20 @@ public class WorldTransitions implements Screen {
         }
 
         float scale = 5.3f * (1 + progress * PLANET_ZOOM_FACTOR);
-
         float initialX = Gdx.graphics.getWidth() - currentFrame.getWidth() * 5.3f - 100;
         float xPos = initialX + (PLANET_FINAL_X - initialX) * progress;
         float yPos = (Gdx.graphics.getHeight() - currentFrame.getHeight() * scale) / 2f + floatOffset;
         float newWidth = currentFrame.getWidth() * scale;
         float newHeight = currentFrame.getHeight() * scale;
 
-        rotation += delta * 5f; // Rotation speed
+        rotation += delta * 5f;
 
         batch.begin();
+        // Apply stage alpha to planet too
+        batch.setColor(1, 1, 1, stage.getRoot().getColor().a);
+        batch.setColor(Color.WHITE);
+
+        // Render planet with rotation
         batch.setTransformMatrix(batch.getTransformMatrix().idt()
             .translate(xPos + newWidth/2, yPos + newHeight/2, 0)
             .rotate(0, 0, 1, rotation)
@@ -388,13 +576,18 @@ public class WorldTransitions implements Screen {
         Gdx.gl.glEnable(Gdx.gl.GL_BLEND);
         Gdx.gl.glBlendFunc(Gdx.gl.GL_SRC_ALPHA, Gdx.gl.GL_ONE_MINUS_SRC_ALPHA);
 
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         float overlayWidth = 300 * (1 - transitionProgress);
         float overlayX = 50 + (transitionProgress * -400);
+        float borderThickness = 3f;
+        float cornerSize = 15f;
 
+        // Main gradient fill
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         for (int i = 0; i < overlayWidth; i++) {
             float ratio = i/overlayWidth;
             float alpha = (0.8f - ratio * 0.3f) * (1 - transitionProgress);
+
+            // Enhanced gradient colors
             shapeRenderer.setColor(
                 0.1f * (1-ratio) + 0.5f * ratio,
                 0f * (1-ratio) + 0.1f * ratio,
@@ -404,6 +597,62 @@ public class WorldTransitions implements Screen {
             shapeRenderer.rect(overlayX + i, 0, 1, Gdx.graphics.getHeight());
         }
         shapeRenderer.end();
+
+        // Stylish border with corners
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        // Border glow effect
+        float glowAlpha = 0.6f * (1 - transitionProgress);
+        shapeRenderer.setColor(0.6f, 0.2f, 1f, glowAlpha * 0.3f);
+
+        // Main border
+        shapeRenderer.rect(overlayX - borderThickness, -borderThickness,
+            overlayWidth + 2*borderThickness, borderThickness); // Top
+        shapeRenderer.rect(overlayX - borderThickness, Gdx.graphics.getHeight(),
+            overlayWidth + 2*borderThickness, borderThickness); // Bottom
+        shapeRenderer.rect(overlayX - borderThickness, 0,
+            borderThickness, Gdx.graphics.getHeight()); // Left
+        shapeRenderer.rect(overlayX + overlayWidth, 0,
+            borderThickness, Gdx.graphics.getHeight()); // Right
+
+        // Corner accents
+        shapeRenderer.setColor(0.8f, 0.4f, 1f, glowAlpha);
+
+        // Top-left corner
+        shapeRenderer.rect(overlayX - borderThickness, Gdx.graphics.getHeight() - cornerSize,
+            cornerSize, borderThickness);
+        shapeRenderer.rect(overlayX - borderThickness, Gdx.graphics.getHeight() - borderThickness,
+            borderThickness, cornerSize);
+
+        // Bottom-left corner
+        shapeRenderer.rect(overlayX - borderThickness, 0,
+            cornerSize, borderThickness);
+        shapeRenderer.rect(overlayX - borderThickness, borderThickness,
+            borderThickness, cornerSize);
+
+        // Top-right corner
+        shapeRenderer.rect(overlayX + overlayWidth - cornerSize + borderThickness,
+            Gdx.graphics.getHeight() - borderThickness,
+            cornerSize, borderThickness);
+        shapeRenderer.rect(overlayX + overlayWidth,
+            Gdx.graphics.getHeight() - cornerSize,
+            borderThickness, cornerSize);
+
+        // Bottom-right corner
+        shapeRenderer.rect(overlayX + overlayWidth - cornerSize + borderThickness,
+            0, cornerSize, borderThickness);
+        shapeRenderer.rect(overlayX + overlayWidth,
+            borderThickness, borderThickness, cornerSize);
+
+        shapeRenderer.end();
+
+        // Animated border pulse effect
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        Gdx.gl.glLineWidth(2f);
+        shapeRenderer.rect(overlayX, 0, overlayWidth, Gdx.graphics.getHeight());
+        Gdx.gl.glLineWidth(1f);
+        shapeRenderer.end();
+
         Gdx.gl.glDisable(Gdx.gl.GL_BLEND);
 
         if (transitionProgress < 0.9f || returningToOriginal) {
@@ -431,88 +680,87 @@ public class WorldTransitions implements Screen {
     private void renderInfoPanel() {
         if (!showInfoPanel || transitionProgress <= 0) return;
 
+        // Fade-in effect for the entire panel
         infoPanelAlpha = Math.min(1f, infoPanelAlpha + Gdx.graphics.getDeltaTime() * 2f);
 
-        // Panel dimensions and position
         float panelX = Gdx.graphics.getWidth() - panelWidth - 70;
         float panelY = (Gdx.graphics.getHeight() - panelHeight) / 2;
         float centerX = panelX + panelWidth / 2;
 
-        // Center-out wipe effect
         float currentHalfWidth = (panelWidth / 2) * wipeProgress;
         float leftEdge = centerX - currentHalfWidth;
         float rightEdge = centerX + currentHalfWidth;
 
-        // Draw the expanding panel
+        // Panel Fade-In Effect (Keep original color with fade-in)
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(INFO_PANEL_COLOR.r, INFO_PANEL_COLOR.g, INFO_PANEL_COLOR.b, INFO_PANEL_COLOR.a * infoPanelAlpha);
         shapeRenderer.rect(leftEdge, panelY, currentHalfWidth * 2, panelHeight);
 
-        // Glow effect at expanding edges
+        // Glow Effect (Purple) with Fade-In
         if (wipeProgress < 0.95f) {
-            float glowAlpha = 0.5f * (1 - wipeProgress);
-            shapeRenderer.setColor(CYBER_PURPLE.r, CYBER_PURPLE.g, CYBER_PURPLE.b, glowAlpha);
-            shapeRenderer.rect(leftEdge - 5, panelY, 5, panelHeight); // Left glow
-            shapeRenderer.rect(rightEdge, panelY, 5, panelHeight);   // Right glow
+            float glowAlpha = Math.max(0, 0.5f * (1 - wipeProgress)) * infoPanelAlpha;  // Glow fades in
+            shapeRenderer.setColor(NEON_PURPLE.r, NEON_PURPLE.g, NEON_PURPLE.b, glowAlpha);
+            shapeRenderer.rect(leftEdge - 5, panelY, 5, panelHeight);
+            shapeRenderer.rect(rightEdge, panelY, 5, panelHeight);
         }
         shapeRenderer.end();
 
-        // Draw border (only when panel is expanding)
+        // Border Fade-In Effect (Purple)
         if (wipeProgress < 1f) {
             Gdx.gl.glLineWidth(3);
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            shapeRenderer.setColor(CYBER_PURPLE.r, CYBER_PURPLE.g, CYBER_PURPLE.b, infoPanelAlpha);
+            shapeRenderer.setColor(NEON_PURPLE.r, NEON_PURPLE.g, NEON_PURPLE.b, infoPanelAlpha);  // Border fades in with purple
             shapeRenderer.rect(leftEdge, panelY, currentHalfWidth * 2, panelHeight);
             shapeRenderer.end();
             Gdx.gl.glLineWidth(1);
         }
 
-        // Draw decorative elements
+        // Decorative Lines and Corner Fade-In Effect (Purple)
         if (wipeProgress > 0.3f) {
             float decoAlpha = Math.min(1f, (wipeProgress - 0.3f) / 0.7f) * infoPanelAlpha;
 
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.setColor(NEON_BLUE.r, NEON_BLUE.g, NEON_BLUE.b, decoAlpha * 0.7f);
+            shapeRenderer.setColor(NEON_PURPLE.r, NEON_PURPLE.g, NEON_PURPLE.b, decoAlpha);  // Fade-in with purple
 
-            // Top and bottom accent lines
             float lineWidth = currentHalfWidth * 2 - 40;
-            shapeRenderer.rect(centerX - lineWidth/2, panelY + panelHeight - 10, lineWidth, 2);
-            shapeRenderer.rect(centerX - lineWidth/2, panelY + 8, lineWidth, 2);
+            // Horizontal divider lines (purple)
+            shapeRenderer.rect(centerX - lineWidth / 2, panelY + panelHeight - 10, lineWidth, 2);
+            shapeRenderer.rect(centerX - lineWidth / 2, panelY + 8, lineWidth, 2);
 
-            // Corner accents (appear when mostly open)
             if (wipeProgress > 0.8f) {
                 float cornerSize = 15f;
+                // Corner accents (purple with fade-in)
                 shapeRenderer.rect(leftEdge + 5, panelY + panelHeight - cornerSize - 5, cornerSize, cornerSize);
                 shapeRenderer.rect(rightEdge - cornerSize - 5, panelY + 5, cornerSize, cornerSize);
             }
             shapeRenderer.end();
         }
 
-        // Draw content with fade-in effect
+        // Content (Text) Fade-In Effect
         if (wipeProgress > 0.3f) {
             float contentAlpha = Math.min(1f, (wipeProgress - 0.3f) / 0.7f) * infoPanelAlpha;
 
             batch.begin();
 
-            // Title (centered)
+            // Title Fade-In Effect
             titleFont.setColor(INFO_TITLE_COLOR.r, INFO_TITLE_COLOR.g, INFO_TITLE_COLOR.b, contentAlpha);
             float titleX = centerX - worldTitleLayout.width / 2;
             float titleY = panelY + panelHeight - 50;
             titleFont.draw(batch, worldTitleLayout, titleX, titleY);
 
-            // Subtitle (centered)
+            // Subtitle Fade-In Effect
             subtitleFont.setColor(INFO_SUBTITLE_COLOR.r, INFO_SUBTITLE_COLOR.g, INFO_SUBTITLE_COLOR.b, contentAlpha);
             float subtitleX = centerX - worldSubtitleLayout.width / 2;
             float subtitleY = titleY - worldTitleLayout.height - 20;
             subtitleFont.draw(batch, worldSubtitleLayout, subtitleX, subtitleY);
 
-            // Description (appears later)
+            // Description Fade-In Effect
             if (wipeProgress > 0.6f) {
                 float descAlpha = Math.min(1f, (wipeProgress - 0.6f) / 0.4f) * infoPanelAlpha;
                 menuFont.setColor(INFO_TEXT_COLOR.r, INFO_TEXT_COLOR.g, INFO_TEXT_COLOR.b, descAlpha);
                 menuFont.draw(batch, worldDescription,
                     leftEdge + 30,
-                    subtitleY - worldSubtitleLayout.height - 40,
+                    subtitleY - worldSubtitleLayout.height - 58,
                     currentHalfWidth * 2 - 60,
                     Align.center, true);
             }
@@ -520,32 +768,39 @@ public class WorldTransitions implements Screen {
             batch.end();
         }
 
-        // Draw square particles during the panel's wipe effect
+        // Square Particles Fade-In Effect (Purple)
         if (wipeProgress < 1f) {
-            float particleAlpha = Math.min(1f, (wipeProgress) * infoPanelAlpha);  // Increase as panel expands
-            batch.begin();
+            float particleAlpha = Math.min(1f, (wipeProgress) * infoPanelAlpha);
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
 
-            // Draw random square particles within the wipe area
-            for (int i = 0; i < 20; i++) {  // Number of particles
-                float particleX = MathUtils.random(leftEdge, rightEdge);  // Random X within the wipe area
-                float particleY = MathUtils.random(panelY, panelY + panelHeight);  // Random Y within the panel
-                float size = MathUtils.random(5f, 10f);  // Random size for the square particles
+            for (int i = 0; i < 20; i++) {
+                float particleX = MathUtils.random(leftEdge, rightEdge);
+                float particleY = MathUtils.random(panelY, panelY + panelHeight);
+                float size = MathUtils.random(5f, 10f);
 
-                shapeRenderer.setColor(NEON_BLUE.r, NEON_BLUE.g, NEON_BLUE.b, particleAlpha);
-                shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-                shapeRenderer.rect(particleX, particleY, size, size);  // Draw square particle
-                shapeRenderer.end();
+                shapeRenderer.setColor(NEON_PURPLE.r, NEON_PURPLE.g, NEON_PURPLE.b, particleAlpha); // Purple particles with fade-in
+                shapeRenderer.rect(particleX, particleY, size, size);
             }
 
-            batch.end();
-        }
-
-        // Show close button when fully open
-        if (wipeProgress >= 1f && !closeButton.isVisible() && !returningToOriginal) {
-            closeButton.setVisible(true);
-            closeButton.setPosition(panelX + panelWidth - 50, panelY + panelHeight - 50);
+            shapeRenderer.end();
         }
     }
+
+
+    private void renderScanlines() {
+        if (!showInfoPanel) return;
+
+        scanlineOffset += Gdx.graphics.getDeltaTime() * SCANLINE_SPEED;
+        if (scanlineOffset > 4) scanlineOffset = 0;
+
+        batch.begin();
+        batch.setColor(1, 1, 1, 0.15f);
+        batch.draw(scanlineTexture, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(),
+            0, (int)scanlineOffset, 4, 4);
+        batch.setColor(Color.WHITE);
+        batch.end();
+    }
+
 
     private void checkTransitionComplete() {
         if (transitionProgress >= 1f) {
