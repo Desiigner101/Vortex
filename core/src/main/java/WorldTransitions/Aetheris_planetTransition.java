@@ -127,14 +127,6 @@ public class Aetheris_planetTransition implements Screen {
 
     private Sound introSound;
 
-    // Curtain effect constants
-    private static final float CURTAIN_DURATION = 0.8f;
-    private static final Color CURTAIN_COLOR = new Color(0f, 0f, 0f, 1f); // Fully opaque black
-    private boolean curtainOpening = true;
-    private boolean curtainClosing = false;
-    private float curtainProgress = 1f; // Starts fully closed
-    private boolean initialCurtainDone = false;
-
     // Particle class for effects
     private static class Particle {
         float x, y;
@@ -397,18 +389,14 @@ public class Aetheris_planetTransition implements Screen {
 
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
-                        Gdx.input.setInputProcessor(null);
                         // Disable button to prevent multiple clicks
                         traverseButton.setDisabled(true);
-                        // Instead of fadeOutAllElements, start curtain closing
-                        curtainClosing = true;
-                        curtainProgress = 0f;
-                        introSound.stop();
-                        stage.addAction(Actions.hide());
+
                         // Fade out all elements
                         fadeOutAllElements(new Runnable() {
                             @Override
                             public void run() {
+                                // Transition to DisplayCharacters screen
                                 game.startNextSequence();
                                 dispose();
                             }
@@ -453,82 +441,29 @@ public class Aetheris_planetTransition implements Screen {
 
     @Override
     public void render(float delta) {
-        // Clear screen with black
+        // Clear screen with black (or your preferred background)
         ScreenUtils.clear(0, 0, 0, 1);
 
-        // Update curtain effect
-        updateCurtainEffect(delta);
+        // Update all animations and transitions
+        updateTransition(delta);
+        updateAnimation(delta);
+        updateTypewriterEffect(delta);
+        updateWipeAnimation(delta);
+        updateReturnAnimation(delta);
+        updateParticles(delta);
+        updatePulseEffect(delta);
 
-        // Render game content only if curtain isn't fully closed
-        if (curtainProgress < 1f || !curtainClosing) {
-            // Update all animations and transitions
-            updateTransition(delta);
-            updateAnimation(delta);
-            updateTypewriterEffect(delta);
-            updateWipeAnimation(delta);
-            updateReturnAnimation(delta);
-            updateParticles(delta);
-            updatePulseEffect(delta);
+        // Render all elements (they will fade out with the stage's alpha)
+        renderBackground();
+        renderParticles();
+        renderOverlay();
+        renderPlanet(delta);
+        renderInfoPanel();
+        renderScanlines();
 
-            // Render all elements
-            renderBackground();
-            renderParticles();
-            renderOverlay();
-            renderPlanet(delta);
-            renderInfoPanel();
-            renderScanlines();
-
-            stage.act(delta);
-            stage.draw();
-        }
-
-        // Always render curtain last (on top of everything)
-        renderCurtain();
+        stage.act(delta);
+        stage.draw();
     }
-    private void updateCurtainEffect(float delta) {
-        if (curtainOpening) {
-            curtainProgress = Math.max(0f, curtainProgress - delta / CURTAIN_DURATION);
-            if (curtainProgress <= 0f) {
-                curtainOpening = false;
-                initialCurtainDone = true;
-            }
-        } else if (curtainClosing) {
-            curtainProgress = Math.min(1f, curtainProgress + delta / CURTAIN_DURATION);
-            if (curtainProgress >= 1f) {
-                curtainClosing = false;
-                // When curtain fully closes, transition to next screen
-                game.startNextSequence();
-                dispose();
-            }
-        }
-    }
-
-
-    private void renderCurtain() {
-        if (curtainProgress <= 0f && !curtainClosing) return;
-
-        // Disable blending for fully opaque curtain
-        Gdx.gl.glDisable(Gdx.gl.GL_BLEND);
-
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(CURTAIN_COLOR);
-
-        // Calculate curtain positions - this creates a center-split effect
-        float leftCurtainWidth = Gdx.graphics.getWidth() * 0.5f * curtainProgress;
-        float rightCurtainX = Gdx.graphics.getWidth() - leftCurtainWidth;
-
-        // Left curtain (slides to the left)
-        shapeRenderer.rect(0, 0, leftCurtainWidth, Gdx.graphics.getHeight());
-
-        // Right curtain (slides to the right)
-        shapeRenderer.rect(rightCurtainX, 0, leftCurtainWidth, Gdx.graphics.getHeight());
-
-        shapeRenderer.end();
-
-        // Re-enable blending if needed for other rendering
-        Gdx.gl.glEnable(Gdx.gl.GL_BLEND);
-    }
-
 
     private void updatePulseEffect(float delta) {
         pulseTimer += delta;

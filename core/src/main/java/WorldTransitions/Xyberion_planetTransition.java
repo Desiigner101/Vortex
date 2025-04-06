@@ -29,6 +29,8 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.vortex.game.GameTransitions;
 
+import java.util.Arrays;
+
 public class Xyberion_planetTransition implements Screen {
     // Transition constants
     private static final float PLANET_FINAL_X = -250f;
@@ -70,8 +72,6 @@ public class Xyberion_planetTransition implements Screen {
     private float rotation;
     private float scanlineOffset = 0;
     private float pulseTimer = 0;
-    private float glitchTimer = 0;
-    private boolean showGlitchEffect = false;
 
     // Transition state
     private boolean transitionStarted = false;
@@ -121,15 +121,6 @@ public class Xyberion_planetTransition implements Screen {
     private float panelHeight = 600;
 
     private Sound introSound;
-
-    // Curtain effect constants
-    private static final float CURTAIN_DURATION = 0.8f;
-    private static final Color CURTAIN_COLOR = new Color(0f, 0f, 0f, 1f); // Fully opaque black
-    private boolean curtainOpening = true;
-    private boolean curtainClosing = false;
-    private float curtainProgress = 1f; // Starts fully closed
-    private boolean initialCurtainDone = false;
-
 
 
 
@@ -271,9 +262,22 @@ public class Xyberion_planetTransition implements Screen {
 
     private Texture[] loadFrames() {
         Texture[] frames = new Texture[FRAME_COUNT];
-        for (int i = 0; i < FRAME_COUNT; i++) {
-            String filePath = IMAGE_PATH + String.format("%03d.png", i);
-            frames[i] = new Texture(Gdx.files.internal(filePath));
+        try {
+            for (int i = 0; i < FRAME_COUNT; i++) {
+                String filePath = IMAGE_PATH + String.format("%03d.png", i);
+                // Add small delay between loads to prevent memory spike
+                if (i > 0 && i % 5 == 0) Thread.yield();
+                frames[i] = new Texture(Gdx.files.internal(filePath));
+            }
+        } catch (Exception e) {
+            Gdx.app.error("Texture", "Error loading frame: " + e.getMessage());
+            // Provide fallback texture if loading fails
+            Pixmap pm = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
+            pm.setColor(Color.MAGENTA);
+            pm.fill();
+            Texture fallback = new Texture(pm);
+            pm.dispose();
+            Arrays.fill(frames, fallback);
         }
         return frames;
     }
@@ -396,14 +400,6 @@ public class Xyberion_planetTransition implements Screen {
 
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
-                        Gdx.input.setInputProcessor(null);
-                        // Disable button to prevent multiple clicks
-                        traverseButton.setDisabled(true);
-                        // Instead of fadeOutAllElements, start curtain closing
-                        curtainClosing = true;
-                        curtainProgress = 0f;
-                        introSound.stop();
-                        stage.addAction(Actions.hide());
                         // Fade out all elements
                         fadeOutAllElements(new Runnable() {
                             @Override
@@ -414,7 +410,6 @@ public class Xyberion_planetTransition implements Screen {
                         });
                     }
                 });
-
 
 
                 traverseButton.addAction(Actions.sequence(
@@ -460,12 +455,7 @@ public class Xyberion_planetTransition implements Screen {
         // Clear screen with black
         ScreenUtils.clear(0, 0, 0, 1);
 
-        // Update curtain effect
-        updateCurtainEffect(delta);
 
-        // Render game content only if curtain isn't fully closed
-        if (curtainProgress < 1f || !curtainClosing) {
-            // Update all animations and transitions
             updateTransition(delta);
             updateAnimation(delta);
             updateTypewriterEffect(delta);
@@ -484,55 +474,10 @@ public class Xyberion_planetTransition implements Screen {
 
             stage.act(delta);
             stage.draw();
-        }
 
-        // Always render curtain last (on top of everything)
-        renderCurtain();
+
+
     }
-    private void updateCurtainEffect(float delta) {
-        if (curtainOpening) {
-            curtainProgress = Math.max(0f, curtainProgress - delta / CURTAIN_DURATION);
-            if (curtainProgress <= 0f) {
-                curtainOpening = false;
-                initialCurtainDone = true;
-            }
-        } else if (curtainClosing) {
-            curtainProgress = Math.min(1f, curtainProgress + delta / CURTAIN_DURATION);
-            if (curtainProgress >= 1f) {
-                curtainClosing = false;
-                // When curtain fully closes, transition to next screen
-                game.startNextSequence();
-                dispose();
-            }
-        }
-    }
-
-
-    private void renderCurtain() {
-        if (curtainProgress <= 0f && !curtainClosing) return;
-
-        // Disable blending for fully opaque curtain
-        Gdx.gl.glDisable(Gdx.gl.GL_BLEND);
-
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(CURTAIN_COLOR);
-
-        // Calculate curtain positions - this creates a center-split effect
-        float leftCurtainWidth = Gdx.graphics.getWidth() * 0.5f * curtainProgress;
-        float rightCurtainX = Gdx.graphics.getWidth() - leftCurtainWidth;
-
-        // Left curtain (slides to the left)
-        shapeRenderer.rect(0, 0, leftCurtainWidth, Gdx.graphics.getHeight());
-
-        // Right curtain (slides to the right)
-        shapeRenderer.rect(rightCurtainX, 0, leftCurtainWidth, Gdx.graphics.getHeight());
-
-        shapeRenderer.end();
-
-        // Re-enable blending if needed for other rendering
-        Gdx.gl.glEnable(Gdx.gl.GL_BLEND);
-    }
-
 
     private void updatePulseEffect(float delta) {
         pulseTimer += delta;
@@ -911,18 +856,31 @@ public class Xyberion_planetTransition implements Screen {
 
     @Override
     public void dispose() {
-        background.dispose();
+        // Dispose in reverse order of creation
+        if (introSound != null) {
+            introSound.stop();
+            introSound.dispose();
+        }
+
+        if (skin != null) skin.dispose();
+        if (stage != null) stage.dispose();
+
         for (Texture frame : xyberiaFrames) {
             if (frame != null) frame.dispose();
         }
-        titleFont.dispose();
-        subtitleFont.dispose();
-        menuFont.dispose();
-        batch.dispose();
-        shapeRenderer.dispose();
-        stage.dispose();
-        skin.dispose();
-        introSound.dispose();
+
+        if (scanlineTexture != null) scanlineTexture.dispose();
+        if (background != null) background.dispose();
+
+        if (titleFont != null) titleFont.dispose();
+        if (subtitleFont != null) subtitleFont.dispose();
+        if (menuFont != null) menuFont.dispose();
+
+        if (shapeRenderer != null) shapeRenderer.dispose();
+        if (batch != null) batch.dispose();
+
+        // Clear all static references
+        particles.clear();
     }
 
     @Override
@@ -937,7 +895,14 @@ public class Xyberion_planetTransition implements Screen {
     }
 
     @Override
-    public void hide() {}
+    public void hide() {
+        // Stop sound when screen hides
+        if (introSound != null) {
+            introSound.stop();
+        }
+        // Clear input processor
+        Gdx.input.setInputProcessor(null);
+    }
     @Override
     public void pause() {}
     @Override
