@@ -28,7 +28,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.vortex.game.GameTransitions;
 
-public class Xyberion_planetTransition implements Screen {
+public class Aetheris_planetTransition implements Screen {
     // Transition constants
     private static final float PLANET_FINAL_X = -250f;
     private static final float PLANET_ZOOM_FACTOR = 0.5f;
@@ -36,18 +36,23 @@ public class Xyberion_planetTransition implements Screen {
     private static final float WIPE_DURATION = 0.8f;
     private static final float RETURN_DURATION = 0.8f;
 
-    // Color constants
-    private static final Color CYBER_PURPLE = new Color(150/255f, 0/255f, 255/255f, 0.85f);
-    private static final Color INFO_PANEL_COLOR = new Color(0.1f, 0.1f, 0.2f, 0.85f);
-    private static final Color INFO_TITLE_COLOR = new Color(0.6f, 0.2f, 1f, 1f);
-    private static final Color INFO_SUBTITLE_COLOR = new Color(0.4f, 0.7f, 1f, 1f);
-    private static final Color INFO_TEXT_COLOR = new Color(0.8f, 0.8f, 1f, 1f);
-    private static final Color PARTICLE_COLOR = new Color(100/255f, 200/255f, 255/255f, 0.8f);
+    // Updated Color constants
+    private static final Color LIGHT_GREEN = new Color(144/255f, 238/255f, 144/255f, 0.85f);
+    private static final Color DARK_GREEN = new Color(0/255f, 100/255f, 0/255f, 0.85f);
+    private static final Color WHITE = new Color(1, 1, 1, 1);
+    private static final Color SKY_BLUE = new Color(135/255f, 206/255f, 235/255f, 1f);
+    private static final Color GRASS_GREEN = new Color(34/255f, 139/255f, 34/255f, 1f);
+
+    private static final Color INFO_PANEL_COLOR = new Color(DARK_GREEN).sub(0, 0, 0, 0.15f);
+    private static final Color INFO_TITLE_COLOR = new Color(LIGHT_GREEN);
+    private static final Color INFO_SUBTITLE_COLOR = new Color(SKY_BLUE);
+    private static final Color INFO_TEXT_COLOR = new Color(WHITE).sub(0, 0, 0, 0.2f);
+    private static final Color PARTICLE_COLOR = new Color(GRASS_GREEN).add(0, 0.2f, 0.2f, 0);
 
     // Animation constants
     private static final float FRAME_DURATION = 0.1f;
     private static final int FRAME_COUNT = 50;
-    private static final String IMAGE_PATH = "Backgrounds/worldBackGrounds_Images/xyberion/tile";
+    private static final String IMAGE_PATH = "Backgrounds/worldBackGrounds_Images/aetheris/tile";
     private static final int PARTICLE_COUNT = 150;
     private static final float SCANLINE_SPEED = 100f;
     private static final float PULSE_DURATION = 2f;
@@ -63,6 +68,7 @@ public class Xyberion_planetTransition implements Screen {
     private final Texture scanlineTexture;
     private final Array<Particle> particles = new Array<>();
     private final GameTransitions game;
+
     // Animation state
     private int frameIndex = 0;
     private float elapsedTime = 0f;
@@ -83,8 +89,8 @@ public class Xyberion_planetTransition implements Screen {
     private float returnProgress = 0f;
 
     // Typewriter effect
-    private final String fullTitle = "XYBERIA";
-    private final String fullDescription = "Cybernetic dystopia of digital\nrebellion";
+    private final String fullTitle = "AETHERIS";
+    private final String fullDescription = "Skyborn realm of storms and\nsoaring legends";
     private final StringBuilder displayedTitle = new StringBuilder();
     private final StringBuilder displayedDescription = new StringBuilder();
     private float typeTimer = 0;
@@ -95,19 +101,18 @@ public class Xyberion_planetTransition implements Screen {
     private final float descriptionDelay = 0.05f;
     private final GlyphLayout titleLayout = new GlyphLayout();
     private final GlyphLayout descLayout = new GlyphLayout();
-    private static final Color NEON_PURPLE = new Color(0.6f, 0.4f, 1f, 1f); // Neon purple
-
 
     // Info panel
     private boolean showInfoPanel = false;
     private float infoPanelAlpha = 0f;
-    private final String worldTitle = "Xyberia";
-    private final String worldSubtitle = "universe 1";
-    private final String worldDescription = "A neon-drenched cyberpunk world where the skies flicker with holograms " +
-        "and the streets crawl with cyber-enhanced bounty hunters. In this lawless city " +
-        "ruled by tech and corruption, Nova crash-lands with a broken device her only " +
-        "way home. Hunted and outmatched, she must scavenge, fight, and outsmart her " +
-        "enemies before Xyberia swallows her whole.";
+    private final String worldTitle = "Aetheris";
+    private final String worldSubtitle = "universe 2";
+    private final String worldDescription = "Aetheris is a majestic realm of floating islands drifting through endless skies, " +
+        "where lightning crackles in storm-filled clouds and the air hums with ancient magic. " +
+        "Towering above all is the Sky Leviathan, a shimmering, dragon-like guardian whose wings span miles. " +
+        "Home to storm-charged creatures and crystal cities, Aetheris is a kingdom where the brave ride the winds " +
+        "and the sky is both sanctuary and battleground.";
+
     private final GlyphLayout worldTitleLayout = new GlyphLayout();
     private final GlyphLayout worldSubtitleLayout = new GlyphLayout();
     private final GlyphLayout worldDescLayout = new GlyphLayout();
@@ -129,7 +134,7 @@ public class Xyberion_planetTransition implements Screen {
         Color color;
     }
 
-    public Xyberion_planetTransition(GameTransitions game) {
+    public Aetheris_planetTransition(GameTransitions game) {
         this.game = game;
         this.batch = new SpriteBatch();
         this.shapeRenderer = new ShapeRenderer();
@@ -165,7 +170,6 @@ public class Xyberion_planetTransition implements Screen {
         return texture;
     }
 
-
     private Particle createParticle() {
         Particle p = new Particle();
         p.x = MathUtils.random(Gdx.graphics.getWidth());
@@ -176,12 +180,12 @@ public class Xyberion_planetTransition implements Screen {
         p.life = MathUtils.random(0f, 5f);
         p.maxLife = MathUtils.random(3f, 8f);
 
-        // Change particle color to purple with slight variation
+        // Updated particle color to green shades
         p.color = new Color(
-            0.5f * MathUtils.random(0.8f, 1.2f),  // Adjust red to a purple shade
-            0f,                                  // No green
-            0.5f * MathUtils.random(0.8f, 1.2f),  // Adjust blue to a purple shade
-            PARTICLE_COLOR.a * MathUtils.random(0.5f, 1f) // Keep the original alpha range
+            GRASS_GREEN.r * MathUtils.random(0.8f, 1.2f),
+            GRASS_GREEN.g * MathUtils.random(0.8f, 1.2f),
+            GRASS_GREEN.b * MathUtils.random(0.8f, 1.2f),
+            PARTICLE_COLOR.a * MathUtils.random(0.5f, 1f)
         );
         return p;
     }
@@ -206,8 +210,8 @@ public class Xyberion_planetTransition implements Screen {
             FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Geoform-Bold.otf"));
             FreeTypeFontParameter parameter = new FreeTypeFontParameter();
             parameter.size = 85;
-            parameter.color = Color.WHITE;
-            parameter.borderColor = CYBER_PURPLE;
+            parameter.color = WHITE;
+            parameter.borderColor = GRASS_GREEN;
             parameter.borderWidth = 2;
             parameter.shadowOffsetX = 3;
             parameter.shadowOffsetY = 3;
@@ -226,8 +230,8 @@ public class Xyberion_planetTransition implements Screen {
             FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Geoform-Bold.otf"));
             FreeTypeFontParameter parameter = new FreeTypeFontParameter();
             parameter.size = 25;
-            parameter.color = Color.WHITE;
-            parameter.borderColor = CYBER_PURPLE;
+            parameter.color = WHITE;
+            parameter.borderColor = GRASS_GREEN;
             parameter.borderWidth = 1;
             BitmapFont font = generator.generateFont(parameter);
             generator.dispose();
@@ -287,14 +291,14 @@ public class Xyberion_planetTransition implements Screen {
             font = new BitmapFont();
         }
 
-        // Create button background
+        // Create button background with green gradient
         Pixmap pixmap = new Pixmap(120, 40, Pixmap.Format.RGBA8888);
         for (int y = 0; y < pixmap.getHeight(); y++) {
             float ratio = (float) y / pixmap.getHeight();
             pixmap.setColor(new Color(
-                0.2f * (1 - ratio) + 0.5f * ratio,
-                0f * (1 - ratio) + 0f * ratio,
-                0.2f * (1 - ratio) + 1f * ratio,
+                DARK_GREEN.r * (1 - ratio) + LIGHT_GREEN.r * ratio,
+                DARK_GREEN.g * (1 - ratio) + LIGHT_GREEN.g * ratio,
+                DARK_GREEN.b * (1 - ratio) + LIGHT_GREEN.b * ratio,
                 1f
             ));
             pixmap.drawLine(0, y, pixmap.getWidth(), y);
@@ -308,7 +312,7 @@ public class Xyberion_planetTransition implements Screen {
         textButtonStyle.font = font;
         textButtonStyle.up = gradientDrawable;
         textButtonStyle.down = gradientDrawable;
-        textButtonStyle.fontColor = Color.WHITE;
+        textButtonStyle.fontColor = WHITE;
 
         // View Button
         viewButton = new TextButton("View", textButtonStyle);
@@ -320,7 +324,7 @@ public class Xyberion_planetTransition implements Screen {
             @Override
             public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
                 viewButton.addAction(Actions.parallel(
-                    Actions.color(Color.BLUE, 0.3f),
+                    Actions.color(SKY_BLUE, 0.3f),
                     Actions.scaleTo(1.1f, 1.1f, 0.3f),
                     Actions.sequence(
                         Actions.moveBy(-2, 0, 0.05f),
@@ -333,7 +337,7 @@ public class Xyberion_planetTransition implements Screen {
             @Override
             public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
                 viewButton.addAction(Actions.parallel(
-                    Actions.color(Color.WHITE, 0.3f),
+                    Actions.color(WHITE, 0.3f),
                     Actions.scaleTo(1f, 1f, 0.3f)
                 ));
             }
@@ -360,7 +364,7 @@ public class Xyberion_planetTransition implements Screen {
                     @Override
                     public void enter(InputEvent event, float x, float y, int pointer, Actor fromActor) {
                         traverseButton.addAction(Actions.parallel(
-                            Actions.color(Color.BLUE, 0.3f),
+                            Actions.color(SKY_BLUE, 0.3f),
                             Actions.scaleTo(1.1f, 1.1f, 0.3f),
                             Actions.sequence(
                                 Actions.moveBy(-2, 0, 0.05f),
@@ -373,14 +377,13 @@ public class Xyberion_planetTransition implements Screen {
                     @Override
                     public void exit(InputEvent event, float x, float y, int pointer, Actor toActor) {
                         traverseButton.addAction(Actions.parallel(
-                            Actions.color(Color.WHITE, 0.3f),
+                            Actions.color(WHITE, 0.3f),
                             Actions.scaleTo(1f, 1f, 0.3f)
                         ));
                     }
 
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
-
                         // Disable button to prevent multiple clicks
                         traverseButton.setDisabled(true);
 
@@ -396,8 +399,6 @@ public class Xyberion_planetTransition implements Screen {
                     }
                 });
 
-
-
                 traverseButton.addAction(Actions.sequence(
                     Actions.parallel(
                         Actions.fadeIn(0.5f),
@@ -406,7 +407,6 @@ public class Xyberion_planetTransition implements Screen {
                 ));
 
                 stage.addActor(traverseButton);
-
 
                 transitionStarted = true;
                 transitionProgress = 0f;
@@ -466,8 +466,6 @@ public class Xyberion_planetTransition implements Screen {
             pulseTimer = 0;
         }
     }
-
-
 
     private void updateReturnAnimation(float delta) {
         if (returningToOriginal && returnProgress < 1f) {
@@ -580,17 +578,16 @@ public class Xyberion_planetTransition implements Screen {
         float borderThickness = 3f;
         float cornerSize = 15f;
 
-        // Main gradient fill
+        // Main gradient fill with greens
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         for (int i = 0; i < overlayWidth; i++) {
             float ratio = i/overlayWidth;
             float alpha = (0.8f - ratio * 0.3f) * (1 - transitionProgress);
 
-            // Enhanced gradient colors
             shapeRenderer.setColor(
-                0.1f * (1-ratio) + 0.5f * ratio,
-                0f * (1-ratio) + 0.1f * ratio,
-                0.2f * (1-ratio) + 0.8f * ratio,
+                DARK_GREEN.r * (1-ratio) + LIGHT_GREEN.r * ratio,
+                DARK_GREEN.g * (1-ratio) + LIGHT_GREEN.g * ratio,
+                DARK_GREEN.b * (1-ratio) + LIGHT_GREEN.b * ratio,
                 alpha
             );
             shapeRenderer.rect(overlayX + i, 0, 1, Gdx.graphics.getHeight());
@@ -602,7 +599,7 @@ public class Xyberion_planetTransition implements Screen {
 
         // Border glow effect
         float glowAlpha = 0.6f * (1 - transitionProgress);
-        shapeRenderer.setColor(0.6f, 0.2f, 1f, glowAlpha * 0.3f);
+        shapeRenderer.setColor(LIGHT_GREEN.r, LIGHT_GREEN.g, LIGHT_GREEN.b, glowAlpha * 0.3f);
 
         // Main border
         shapeRenderer.rect(overlayX - borderThickness, -borderThickness,
@@ -615,7 +612,7 @@ public class Xyberion_planetTransition implements Screen {
             borderThickness, Gdx.graphics.getHeight()); // Right
 
         // Corner accents
-        shapeRenderer.setColor(0.8f, 0.4f, 1f, glowAlpha);
+        shapeRenderer.setColor(LIGHT_GREEN.r, LIGHT_GREEN.g, LIGHT_GREEN.b, glowAlpha);
 
         // Top-left corner
         shapeRenderer.rect(overlayX - borderThickness, Gdx.graphics.getHeight() - cornerSize,
@@ -690,45 +687,45 @@ public class Xyberion_planetTransition implements Screen {
         float leftEdge = centerX - currentHalfWidth;
         float rightEdge = centerX + currentHalfWidth;
 
-        // Panel Fade-In Effect (Keep original color with fade-in)
+        // Panel Fade-In Effect
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(INFO_PANEL_COLOR.r, INFO_PANEL_COLOR.g, INFO_PANEL_COLOR.b, INFO_PANEL_COLOR.a * infoPanelAlpha);
         shapeRenderer.rect(leftEdge, panelY, currentHalfWidth * 2, panelHeight);
 
-        // Glow Effect (Purple) with Fade-In
+        // Glow Effect (Light Green)
         if (wipeProgress < 0.95f) {
-            float glowAlpha = Math.max(0, 0.5f * (1 - wipeProgress)) * infoPanelAlpha;  // Glow fades in
-            shapeRenderer.setColor(NEON_PURPLE.r, NEON_PURPLE.g, NEON_PURPLE.b, glowAlpha);
+            float glowAlpha = Math.max(0, 0.5f * (1 - wipeProgress)) * infoPanelAlpha;
+            shapeRenderer.setColor(LIGHT_GREEN.r, LIGHT_GREEN.g, LIGHT_GREEN.b, glowAlpha);
             shapeRenderer.rect(leftEdge - 5, panelY, 5, panelHeight);
             shapeRenderer.rect(rightEdge, panelY, 5, panelHeight);
         }
         shapeRenderer.end();
 
-        // Border Fade-In Effect (Purple)
+        // Border Fade-In Effect (Light Green)
         if (wipeProgress < 1f) {
             Gdx.gl.glLineWidth(3);
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            shapeRenderer.setColor(NEON_PURPLE.r, NEON_PURPLE.g, NEON_PURPLE.b, infoPanelAlpha);  // Border fades in with purple
+            shapeRenderer.setColor(LIGHT_GREEN.r, LIGHT_GREEN.g, LIGHT_GREEN.b, infoPanelAlpha);
             shapeRenderer.rect(leftEdge, panelY, currentHalfWidth * 2, panelHeight);
             shapeRenderer.end();
             Gdx.gl.glLineWidth(1);
         }
 
-        // Decorative Lines and Corner Fade-In Effect (Purple)
+        // Decorative Lines and Corner Fade-In Effect (Light Green)
         if (wipeProgress > 0.3f) {
             float decoAlpha = Math.min(1f, (wipeProgress - 0.3f) / 0.7f) * infoPanelAlpha;
 
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-            shapeRenderer.setColor(NEON_PURPLE.r, NEON_PURPLE.g, NEON_PURPLE.b, decoAlpha);  // Fade-in with purple
+            shapeRenderer.setColor(LIGHT_GREEN.r, LIGHT_GREEN.g, LIGHT_GREEN.b, decoAlpha);
 
             float lineWidth = currentHalfWidth * 2 - 40;
-            // Horizontal divider lines (purple)
+            // Horizontal divider lines
             shapeRenderer.rect(centerX - lineWidth / 2, panelY + panelHeight - 10, lineWidth, 2);
             shapeRenderer.rect(centerX - lineWidth / 2, panelY + 8, lineWidth, 2);
 
             if (wipeProgress > 0.8f) {
                 float cornerSize = 15f;
-                // Corner accents (purple with fade-in)
+                // Corner accents
                 shapeRenderer.rect(leftEdge + 5, panelY + panelHeight - cornerSize - 5, cornerSize, cornerSize);
                 shapeRenderer.rect(rightEdge - cornerSize - 5, panelY + 5, cornerSize, cornerSize);
             }
@@ -767,7 +764,7 @@ public class Xyberion_planetTransition implements Screen {
             batch.end();
         }
 
-        // Square Particles Fade-In Effect (Purple)
+        // Square Particles Fade-In Effect (Light Green)
         if (wipeProgress < 1f) {
             float particleAlpha = Math.min(1f, (wipeProgress) * infoPanelAlpha);
             shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
@@ -777,14 +774,13 @@ public class Xyberion_planetTransition implements Screen {
                 float particleY = MathUtils.random(panelY, panelY + panelHeight);
                 float size = MathUtils.random(5f, 10f);
 
-                shapeRenderer.setColor(NEON_PURPLE.r, NEON_PURPLE.g, NEON_PURPLE.b, particleAlpha); // Purple particles with fade-in
+                shapeRenderer.setColor(LIGHT_GREEN.r, LIGHT_GREEN.g, LIGHT_GREEN.b, particleAlpha);
                 shapeRenderer.rect(particleX, particleY, size, size);
             }
 
             shapeRenderer.end();
         }
     }
-
 
     private void renderScanlines() {
         if (!showInfoPanel) return;
@@ -799,7 +795,6 @@ public class Xyberion_planetTransition implements Screen {
         batch.setColor(Color.WHITE);
         batch.end();
     }
-
 
     private void checkTransitionComplete() {
         if (transitionProgress >= 1f) {

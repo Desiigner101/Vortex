@@ -1,5 +1,6 @@
 package com.vortex.game;
 
+import WorldTransitions.Aetheris_planetTransition;
 import WorldTransitions.Xyberion_planetTransition;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
@@ -34,8 +35,9 @@ public class GameTransitions extends Game {
            //introPlayed = true;
            //this.setScreen(new VideoIntro(this));
       //} else {
-         this.setScreen(new GameMenu(this));
-         //this.setScreen(new WorldTransitions(this));
+        // this.setScreen(new GameMenu(this));
+         this.setScreen(new Aetheris_planetTransition(this));
+
         //}
     }
 
