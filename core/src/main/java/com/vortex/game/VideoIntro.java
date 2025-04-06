@@ -1,8 +1,10 @@
 package com.vortex.game;
 
 // Import necessary LibGDX components
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter; // Base class for handling screens
 import com.badlogic.gdx.assets.AssetManager; // Manages game assets efficiently
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.OrthographicCamera; // Handles 2D camera positioning
 import com.badlogic.gdx.graphics.Texture; // Represents images (textures)
 import com.badlogic.gdx.graphics.g2d.SpriteBatch; // Efficiently renders 2D graphics
@@ -25,7 +27,7 @@ public class VideoIntro extends ScreenAdapter {
 
     private OrthographicCamera camera; // Controls the camera view
     private Viewport viewport; // Ensures the screen resizes correctly
-
+    private Sound introSound;
     /**
      * Constructor initializes the game instance for screen transitions.
      * @param game Reference to the main game class.
@@ -39,6 +41,7 @@ public class VideoIntro extends ScreenAdapter {
      */
     @Override
     public void show() {
+        this.introSound = Gdx.audio.newSound(Gdx.files.internal("assets/SoundEffectsFolder/introMusic.wav"));
         batch = new SpriteBatch(); // Creates a new SpriteBatch for rendering
         assetManager = new AssetManager(); // Initializes the asset manager
         frames = new Array<>(); // Initializes the array to hold video frames
@@ -65,6 +68,7 @@ public class VideoIntro extends ScreenAdapter {
             String fileName = "VideoIntro/ezgif-frame-" + String.format("%03d", i) + ".png";
             frames.add(assetManager.get(fileName, Texture.class)); // Adds each frame to the array
         }
+        introSound.play();
     }
 
     /**
@@ -130,6 +134,7 @@ public class VideoIntro extends ScreenAdapter {
     @Override
     public void dispose() {
         batch.dispose(); // Releases the SpriteBatch memory
-        assetManager.dispose(); // Releases all loaded textures
+        assetManager.dispose();
+        introSound.dispose();
     }
 }
