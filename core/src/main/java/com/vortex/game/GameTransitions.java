@@ -796,55 +796,55 @@ public class GameTransitions extends Game {
                 "", "(They share a moment of silent understanding, an unbreakable bond forming as they prepare to face whatever challenges lie ahead. Together, they step into the unknown, ready to reclaim their power.)", "NyxNeon", WhiteText,
 
                 // Narration
-                "", "(Their footsteps echo softly against the cracked earth as they venture deeper into the heart of Nyxarion. A chilling wind brushes past, carrying whispers of a forgotten past. Shadows stretch across the ruins, jagged remnants of once-great structures rising like broken sentinels. Each step draws them closer to the core of this desolate world, where answers-and danger-await in equal measure.)", "NyxDark", WhiteText,
+                "", "(Their footsteps echo softly against the cracked earth as they venture deeper into the heart of Nyxarion. A chilling wind brushes past, carrying whispers of a forgotten past. Shadows stretch across the ruins, jagged remnants of once-great structures rising like broken sentinels. Each step draws them closer to the core of this desolate world, where answers-and danger-await in equal measure.)", "NyxCity", WhiteText,
 
                 // Narration
-                "", "(Nova stands in stunned silence, her eyes sweeping across the shattered landscape. Beside her, Jina remains tense, scanning for signs of movement. Umbra observes them, a faint, unreadable smile on her face.)", "NyxDark", WhiteText,
+                "", "(Nova stands in stunned silence, her eyes sweeping across the shattered landscape. Beside her, Jina remains tense, scanning for signs of movement. Umbra observes them, a faint, unreadable smile on her face.)", "NyxCity", WhiteText,
 
                 // Nova's dialogue (voice barely above a whisper, her tone filled with unease)
-                "Nova", "What… happened here?", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "What happened here?", "NyxCity", NovaTextColor,
 
                 // Jina's dialogue (tense, scanning their surroundings)
-                "Jina", "This place… it's nothing but ruins. Are you sure there's anything left that could help us, Umbra?", "Nova_CharViewBackground", OrangeText,
+                "Jina", "This place... it's nothing but ruins. Are you sure there's anything left that could help us, Umbra?", "NyxCity", OrangeText,
 
                 // Narration
-                "", "(Umbra steps forward, her movements graceful but deliberate. The air seems to shift around her, as if responding to her presence.)", "Nova_CharViewBackground", WhiteText,
+                "", "(Umbra steps forward, her movements graceful but deliberate. The air seems to shift around her, as if responding to her presence.)", "NyxCity", WhiteText,
 
                 // Umbra's dialogue (calm, her tone laced with a distant sorrow)
-                "Umbra", "What you need is here, Nova. The energy in this realm… it’s broken, yes, but broken things have a way of becoming something far more potent. This place still breathes… it just hides its strength.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "What you need is here, Nova. The energy in this realm... it’s broken, yes, but broken things have a way of becoming something far more potent. This place still breathes... it just hides its strength.", "NyxCity", VioletText,
 
                 // Nova's dialogue (voice low, suspicion growing)
-                "Nova", "You speak like you know this world too well… Umbra. Just what exactly happened here?", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "You speak like you know this world too well... Umbra. Just what exactly happened here?", "NyxCity", NovaTextColor,
 
                 // Narration
-                "", "(Umbra’s expression shifts, her eyes momentarily distant as if recalling a painful memory. But the flicker of emotion is gone as quickly as it appeared.)", "Nova_CharViewBackground", WhiteText,
+                "", "(Umbra's expression shifts, her eyes momentarily distant as if recalling a painful memory. But the flicker of emotion is gone as quickly as it appeared.)", "NyxCity", WhiteText,
 
                 // Umbra's dialogue (barely a whisper, her words carefully chosen)
-                "Umbra", "What happened here was… ambition. To unlock the secrets of multiversal power. But… ambition often demands sacrifice.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "What happened here was... ambition. To unlock the secrets of multiversal power. But... ambition often demands sacrifice.", "NyxCity", VioletText,
 
                 // Jina's dialogue (voice edged with suspicion)
-                "Jina", "You keep talking like you know more than you’re telling us. How do we know this isn’t leading us straight into a trap?", "Nova_CharViewBackground", OrangeText,
+                "Jina", "You keep talking like you know more than you’re telling us. How do we know this isn’t leading us straight into a trap?", "NyxCity", OrangeText,
 
                 // Narration
-                "", "(Umbra meets Jina’s gaze, her expression unreadable, but there’s a flicker of amusement—so faint it’s almost imperceptible.)", "Nova_CharViewBackground", WhiteText,
+                "", "(Umbra meets Jina's gaze, her expression unreadable, but there's a flicker of amusement-so faint it’s almost imperceptible.)", "NyxCity", WhiteText,
 
                 // Umbra's dialogue (smiling slightly, her tone carrying a cryptic edge)
-                "Umbra", "A trap? Perhaps… but power is rarely given without a price. Consider it… an opportunity. One that only the worthy can claim.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "A trap? Perhaps... but power is rarely given without a price. Consider it... an opportunity. One that only the worthy can claim.", "NyxCity", VioletText,
 
                 // Nova's dialogue (eyes narrowing, her resolve hardening despite the growing unease)
-                "Nova", "I’ve come too far to stop now. If what we need is here, then we press on. Lead the way, Umbra.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "I've come too far to stop now. If what we need is here, then we press on. Lead the way, Umbra.", "NyxCity", NovaTextColor,
 
                 // Narration
-                "", "(Umbra guides them deeper into the ruins, her movements fluid and sure, as though she’s walked this path countless times before. The air thickens with an oppressive stillness, the silence pressing down like a weight. The landscape is haunting—fractured remnants of ancient structures stretching toward the sky, their jagged edges whispering of forgotten knowledge and devastating power.)", "Nova_CharViewBackground", WhiteText,
+                "", "(Umbra guides them deeper into the ruins, her movements fluid and sure, as though she's walked this path countless times before. The air thickens with an oppressive stillness, the silence pressing down like a weight. The landscape is haunting-fractured remnants of ancient structures stretching toward the sky, their jagged edges whispering of forgotten knowledge and devastating power.)", "NyxCity", WhiteText,
 
                 // Narration
-                "", "(Nova’s device hums softly, reacting to the latent energy that pulses faintly beneath the ground. The air is charged… alive.)", "Nova_CharViewBackground", WhiteText,
+                "", "(Nova's device hums softly, reacting to the latent energy that pulses faintly beneath the ground. The air is charged... alive.)", "NyxCity", WhiteText,
 
                 // Nova's dialogue (frowning, glancing down at her device)
-                "Nova", "It’s… reacting again. Whatever’s here… it’s close.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "It's... reacting again. Whatever's here... it's close.", "NyxCity", NovaTextColor,
 
                 // Jina's dialogue (noticing, her voice filled with quiet concern)
-                "Jina", "That’s not normal… it’s like the energy is… guiding us.", "Nova_CharViewBackground", OrangeText,
+                "Jina", "That's not normal... it's like the energy is... guiding us.", "Nova_CharViewBackground", OrangeText,
 
                 // Narration
                 "", "(Umbra’s expression remains calm, but her eyes betray a glimmer of something deeper—satisfaction. She walks ahead, her fingers brushing against the crumbling walls as though she’s absorbing the very essence of the ruins.)", "Nova_CharViewBackground", WhiteText,
