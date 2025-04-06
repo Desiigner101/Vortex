@@ -239,7 +239,7 @@ public class BattleClass implements Screen {
             enemyY = (900 - enemyHeight) / 2f + 180f;
         }
 
-        FileHandler.startMatchTimer();
+        FileHandler.startGameTimer();
         this.game = game;
         this.sfx = game.getAudioManager();
         this.onBattleComplete = onBattleComplete;
