@@ -1,7 +1,6 @@
-package com.vortex.game;
+package WorldTransitions;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -14,7 +13,6 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -28,8 +26,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.vortex.game.GameTransitions;
 
-public class WorldTransitions implements Screen {
+public class Xyberion_planetTransition implements Screen {
     // Transition constants
     private static final float PLANET_FINAL_X = -250f;
     private static final float PLANET_ZOOM_FACTOR = 0.5f;
@@ -130,7 +129,7 @@ public class WorldTransitions implements Screen {
         Color color;
     }
 
-    public WorldTransitions(GameTransitions game) {
+    public Xyberion_planetTransition(GameTransitions game) {
         this.game = game;
         this.batch = new SpriteBatch();
         this.shapeRenderer = new ShapeRenderer();

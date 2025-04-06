@@ -1,9 +1,10 @@
 package com.vortex.game;
 
+import WorldTransitions.Xyberion_planetTransition;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.Preferences;
+import com.vortex.CharacterStats.DisplayCharacters;
 import com.vortex.SFX.PlayAudio;
 import com.vortex.game.BattleClasses.*;
 
@@ -115,7 +116,7 @@ public class GameTransitions extends Game {
                 "", "But before she could react, a blinding light enveloped her, and in an instant, she was torn from her lab...", "Sequence1_8", WhiteText,
                 "", "... And catapulted into the unknown.", "Sequence1_9", WhiteText,
             }, () -> {
-                this.setScreen(new WorldTransitions(this));
+                this.setScreen(new Xyberion_planetTransition(this));
             });
             setScreen(currentScreen);
         }
@@ -261,7 +262,7 @@ public class GameTransitions extends Game {
                 "", "She wasn’t sure what she had triggered, but before she could react, the world around her shifted.", "Nova_CharViewBackground", WhiteText,
                 "", "A blinding light engulfed her, and in an instant, she was pulled from Xyberia and flung into another universe.", "Nova_CharViewBackground", WhiteText
             },() -> {
-                this.setScreen(new WorldTransitions(this));
+                this.setScreen(new Xyberion_planetTransition(this));
             });
             setScreen(currentScreen);
         }
@@ -561,7 +562,7 @@ public class GameTransitions extends Game {
                 // Narration (portal transition)
                 "", "A brilliant flash engulfs them as Nova, Umbra, and Jina step through the portal. The air shifts—heavy, charged, and unsettling. As the light recedes, an eerie silence fills the space. They now stand on fractured ground, where time and reality seem to collide and shatter endlessly.", "Nova_CharViewBackground", WhiteText
             },() -> {
-                this.setScreen(new WorldTransitions(this));
+                this.setScreen(new Xyberion_planetTransition(this));
             });
             setScreen(currentScreen);
         }
