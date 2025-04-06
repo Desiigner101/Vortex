@@ -312,40 +312,40 @@ public class GameTransitions extends Game {
                 "Sky Leviathan", "Intruder! You dare trespass in my domain? You will pay for your arrogance!", "AT", RedText,
 
                 // Narration
-                "", "Nova stood tall despite her exhaustion. Her muscles burned, but her resolve was as unyielding as steel.", "AT", WhiteText,
+                "", "Nova stood tall despite her exhaustion. Her muscles burned, but her resolve was as unyielding as steel.", "AT2", WhiteText,
 
                 // Nova's dialogue (defiant, with a slight smirk)
-                "Nova", "Figures... A giant sky monster. Fine, let’s get this over with.", "AT", NovaTextColor,
+                "Nova", "Figures... A giant sky monster. Fine, let’s get this over with.", "AT2", NovaTextColor,
 
                 // Narration
-                "", "With a deafening roar, the Sky Leviathan dove toward her. Winds howled in its wake, tearing at the air. Nova dove to the side, landing hard but keeping her footing.", "AT", WhiteText,
+                "", "With a deafening roar, the Sky Leviathan dove toward her. Winds howled in its wake, tearing at the air. Nova dove to the side, landing hard but keeping her footing.", "AT2", WhiteText,
 
                 // Sky Leviathan's dialogue (snarling)
-                "Sky Leviathan", "You won’t last! I will rip you apart, mortal!", "AT", RedText,
+                "Sky Leviathan", "You won’t last! I will rip you apart, mortal!", "AT2", RedText,
 
                 // Nova's dialogue (defiant)
-                "Nova", "I may be tired, but that doesn’t mean I’m going down easy. Bring it on!", "AT", NovaTextColor,
+                "Nova", "I may be tired, but that doesn’t mean I’m going down easy. Bring it on!", "AT2", NovaTextColor,
 
                 // Sky Leviathan's dialogue
-                "Sky Leviathan", "I will crush you beneath my wings, mortal! Prepare to be obliterated!", "AT", RedText,
+                "Sky Leviathan", "I will crush you beneath my wings, mortal! Prepare to be obliterated!", "AT2", RedText,
 
                 // Narration
-                "", "Nova felt the weight of the creature’s presence, but she refused to yield. Her pulse quickened, and despite the exhaustion that weighed down on her, she steeled herself for the battle ahead.", "AT", WhiteText,
+                "", "Nova felt the weight of the creature’s presence, but she refused to yield. Her pulse quickened, and despite the exhaustion that weighed down on her, she steeled herself for the battle ahead.", "AT2", WhiteText,
 
                 // Nova's dialogue
-                "Nova", "Just one more fight… I–I can do this. I’ve come too far to quit now.", "AT", NovaTextColor,
+                "Nova", "Just one more fight… I–I can do this. I’ve come too far to quit now.", "AT2", NovaTextColor,
 
                 // Narration
-                "", "The Sky Leviathan roars and charges, its massive claws raking the ground. Nova rolls to the side, narrowly avoiding the blow, and counters with an Energy Punch to its side. The impact sends a shockwave through its scales, but the creature barely flinches.", "AT", WhiteText,
+                "", "The Sky Leviathan roars and charges, its massive claws raking the ground. Nova rolls to the side, narrowly avoiding the blow, and counters with an Energy Punch to its side. The impact sends a shockwave through its scales, but the creature barely flinches.", "AT2", WhiteText,
 
                 // Sky Leviathan's dialogue
-                "Sky Leviathan", "You may have fought and survived, but no mortal can defeat the skies. I'll make sure your struggle ends in the dust of this realm. You will be forgotten.", "AT", RedText,
+                "Sky Leviathan", "You may have fought and survived, but no mortal can defeat the skies. I'll make sure your struggle ends in the dust of this realm. You will be forgotten.", "AT2", RedText,
 
                 // Nova's dialogue
-                "Nova", "You’re right about one thing—this ends here. But it’s not my struggle that’ll be forgotten. It’s you.", "AT", NovaTextColor,
+                "Nova", "You’re right about one thing—this ends here. But it’s not my struggle that’ll be forgotten. It’s you.", "AT2", NovaTextColor,
 
                 // Narration
-                "", "The Leviathan's eyes burned with fury at Nova's confidence. With a deafening roar, it unleashed a fierce gust of wind. Nova dodged swiftly, determination blazing in her eyes. The battle had begun.", "AT", WhiteText
+                "", "The Leviathan's eyes burned with fury at Nova's confidence. With a deafening roar, it unleashed a fierce gust of wind. Nova dodged swiftly, determination blazing in her eyes. The battle had begun.", "AT2", WhiteText
             },
                 () -> {
                     Runnable createBattle1 = () -> {
@@ -367,25 +367,25 @@ public class GameTransitions extends Game {
         else if(sequenceCount == 5) {
             currentScreen = new StoryScene(this, new String[]{
                 // Narration
-                "", "As the echoes of battle faded, a sense of calm washed over the island. Nova stood victorious, but the air still crackled with residual tension. Suddenly, a soft glow emerged from the swirling mist.", "Nova_CharViewBackground", WhiteText,
+                "", "As the echoes of battle faded, a sense of calm washed over the island. Nova stood victorious, but the air still crackled with residual tension. Suddenly, a soft glow emerged from the swirling mist.", "AT3", WhiteText,
 
                 // Narration (Umbra's entrance)
-                "", "From the shadows stepped a figure cloaked in a dark, flowing robe that billowed slightly, even without a breeze. The full mask she wore was beautifully crafted, hiding the features beneath. Despite the mask, her eyes shone with a warm light, a blend of mystery and reassurance.", "Nova_CharViewBackground", WhiteText,
+                "", "From the shadows stepped a figure cloaked in a dark, flowing robe that billowed slightly, even without a breeze. The full mask she wore was beautifully crafted, hiding the features beneath. Despite the mask, her eyes shone with a warm light, a blend of mystery and reassurance.", "AT3", WhiteText,
 
                 // Umbra's dialogue (calm)
-                "Umbra", "Impressive. Not many can defeat a Sky Leviathan on their first try.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "Impressive. Not many can defeat a Sky Leviathan on their first try.", "AT3", VioletText,
 
                 // Narration
-                "", "Startled, Nova turned to face her, a mix of wariness and curiosity flickering across her face. Despite the stormy skies, the warmth of her smile and the kindness in her gaze instantly eased Nova's tension.", "Nova_CharViewBackground", WhiteText,
+                "", "Startled, Nova turned to face her, a mix of wariness and curiosity flickering across her face. Despite the stormy skies, the warmth of her smile and the kindness in her gaze instantly eased Nova's tension.", "AT3", WhiteText,
 
                 // Nova's dialogue (wary)
-                "Nova", "...Who are you?", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "...Who are you?", "AT3", NovaTextColor,
 
                 // Umbra's dialogue (mysterious)
-                "Umbra", "Hmmm... Umbra–Call me Umbra. Let's just say, I have my reasons for being here. And it seems we share a common goal—survival.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "Hmmm... Umbra–Call me Umbra. Let's just say, I have my reasons for being here. And it seems we share a common goal—survival.", "AT3", VioletText,
 
                 // Narration
-                "", "Nova hesitates, her instincts telling her to be cautious, but exhaustion clouded her judgment. She watches as Umbra steps closer, her calm demeanor contrasting with the chaos surrounding them.", "Nova_CharViewBackground", WhiteText,
+                "", "Nova hesitates, her instincts telling her to be cautious, but exhaustion clouded her judgment. She watches as Umbra steps closer, her calm demeanor contrasting with the chaos surrounding them.", "AT3", WhiteText,
 
                 // Nova's dialogue (skeptical)
                 "Nova", "Survival? I'm just trying to find my way back to my world. How 'bout you? What are you after?", "Nova_CharViewBackground", NovaTextColor,
@@ -394,121 +394,121 @@ public class GameTransitions extends Game {
                 "Umbra", "Perhaps I can help you with that. But you must understand, Aetheris is only the beginning. There are other worlds, and each will test you in ways you can't yet imagine.", "Nova_CharViewBackground", VioletText,
 
                 // Narration
-                "", "Nova's mind raced, but the shard of glowing tech in her hand reminded her of her broken device and the urgent need for repairs.", "Nova_CharViewBackground", WhiteText,
+                "", "Nova's mind raced, but the shard of glowing tech in her hand reminded her of her broken device and the urgent need for repairs.", "AT3", WhiteText,
 
                 // Nova's dialogue (urgent)
-                "Nova", "I need to find materials to fix my device. Without it, I'm lost.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "I need to find materials to fix my device. Without it, I'm lost.", "AT3", NovaTextColor,
 
                 // Umbra's dialogue (informative)
-                "Umbra", "Then you must seek out the Nyxarion—The Shattered Wasteland. It holds remnants of ancient technology, pieces you might find essential.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "Then you must seek out the Nyxarion—The Shattered Wasteland. It holds remnants of ancient technology, pieces you might find essential.", "AT3", VioletText,
 
                 // Narration
-                "", "Nova's eyes widened at the mention of the Nyxarion, a place whispered about in fearful tones.", "Nova_CharViewBackground", WhiteText,
+                "", "Nova's eyes widened at the mention of the Nyxarion, a place whispered about in fearful tones.", "AT3", WhiteText,
 
                 // Nova's dialogue (curious)
-                "Nova", "What kind of materials?", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "What kind of materials?", "AT3", NovaTextColor,
 
                 // Umbra's dialogue (explanatory)
-                "Umbra", "Elements from the ancient tech—quantum coils and energy conductors. They're scattered throughout the Nyxarion, remnants of the battles that shaped this realm.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "Elements from the ancient tech—quantum coils and energy conductors. They're scattered throughout the Nyxarion, remnants of the battles that shaped this realm.", "AT3", VioletText,
 
                 // Narration
-                "", "Nova glances at the shard in her hand, knowing she can't do this alone, but unsure if she can trust Umbra.", "Nova_CharViewBackground", WhiteText,
+                "", "Nova glances at the shard in her hand, knowing she can't do this alone, but unsure if she can trust Umbra.", "AT3", WhiteText,
 
                 // Nova's dialogue (suspicious)
-                "Nova", "And you just happen to show up after the fight?", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "And you just happen to show up after the fight?", "AT3", NovaTextColor,
 
                 // Umbra's dialogue (mysterious)
-                "Umbra", "Coincidence... or perhaps fate. Either way, you'll need me for the trials ahead.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "Coincidence... or perhaps fate. Either way, you'll need me for the trials ahead.", "AT3", VioletText,
 
                 // Narration
-                "", "The storm around them begins to settle, but Nova senses the tension in the air. With no other option in sight, she nods reluctantly.", "Nova_CharViewBackground", WhiteText,
+                "", "The storm around them begins to settle, but Nova senses the tension in the air. With no other option in sight, she nods reluctantly.", "AT", WhiteText,
 
                 // Nova's dialogue (reluctant)
-                "Nova", "Fine. But if you're lying to me...", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "Fine. But if you're lying to me...", "AT", NovaTextColor,
 
                 // Umbra's dialogue (reassuring)
-                "Umbra", "I wouldn't dream of it.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "I wouldn't dream of it.", "AT", VioletText,
 
                 // Narration (portal scene)
-                "", "Nova and Umbra stand before the unstable portal, its energy flickering. The air is heavy with tension.", "Nova_CharViewBackground", WhiteText,
+                "", "Nova and Umbra stand before the unstable portal, its energy flickering. The air is heavy with tension.", "AT", WhiteText,
 
                 // Nova's dialogue (observant)
-                "Nova", "Looks like it could tear apart any second.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "Looks like it could tear apart any second.", "AT", NovaTextColor,
 
                 // Umbra's dialogue (focused)
-                "Umbra", "It will if we don't act fast. Gather the crystals—too much energy, and it'll overload. Too little, and it'll collapse.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "It will if we don't act fast. Gather the crystals—too much energy, and it'll overload. Too little, and it'll collapse.", "AT", VioletText,
 
                 // Narration
-                "", "Nova gathers glowing crystals, placing them near the portal. The portal stabilizes, pulsing steadily.", "Nova_CharViewBackground", WhiteText,
+                "", "Nova gathers glowing crystals, placing them near the portal. The portal stabilizes, pulsing steadily.", "AT", WhiteText,
 
                 // Umbra's dialogue
-                "Umbra", "It's ready. Once inside, stay close. The Void distorts everything.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "It's ready. Once inside, stay close. The Void distorts everything.", "AT", VioletText,
 
                 // Nova's dialogue (determined)
-                "Nova", "Let's go.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "Let's go.", "AT", NovaTextColor,
 
                 // Narration (Jina's appearance)
-                "", "Nova and Umbra tread cautiously towards the portal, the shifting shadows warping and distorting the space around them. Out of the swirling mist, a figure appears, cloaked in the same eerie glow as the environment. A woman steps forward, her expression unreadable but her presence commanding.", "Nova_CharViewBackground", WhiteText,
+                "", "Nova and Umbra tread cautiously towards the portal, the shifting shadows warping and distorting the space around them. Out of the swirling mist, a figure appears, cloaked in the same eerie glow as the environment. A woman steps forward, her expression unreadable but her presence commanding.", "AT", WhiteText,
 
                 // Jina's dialogue (calm)
-                "Jina", "You're venturing into dangerous territory.", "Nova_CharViewBackground", OrangeText,
+                "Jina", "You're venturing into dangerous territory.", "AT", OrangeText,
 
                 // Narration
-                "", "Nova grips her weapon tighter, wary but intrigued.", "Nova_CharViewBackground", WhiteText,
+                "", "Nova grips her weapon tighter, wary but intrigued.", "AT", WhiteText,
 
                 // Nova's dialogue (wary)
-                "Nova", "Who are you?", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "Who are you?", "AT", NovaTextColor,
 
                 // Jina's dialogue (mysterious)
-                "Jina", "Jina. And you're walking straight into a trap. The entity that controls this part is more powerful than anything you've faced before.", "Nova_CharViewBackground", OrangeText,
+                "Jina", "Jina. And you're walking straight into a trap. The entity that controls this part is more powerful than anything you've faced before.", "AT", OrangeText,
 
                 // Umbra's dialogue (cool)
-                "Umbra", "We know the risks.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "We know the risks.", "AT", VioletText,
 
                 // Narration
-                "", "Jina's gaze shifts briefly to Umbra before locking back onto Nova.", "Nova_CharViewBackground", WhiteText,
+                "", "Jina's gaze shifts briefly to Umbra before locking back onto Nova.", "AT", WhiteText,
 
                 // Jina's dialogue (warning)
-                "Jina", "Do you? The Nyxarion twists more than just reality. It distorts motives, plays with your mind. You'll need more than just strength to survive here.", "Nova_CharViewBackground", OrangeText,
+                "Jina", "Do you? The Nyxarion twists more than just reality. It distorts motives, plays with your mind. You'll need more than just strength to survive here.", "AT", OrangeText,
 
                 // Nova's dialogue (suspicious)
-                "Nova", "Why are you telling us this?", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "Why are you telling us this?", "AT", NovaTextColor,
 
                 // Jina's dialogue (cryptic)
-                "Jina", "Because not everything here is what it seems. Be careful who you trust.", "Nova_CharViewBackground", OrangeText,
+                "Jina", "Because not everything here is what it seems. Be careful who you trust.", "AT", OrangeText,
 
                 // Narration
-                "", "Nova confusingly glances at Umbra. Umbra stays silent, her face unreadable.", "Nova_CharViewBackground", WhiteText,
+                "", "Nova confusingly glances at Umbra. Umbra stays silent, her face unreadable.", "AT", WhiteText,
 
                 // Nova's dialogue (firm)
-                "Nova", "If you want to help, then help. But we don't have time to play games.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "If you want to help, then help. But we don't have time to play games.", "AT", NovaTextColor,
 
                 // Jina's dialogue (nonchalant)
-                "Jina", "I'm offering a warning, not a game. Take it or leave it.", "Nova_CharViewBackground", OrangeText,
+                "Jina", "I'm offering a warning, not a game. Take it or leave it.", "AT", OrangeText,
 
                 // Narration
-                "", "The tension between the three lingers in the air, but Nova remains focused, her resolve unshaken despite the cryptic message. They press on, Jina falling into step behind them.", "Nova_CharViewBackground", WhiteText,
+                "", "The tension between the three lingers in the air, but Nova remains focused, her resolve unshaken despite the cryptic message. They press on, Jina falling into step behind them.", "AT2", WhiteText,
 
                 // Jina's dialogue (quiet warning)
-                "Jina", "Trust your instincts. Sometimes the most dangerous things are the ones closest to you.", "Nova_CharViewBackground", OrangeText,
+                "Jina", "Trust your instincts. Sometimes the most dangerous things are the ones closest to you.", "AT2", OrangeText,
 
                 // Nova's dialogue (determined)
-                "Nova", "I'm not turning back now.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "I'm not turning back now.", "AT2", NovaTextColor,
 
                 // Narration
-                "", "The atmosphere becomes even more oppressive.", "Nova_CharViewBackground", WhiteText,
+                "", "The atmosphere becomes even more oppressive.", "AT2", WhiteText,
 
                 // Nova's dialogue (questioning)
-                "Nova", "You've fought something like this before?", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "You've fought something like this before?", "AT2", NovaTextColor,
 
                 // Jina's dialogue (experienced)
-                "Jina", "I've seen enough to know how dangerous it is. Stay sharp. It won't attack until it's sure of its prey.", "Nova_CharViewBackground", OrangeText,
+                "Jina", "I've seen enough to know how dangerous it is. Stay sharp. It won't attack until it's sure of its prey.", "AT2", OrangeText,
 
                 // Narration (final transition)
-                "", "They step into the swirling portal, the world around them warping into nothingness.", "Nova_CharViewBackground", WhiteText,
+                "", "They step into the swirling portal, the world around them warping into nothingness.", "Sequence1_8", WhiteText,
 
                 // Narration (portal transition)
-                "", "A brilliant flash engulfs them as Nova, Umbra, and Jina step through the portal. The air shifts—heavy, charged, and unsettling. As the light recedes, an eerie silence fills the space. They now stand on fractured ground, where time and reality seem to collide and shatter endlessly.", "Nova_CharViewBackground", WhiteText
+                "", "A brilliant flash engulfs them as Nova, Umbra, and Jina step through the portal. The air shifts—heavy, charged, and unsettling. As the light recedes, an eerie silence fills the space. They now stand on fractured ground, where time and reality seem to collide and shatter endlessly.", "Sequence1_8", WhiteText
             },() -> {
                 this.setScreen(new Nyxarion_planetTransition(this));
             });
@@ -519,75 +519,75 @@ public class GameTransitions extends Game {
         else if(sequenceCount == 6) {
             currentScreen = new StoryScene(this, new String[]{
                 // Nova's dialogue (observant)
-                "Nova", "So… this is Nyxarion…", "Nova_CharViewBackground", NovaTextColor,
-                "Nova", "This place… it feels wrong.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "So… this is Nyxarion…", "NyxCenter", NovaTextColor,
+                "Nova", "This place… it feels wrong.", "NyxCenter", NovaTextColor,
 
                 // Jina's dialogue (grim)
-                "Jina", "It’s worse than I remember. The echoes here… they’re louder.", "Nova_CharViewBackground", OrangeText,
+                "Jina", "It’s worse than I remember. The echoes here… they’re louder.", "NyxCenter", OrangeText,
 
                 // Narration (reality distortions)
-                "", "They push forward as strange distortions appear—fractured images of other realities.", "Nova_CharViewBackground", WhiteText,
+                "", "They push forward as strange distortions appear—fractured images of other realities.", "NyxCenter", WhiteText,
 
                 // Nova's dialogue (uneasy)
-                "Nova", "What are those…?", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "What are those…?", "NyxCenter", NovaTextColor,
 
                 // Umbra's warning (cold)
-                "Umbra", "Echoes. Fractured pieces of other dimensions. Move quickly before they pull us in.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "Echoes. Fractured pieces of other dimensions. Move quickly before they pull us in.", "NyxCenter", VioletText,
 
                 // Narration (visions)
-                "", "A distorted image flashes—a ruined city where Nova fights alone, her body bloodied but her expression hardened. Another shows Umbra standing amidst a scorched battlefield, her face shadowed and unreadable. The visions vanish as quickly as they appear, but the unease lingers in Nova’s mind.", "Nova_CharViewBackground", WhiteText,
+                "", "A distorted image flashes—a ruined city where Nova fights alone, her body bloodied but her expression hardened. Another shows Umbra standing amidst a scorched battlefield, her face shadowed and unreadable. The visions vanish as quickly as they appear, but the unease lingers in Nova’s mind.", "NyxCity", WhiteText,
 
                 // Nova's reaction
-                "Nova", "They feel… too real.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "They feel... too real.", "NyxCity", NovaTextColor,
 
                 // Jina's explanation
-                "Jina", "Because they are. Nyxarion doesn’t just warp space—it bends your perception, feeds on doubt. And if you lose focus…", "Nova_CharViewBackground", OrangeText,
+                "Jina", "Because they are. Nyxarion doesn’t just warp space-it bends your perception, feeds on doubt. And if you lose focus...", "NyxCity", OrangeText,
 
                 // Umbra's ominous line
-                "Umbra", "It devours you.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "It devours you.", "NyxCity", VioletText,
 
                 // Narration (environmental tension)
-                "", "They push forward, the ground beneath them vibrating with an unsettling hum. Each step feels heavier, the air thickening as an oppressive force presses down on them. Shadows shift unnervingly, forming distorted shapes that vanish as soon as they’re noticed.", "Nova_CharViewBackground", WhiteText,
+                "", "They push forward, the ground beneath them vibrating with an unsettling hum. Each step feels heavier, the air thickening as an oppressive force presses down on them. Shadows shift unnervingly, forming distorted shapes that vanish as soon as they’re noticed.", "NyxDark", WhiteText,
 
                 // Nova's alert
-                "Nova", "Whatever’s out there… it’s watching us.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "Whatever's out there... it's watching us.", "NyxDark", NovaTextColor,
 
                 // Jina's foreboding reply
                 "Jina", "Not just watching. Waiting.", "Nova_CharViewBackground", OrangeText,
 
                 // Narration (Void Sentinels appear)
-                "", "A guttural rumble echoes through the air. From the distance, movement stirs—a shiver through the shadows. Figures begin to emerge, their outlines jagged and flickering. The Void Sentinels—tall, faceless beings formed from broken fragments of reality—materialize, their hollow forms pulsing with malevolent energy.", "Nova_CharViewBackground", WhiteText,
-                "", "As the air thickens, an unnatural chill fills the space. From the shifting darkness, towering figures emerge, their outlines jagged and flickering. The Void Sentinels—void-black and unnervingly still. Their forms are humanoid but hollow, with eyes that burn like dying stars.", "Nova_CharViewBackground", WhiteText,
+                "", "A guttural rumble echoes through the air. From the distance, movement stirs—a shiver through the shadows. Figures begin to emerge, their outlines jagged and flickering. The Void Sentinels-tall, faceless beings formed from broken fragments of reality—materialize, their hollow forms pulsing with malevolent energy.", "NyxDark", WhiteText,
+                "", "As the air thickens, an unnatural chill fills the space. From the shifting darkness, towering figures emerge, their outlines jagged and flickering. The Void Sentinels—void-black and unnervingly still. Their forms are humanoid but hollow, with eyes that burn like dying stars.", "NyxDark", WhiteText,
 
                 // Umbra's alert
-                "Umbra", "We’re not alone anymore.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "We're not alone anymore.", "NyxDark", VioletText,
 
                 // Jina's ominous warning
-                "Jina", "And this… is just the beginning.", "Nova_CharViewBackground", OrangeText,
+                "Jina", "And this... is just the beginning.", "NyxDark", OrangeText,
 
                 // Narration (battle prep)
-                "", "The Sentinels advance, their presence distorting the air around them. Each step sends out ripples of dark energy that twist the surroundings. Nova steadies her breath, her pulse pounding in her ears.", "Nova_CharViewBackground", WhiteText,
+                "", "The Sentinels advance, their presence distorting the air around them. Each step sends out ripples of dark energy that twist the surroundings. Nova steadies her breath, her pulse pounding in her ears.", "NyxDark", WhiteText,
 
                 // Nova's resolve
-                "Nova", "If we fight, we fight smart. No mistakes.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "If we fight, we fight smart. No mistakes.", "NyxDark", NovaTextColor,
 
                 // Umbra's tactical advice
-                "Umbra", "Agreed. But be ready… these things don’t fight fair.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "Agreed. But be ready… these things don’t fight fair.", "NyxNeon", VioletText,
 
                 // Narration (Jina's behavior)
-                "", "Jina stays close, her posture tense but composed. Her eyes flick between Nova and Umbra, her expression unreadable—yet something about her seems… distant, as though her thoughts are elsewhere.", "Nova_CharViewBackground", WhiteText,
+                "", "Jina stays close, her posture tense but composed. Her eyes flick between Nova and Umbra, her expression unreadable-yet something about her seems... distant, as though her thoughts are elsewhere.", "NyxNeon", WhiteText,
 
                 // Jina's cryptic warning
-                "Jina", "Keep your guard up. Nyxarion bends more than reality. It bends trust.", "Nova_CharViewBackground", OrangeText,
+                "Jina", "Keep your guard up. Nyxarion bends more than reality. It bends trust.", "NyxNeon", OrangeText,
 
                 // Narration (Nova's doubt)
-                "", "Nova’s eyes briefly meet Umbra’s, a flicker of uncertainty crossing her mind, but she pushes it aside. There’s no room for doubt now.", "Nova_CharViewBackground", WhiteText,
+                "", "Nova's eyes briefly meet Umbra's, a flicker of uncertainty crossing her mind, but she pushes it aside. There's no room for doubt now.", "NyxNeon", WhiteText,
 
                 // Nova's rally
-                "Nova", "We end this. Together.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "We end this. Together.", "NyxNeon", NovaTextColor,
 
                 // Final narration (cliffhanger)
-                "", "As the shadows close in, the three move in unison—ready to confront whatever horrors Nyxarion throws their way. But beneath the chaos, a darker threat lingers... one that’s been by Nova’s side all along.", "Nova_CharViewBackground", WhiteText
+                "", "As the shadows close in, the three move in unison-ready to confront whatever horrors Nyxarion throws their way. But beneath the chaos, a darker threat lingers... one that’s been by Nova’s side all along.", "NyxNeon", WhiteText
             },
                 () -> {
                     Runnable createBattle1 = () -> {
@@ -609,76 +609,76 @@ public class GameTransitions extends Game {
         else if(sequenceCount == 7) {
             currentScreen = new StoryScene(this, new String[]{
                 // Narration
-                "", "The remains of the Void Sentinels dissolve into fragments of shadow, vanishing into the corrupted ground beneath them. Nova, Umbra, and Jina stand amidst the aftermath, their breaths steadying as the unsettling silence returns. But the air is heavier now—charged, as if the battle has disturbed something deeper within Nyxarion.", "Nova_CharViewBackground", WhiteText,
+                "", "The remains of the Void Sentinels dissolve into fragments of shadow, vanishing into the corrupted ground beneath them. Nova, Umbra, and Jina stand amidst the aftermath, their breaths steadying as the unsettling silence returns. But the air is heavier now—charged, as if the battle has disturbed something deeper within Nyxarion.", "NyxNeon", WhiteText,
 
                 // Nova's dialogue (wiping her blade, her voice low)
-                "Nova", "That was too close…", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "That was too close...", "NyxNeon", NovaTextColor,
 
                 // Jina's dialogue (nodding, eyes still scanning the horizon)
-                "Jina", "And it’s not over. This realm doesn’t stay quiet for long.", "Nova_CharViewBackground", OrangeText,
+                "Jina", "And it's not over. This realm doesn't stay quiet for long.", "NyxNeon", OrangeText,
 
                 // Umbra's dialogue (calm, almost too composed)
-                "Umbra", "We need to move. The longer we stay, the more this place twists reality around us.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "We need to move. The longer we stay, the more this place twists reality around us.", "NyxNeon", VioletText,
 
                 // Nova's dialogue (narrowing her eyes, her instincts stirring)
-                "Nova", "And where exactly are we going now, Umbra?", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "And where exactly are we going now, Umbra?", "NyxNeon", NovaTextColor,
 
                 // Narration
-                "", "(Umbra’s gaze meets Nova’s.)", "Nova_CharViewBackground", WhiteText,
+                "", "(Umbra's gaze meets Nova's.)", "Nova_CharViewBackground", WhiteText,
 
                 // Umbra's dialogue (voice steady)
-                "Umbra", "To the core of this realm. Where the energy fractures are strongest. I told you… there’s something there. A material powerful enough to amplify your device beyond its limits.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "To the core of this realm. Where the energy fractures are strongest. I told you... there's something there. A material powerful enough to amplify your device beyond its limits.", "NyxLightning", VioletText,
 
                 // Jina's dialogue (softly, but with an edge of suspicion)
-                "Jina", "And you’re sure it’s safe?", "Nova_CharViewBackground", OrangeText,
+                "Jina", "And you're sure it's safe?", "NyxLightning", OrangeText,
 
                 // Umbra's dialogue (a slight, knowing smile)
-                "Umbra", "Nothing in Nyxarion is safe. But power doesn’t come without risk, does it?", "Nova_CharViewBackground", VioletText,
+                "Umbra", "Nothing in Nyxarion is safe. But power doesn't come without risk, does it?", "NyxLightning", VioletText,
 
                 // Narration
-                "", "(They press forward, the oppressive air growing thicker with each step. The landscape wraps around them—twisted remnants of broken realities, whispers of forgotten worlds echoing in the wind. But as they move deeper, Nova feels something… different. Her device—strapped tightly to her wrist—begins to hum, faintly resonating with the strange energy that pulses through the ground.)", "Nova_CharViewBackground", WhiteText,
+                "", "(They press forward, the oppressive air growing thicker with each step. The landscape wraps around them-twisted remnants of broken realities, whispers of forgotten worlds echoing in the wind. But as they move deeper, Nova feels something... different. Her device-strapped tightly to her wrist-begins to hum, faintly resonating with the strange energy that pulses through the ground.)", "NyxUnder", WhiteText,
 
                 // Nova's dialogue (frowning, glancing at her device)
-                "Nova", "This… it’s reacting to something.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "This... it's reacting to something.", "NyxUnder", NovaTextColor,
 
                 // Jina's dialogue (noticing, her voice tinged with caution)
-                "Jina", "That’s not normal… what’s it picking up?", "Nova_CharViewBackground", OrangeText,
+                "Jina", "That's not normal... what's it picking up?", "NyxUnder", OrangeText,
 
                 // Umbra's dialogue (watching closely, her tone neutral but her eyes calculating)
-                "Umbra", "Perhaps… we’re getting close.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "Perhaps... we're getting close.", "NyxUnder", VioletText,
 
                 // Narration
-                "", "(They continue deeper into the wasteland, the ground beneath them growing unstable, pulsing faintly with raw energy. As they approach a narrow ravine, a sudden tremor shakes the ground violently. Nova steadies herself, but then… the air shifts—charged, alive.)", "Nova_CharViewBackground", WhiteText,
+                "", "(They continue deeper into the wasteland, the ground beneath them growing unstable, pulsing faintly with raw energy. As they approach a narrow ravine, a sudden tremor shakes the ground violently. Nova steadies herself, but then... the air shifts-charged, alive.)", "NyxUnder", WhiteText,
 
                 // Jina's dialogue (eyes narrowing)
-                "Jina", "Something’s coming.", "Nova_CharViewBackground", OrangeText,
+                "Jina", "Something's coming.", "NyxUnder", OrangeText,
 
                 // Narration
-                "", "(A deafening roar echoes from the depths below. The ground cracks open, and from the abyss, a monstrous figure bursts forth—an Energy Wyrm. Its serpentine body is a swirling mass of unstable energy, with arcs of raw power crackling along its iridescent scales. Its eyes burn with a chaotic light, and its movements leave trails of electric distortion in the air.)", "Nova_CharViewBackground", WhiteText,
+                "", "(A deafening roar echoes from the depths below. The ground cracks open, and from the abyss, a monstrous figure bursts forth-an Energy Wyrm. Its serpentine body is a swirling mass of unstable energy, with arcs of raw power crackling along its iridescent scales. Its eyes burn with a chaotic light, and its movements leave trails of electric distortion in the air.)", "NyxUnder", WhiteText,
 
                 // Nova's dialogue (eyes widening)
-                "Nova", "What… is that?!", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "What... is that?!", "NyxUnder", NovaTextColor,
 
                 // Umbra's dialogue (calm but with a dangerous glint in her eyes)
-                "Umbra", "The guardian of Nyxarion’s core.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "The guardian of Nyxarion’s core.", "NyxUnder", VioletText,
 
                 // Jina's dialogue (voice urgent)
-                "Jina", "It’s pure energy! We can’t fight it head-on!", "Nova_CharViewBackground", OrangeText,
+                "Jina", "It's pure energy! We can’t fight it head-on!", "NyxUnder", OrangeText,
 
                 // Nova's dialogue (gritting her teeth, her stance shifting as she readies her weapon)
-                "Nova", "We don’t have a choice. If that thing’s guarding the core… we need to get past it.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "We don't have a choice. If that thing’s guarding the core... we need to get past it.", "NyxUnder", NovaTextColor,
 
                 // Jina's dialogue (voice firm, determination replacing hesitation)
-                "Jina", "Then we hit it hard and fast. We bring it down before it drains us.", "Nova_CharViewBackground", OrangeText,
+                "Jina", "Then we hit it hard and fast. We bring it down before it drains us.", "NyxUnder", OrangeText,
 
                 // Umbra's dialogue (stepping forward, her tone cool but laced with something unreadable)
-                "Umbra", "Agreed. But don’t underestimate it. Creatures born of pure energy don’t go down easily.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "Agreed. But don't underestimate it. Creatures born of pure energy don't go down easily.", "NyxUnder", VioletText,
 
                 // Nova's dialogue (eyes narrowing, her grip tightening)
-                "Nova", "Then we better make every move count.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "Then we better make every move count.", "NyxUnder", NovaTextColor,
 
                 // Narration
-                "", "(The three brace themselves, the charged air growing more volatile as the Energy Wyrm coils, ready to strike.)", "Nova_CharViewBackground", WhiteText
+                "", "(The three brace themselves, the charged air growing more volatile as the Energy Wyrm coils, ready to strike.)", "NyxUnder", WhiteText
             },
                 () -> {
                     Runnable createBattle1 = () -> {
@@ -700,106 +700,106 @@ public class GameTransitions extends Game {
         else if(sequenceCount == 8) {
             currentScreen = new StoryScene(this, new String[]{
                 // Narration
-                "", "(The battlefield is silent now, save for the faint crackle of dissipating energy. The shattered remains of the Energy Wyrm lie motionless, its once-vibrant core now dimming, releasing waves of unstable power into the air. Nova, Jina, and Umbra stand amidst the aftermath—wary but victorious.)", "Nova_CharViewBackground", WhiteText,
+                "", "(The battlefield is silent now, save for the faint crackle of dissipating energy. The shattered remains of the Energy Wyrm lie motionless, its once-vibrant core now dimming, releasing waves of unstable power into the air. Nova, Jina, and Umbra stand amidst the aftermath-wary but victorious.)", "NyxUnder", WhiteText,
 
                 // Nova's dialogue (catching her breath, her weapon lowering)
-                "Nova", "That… was intense.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "That... was intense.", "NyxUnder", NovaTextColor,
 
                 // Jina's dialogue (exhaling, her tone relieved but cautious)
-                "Jina", "We’re lucky to be standing. That thing was more than just raw energy.", "Nova_CharViewBackground", OrangeText,
+                "Jina", "We're lucky to be standing. That thing was more than just raw energy.", "NyxUnder", OrangeText,
 
                 // Umbra's dialogue (calm, her gaze fixed on the fading remnants of the Wyrm)
-                "Umbra", "It wasn’t just a creature. It was a conduit… holding the energy that sustains Nyxarion’s core.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "It wasn't just a creature. It was a conduit... holding the energy that sustains Nyxarion's core.", "NyxUnder", VioletText,
 
                 // Narration
-                "", "(As the energy dissipates, Nova’s device—still strapped securely to her wrist—begins to pulse faintly. The hum is different this time… deeper, more resonant. It’s as if the remnants of the Wyrm’s power are being drawn toward it.)", "Nova_CharViewBackground", WhiteText,
+                "", "(As the energy dissipates, Nova’s device-still strapped securely to her wrist-begins to pulse faintly. The hum is different this time... deeper, more resonant. It's as if the remnants of the Wyrm's power are being drawn toward it.)", "NyxUnder", WhiteText,
 
                 // Nova's dialogue (frowning, glancing down at her device)
-                "Nova", "Wait… something’s happening.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "Wait... something’s happening.", "NyxUnder", NovaTextColor,
 
                 // Narration
-                "", "(The device pulses faster, the energy surrounding them slowly converging. Thin tendrils of light weave toward Nova’s device, drawn to it like moths to a flame.)", "Nova_CharViewBackground", WhiteText,
+                "", "(The device pulses faster, the energy surrounding them slowly converging. Thin tendrils of light weave toward Nova's device, drawn to it like moths to a flame.)", "NyxSwirl", WhiteText,
 
                 // Jina's dialogue (eyes widening)
-                "Jina", "Nova… your device…", "Nova_CharViewBackground", OrangeText,
+                "Jina", "Nova... your device...", "NyxSwirl", OrangeText,
 
                 // Narration
-                "", "(The core of the defeated Wyrm flickers one last time before releasing a final surge of energy—a radiant burst that spirals toward Nova. Instinctively, she raises her arm to shield herself, but the energy doesn’t attack… it converges.)", "Nova_CharViewBackground", WhiteText,
+                "", "(The core of the defeated Wyrm flickers one last time before releasing a final surge of energy-a radiant burst that spirals toward Nova. Instinctively, she raises her arm to shield herself, but the energy doesn't attack... it converges.)", "NyxSwirl", WhiteText,
 
                 // Nova's dialogue (voice tense)
-                "Nova", "It’s… merging with my device?", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "It’s... merging with my device?", "NyxSwirl", NovaTextColor,
 
                 // Narration
-                "", "(The energy pulses violently as it’s absorbed into Nova’s device, causing it to glow brighter than ever. The interface flickers, struggling to contain the sheer force being channeled through it. The hum grows louder, resonating not just through the device—but through Nova herself.)", "Nova_CharViewBackground", WhiteText,
+                "", "(The energy pulses violently as it's absorbed into Nova's device, causing it to glow brighter than ever. The interface flickers, struggling to contain the sheer force being channeled through it. The hum grows louder, resonating not just through the device-but through Nova herself.)", "NyxSwirl", WhiteText,
 
                 // Jina's dialogue (stepping closer, her voice a mix of awe and concern)
-                "Jina", "It’s not just energy… it’s reshaping your device. It’s… evolving it.", "Nova_CharViewBackground", OrangeText,
+                "Jina", "It’s not just energy... it's reshaping your device. It's... evolving it.", "NyxSwirl", OrangeText,
 
                 // Umbra's dialogue (watching closely, her expression unreadable)
-                "Umbra", "This power… it’s adapting to her.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "This power... it's adapting to her.", "NyxSwirl", VioletText,
 
                 // Narration
-                "", "(Nova grits her teeth as the energy surges through her, her mind flooded with fragmented images—different realities, timelines overlapping for a split second. The weight of infinite possibilities presses against her consciousness, but her body… adjusts. The chaos stabilizes, and in that moment, everything changes.)", "Nova_CharViewBackground", WhiteText,
+                "", "(Nova grits her teeth as the energy surges through her, her mind flooded with fragmented images-different realities, timelines overlapping for a split second. The weight of infinite possibilities presses against her consciousness, but her body... adjusts. The chaos stabilizes, and in that moment, everything changes.)", "NyxSwirl", WhiteText,
 
                 // Nova's dialogue (voice echoing softly, eyes glowing faintly)
-                "Nova", "I can… feel it. I can see… everything.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "I can... feel it. I can see... everything.", "NyxSwirl", NovaTextColor,
 
                 // Narration
-                "", "(The device locks into place, its exterior now humming with a powerful glow. A new interface flickers across the surface, displaying incomprehensible coordinates and energy signatures. Nova’s breath steadies as the realization hits her—she’s unlocked something beyond her previous limits.)", "Nova_CharViewBackground", WhiteText,
+                "", "(The device locks into place, its exterior now humming with a powerful glow. A new interface flickers across the surface, displaying incomprehensible coordinates and energy signatures. Nova’s breath steadies as the realization hits her-she's unlocked something beyond her previous limits.)", "NyxSwirl", WhiteText,
 
                 // Nova's dialogue (still surprised but overwhelmed with awe)
-                "Nova", "I just unlocked my ultimate skill… Multidimensional Blast!", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "I just unlocked my ultimate skill... Multidimensional Blast!", "NyxSwirl", NovaTextColor,
 
                 // Jina's dialogue (grinning, her eyes shining with excitement)
-                "Jina", "Nova… you did it. That’s… an entirely new level of power.", "Nova_CharViewBackground", OrangeText,
+                "Jina", "Nova... you did it. That's... an entirely new level of power.", "NyxSwirl", OrangeText,
 
                 // Nova's dialogue (eyes narrowing, her voice steady but pulsing with newfound power)
-                "Nova", "This… this is more than just an upgrade. I’m closer than ever to achieving what I’ve been fighting for.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "This... this is more than just an upgrade. I'm closer than ever to achieving what I've been fighting for.", "NyxSwirl", NovaTextColor,
 
                 // Jina's dialogue (beaming, her voice overflowing with hope)
-                "Jina", "This changes everything. With this, we can stop whatever Nyxarion throws at us. No more being one step behind.", "Nova_CharViewBackground", OrangeText,
+                "Jina", "This changes everything. With this, we can stop whatever Nyxarion throws at us. No more being one step behind.", "NyxSwirl", OrangeText,
 
                 // Umbra's dialogue (eyes narrowing slightly, her tone smooth but laced with subtle intent)
-                "Umbra", "Not really if you’re facing a more powerful foe than the Wyrm. The energy’s powerful… but unstable. You’ll need something more to fully control it.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "Not really if you're facing a more powerful foe than the Wyrm. The energy’s powerful... but unstable. You'll need something more to fully control it.", "NyxNeon", VioletText,
 
                 // Nova's dialogue (voice firm, eyes burning with resolve)
-                "Nova", "I know this isn’t enough. There’s more out there—something crucial to stabilize this power. But where do we even begin?", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "I know this isn't enough. There's more out there-something crucial to stabilize this power. But where do we even begin?", "NyxNeon", NovaTextColor,
 
                 // Narration
-                "", "(Umbra’s eyes gleam with calculated understanding, a plan quietly taking shape in her mind. She steps forward, her tone calm yet persuasive.)", "Nova_CharViewBackground", WhiteText,
+                "", "(Umbra's eyes gleam with calculated understanding, a plan quietly taking shape in her mind. She steps forward, her tone calm yet persuasive.)", "NyxNeon", WhiteText,
 
                 // Umbra's dialogue (softly, but with a hint of intrigue)
-                "Umbra", "I may know where to start. An ancient site… hidden deep within the core of Nyxarion. It holds untapped energy—something that might be exactly what you need.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "I may know where to start. An ancient site... hidden deep within the core of Nyxarion. It holds untapped energy-something that might be exactly what you need.", "NyxNeon", VioletText,
 
                 // Nova's dialogue (carefully)
-                "Nova", "And you’re certain it’s there?", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "And you're certain it's there?", "NyxNeon", NovaTextColor,
 
                 // Umbra's dialogue (nodding, her expression serious but her motives carefully masked)
-                "Umbra", "I can lead you there. But we need to act quickly—before Nyxarion shifts again.", "Nova_CharViewBackground", VioletText,
+                "Umbra", "I can lead you there. But we need to act quickly-before Nyxarion shifts again.", "NyxNeon", VioletText,
 
                 // Narration
-                "", "(Nova exchanges a glance with Jina, who remains quiet but watches Umbra closely, her instincts whispering caution.)", "Nova_CharViewBackground", WhiteText,
+                "", "(Nova exchanges a glance with Jina, who remains quiet but watches Umbra closely, her instincts whispering caution.)", "NyxNeon", WhiteText,
 
                 // Nova's dialogue (after a beat, her voice steady)
-                "Nova", "Alright. Show me.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "Alright. Show me.", "NyxNeon", NovaTextColor,
 
                 // Narration
-                "", "(Umbra approaches, her fingers moving deftly over Nova’s device. She inputs the coordinates with practiced precision, the device humming softly as it processes the new data. A soft glow pulses from the screen—a beacon guiding them deeper into the unknown.)", "Nova_CharViewBackground", WhiteText,
+                "", "(Umbra approaches, her fingers moving deftly over Nova's device. She inputs the coordinates with practiced precision, the device humming softly as it processes the new data. A soft glow pulses from the screen-a beacon guiding them deeper into the unknown.)", "NyxNeon", WhiteText,
 
                 // Jina's dialogue (voice calm but guarded)
-                "Jina", "Let’s hope this leads us to what we’re looking for.", "Nova_CharViewBackground", OrangeText,
+                "Jina", "Let's hope this leads us to what we’re looking for.", "NyxNeon", OrangeText,
 
                 // Nova's dialogue (eyes set ahead, her voice steady)
-                "Nova", "I’m not backing down. Whatever’s waiting for us… we face it head-on.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "I'm not backing down. Whatever's waiting for us... we face it head-on.", "NyxNeon", NovaTextColor,
 
                 // Narration
-                "", "(They share a moment of silent understanding, an unbreakable bond forming as they prepare to face whatever challenges lie ahead. Together, they step into the unknown, ready to reclaim their power.)", "Nova_CharViewBackground", WhiteText,
+                "", "(They share a moment of silent understanding, an unbreakable bond forming as they prepare to face whatever challenges lie ahead. Together, they step into the unknown, ready to reclaim their power.)", "NyxNeon", WhiteText,
 
                 // Narration
-                "", "(Their footsteps echo softly against the cracked earth as they venture deeper into the heart of Nyxarion. A chilling wind brushes past, carrying whispers of a forgotten past. Shadows stretch across the ruins, jagged remnants of once-great structures rising like broken sentinels. Each step draws them closer to the core of this desolate world, where answers—and danger—await in equal measure.)", "Nova_CharViewBackground", WhiteText,
+                "", "(Their footsteps echo softly against the cracked earth as they venture deeper into the heart of Nyxarion. A chilling wind brushes past, carrying whispers of a forgotten past. Shadows stretch across the ruins, jagged remnants of once-great structures rising like broken sentinels. Each step draws them closer to the core of this desolate world, where answers-and danger-await in equal measure.)", "NyxDark", WhiteText,
 
                 // Narration
-                "", "(Nova stands in stunned silence, her eyes sweeping across the shattered landscape. Beside her, Jina remains tense, scanning for signs of movement. Umbra observes them, a faint, unreadable smile on her face.)", "Nova_CharViewBackground", WhiteText,
+                "", "(Nova stands in stunned silence, her eyes sweeping across the shattered landscape. Beside her, Jina remains tense, scanning for signs of movement. Umbra observes them, a faint, unreadable smile on her face.)", "NyxDark", WhiteText,
 
                 // Nova's dialogue (voice barely above a whisper, her tone filled with unease)
                 "Nova", "What… happened here?", "Nova_CharViewBackground", NovaTextColor,
