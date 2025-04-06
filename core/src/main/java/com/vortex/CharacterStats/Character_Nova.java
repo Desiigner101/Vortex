@@ -7,12 +7,12 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class Character_Nova implements Character_BattleStats {
     // Stats
-    private int HP = 750;
+    private int HP = 800;
     private int basicAttackDamage = 85;
     private int skillDamage = 200;
-    private int skillCost = 2;
-    private int ultimateDamage = 350;
-    private int ultCooldown = 1;
+    private int skillCost = 1;
+    private int ultimateDamage = 400;
+    private int ultCooldown = 10;
     private int currentUltCooldown = 0;
 
     // File paths

@@ -31,10 +31,7 @@ import com.vortex.CharacterStats.Character_Jina;
 import com.vortex.game.GameTransitions;
 import com.vortex.game.FontManager;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class BattleClass implements Screen {
 
@@ -97,6 +94,16 @@ public class BattleClass implements Screen {
     private float healAnimationTimer = 0f;
     private float healAnimationDuration = 0.1f * 23; // 23 frames at 0.1s each
     private Vector2 healTargetPosition;
+    private List<HealingAnimation> activeHealingAnimations = new ArrayList<>();
+    private class HealingAnimation {
+        Vector2 position;
+        float timer;
+
+        public HealingAnimation(Vector2 position) {
+            this.position = position;
+            this.timer = 0f;
+        }
+    }
 
     // Target selection animation
     private Texture targetTexture;
@@ -510,6 +517,8 @@ public class BattleClass implements Screen {
             umbra.playBasicAttackAnimation();
         }else if (currentCharacter instanceof Character_Nova) {
             nova.playBasicAttackAnimation();
+        } else if (currentCharacter instanceof Character_Jina) {
+            jina.playBasicAttackAnimation();
         }
         debugEnemyHP();
         checkBattleConditions();
@@ -519,9 +528,17 @@ public class BattleClass implements Screen {
         if (currentCharacter instanceof Character_Jina) {
             // Jina's skill is healing and damage
             int damage = currentCharacter.getSkillDamage();
-            healLowestCharacter();
+            Character_BattleStats target = healLowestCharacter(); // Get the target that was healed
             enemyCurrentHp = Math.max(0, enemyCurrentHp - damage);
+            jina.playSkillAnimation();
             System.out.println("Character used their skill and dealt " + damage + " damage to the enemy!");
+
+            // Only play heal animation if there was a target
+            if (target != null) {
+                isPlayingHeal = true;
+                healAnimationTimer = 0f;
+                setHealTargetPosition(target);
+            }
         } else {
             // Normal skill damage for other characters
             int damage = currentCharacter.getSkillDamage();
@@ -534,14 +551,33 @@ public class BattleClass implements Screen {
             umbra.playSkillAnimation();
         } else if (currentCharacter instanceof Character_Nova) {
             nova.playSkillAnimation();
-        } else if (currentCharacter instanceof Character_Jina) {
-            jina.playSkillAnimation();
         }
-
         debugEnemyHP();
         checkBattleConditions();
     }
+    private void setHealTargetPosition(Character_BattleStats target) {
+        // Calculate character positions
+        float totalCharactersWidth = characters.size() * 300;
+        float currentStartX = (viewport.getWorldWidth() - totalCharactersWidth) / 2;
 
+        // Set position based on which character is being healed
+        if (target instanceof Character_Umbra) {
+            healTargetPosition = new Vector2(
+                currentStartX + characters.indexOf("Umbra") * 300 + 125,
+                PLATFORM_Y + 160
+            );
+        } else if (target instanceof Character_Nova) {
+            healTargetPosition = new Vector2(
+                currentStartX + characters.indexOf("Nova") * 300 + 125,
+                PLATFORM_Y + 160
+            );
+        } else if (target instanceof Character_Jina) {
+            healTargetPosition = new Vector2(
+                currentStartX + characters.indexOf("Jina") * 300 + 125,
+                PLATFORM_Y + 160
+            );
+        }
+    }
     private void loadHealAnimation() {
         healAnimationSheet = new Texture(Gdx.files.internal("BattleAssets/JinaHeal.png"));
         TextureRegion[][] tmp = TextureRegion.split(healAnimationSheet,
@@ -555,7 +591,7 @@ public class BattleClass implements Screen {
         healAnimation = new Animation<>(0.1f, frames);
     }
 
-    private void healLowestCharacter() {
+    private Character_BattleStats healLowestCharacter() {
         Character_BattleStats target = findCharacterWithLowestHP();
 
         if (target != null) {
@@ -563,31 +599,8 @@ public class BattleClass implements Screen {
             int newHP = Math.min(target.getHP() + healAmount, target.getMaxHP());
             target.setHP(newHP);
 
-            // Set up healing animation
-            isPlayingHeal = true;
-            healAnimationTimer = 0f;
-
-            // Calculate character positions
-            float totalCharactersWidth = characters.size() * 300;
-            float currentStartX = (viewport.getWorldWidth() - totalCharactersWidth) / 2;
-
-            // Set position based on which character is being healed
-            if (target instanceof Character_Umbra) {
-                healTargetPosition = new Vector2(
-                    currentStartX + characters.indexOf("Umbra") * 300 + 125,
-                    PLATFORM_Y + 160
-                );
-            } else if (target instanceof Character_Nova) {
-                healTargetPosition = new Vector2(
-                    currentStartX + characters.indexOf("Nova") * 300 + 125,
-                    PLATFORM_Y + 160
-                );
-            } else {
-                healTargetPosition = new Vector2(
-                    currentStartX + characters.indexOf("Jina") * 300 + 125,
-                    PLATFORM_Y + 160
-                );
-            }
+            // Create healing animation
+            activeHealingAnimations.add(new HealingAnimation(calculateHealPosition(target)));
 
             System.out.println("Jina healed " +
                 target.getClass().getSimpleName().replace("Character_", "") +
@@ -596,6 +609,8 @@ public class BattleClass implements Screen {
             // Play healing sound
             sfx.playSoundEffect("heal_sound.wav", 0.5f);
         }
+
+        return target;
     }
 
     private Character_BattleStats findCharacterWithLowestHP() {
@@ -628,20 +643,77 @@ public class BattleClass implements Screen {
 
         return lowestHPChar;
     }
+    private boolean isAnyUltimatePlaying() {
+        return (umbra != null && umbra.isUltimatePlaying()) ||
+            (nova != null && nova.isUltimatePlaying()) ||
+            (jina != null && jina.isUltimatePlaying());
+    }
     private void dealUltimateDamage() {
         int damage = currentCharacter.getUltimateDamage();
         enemyCurrentHp = Math.max(0, enemyCurrentHp - damage);
-
         if (currentCharacter instanceof Character_Umbra) {
             umbra.startUltimate();
-            sfx.playSoundEffect("umbra_ult_sfx.wav",0);
-        }else if (currentCharacter instanceof Character_Nova) {
+            sfx.playSoundEffect("umbra_ult_sfx.wav", 0); // Make sure you have this sound file
+        }
+        else if (currentCharacter instanceof Character_Nova) {
             nova.startUltimate();
-            sfx.playSoundEffect("nova_ult_sfx.wav",0);
+            sfx.playSoundEffect("nova_ult_sfx.wav", 0); // Make sure you have this sound file
+        }
+        else if (currentCharacter instanceof Character_Jina) {
+            jina.startUltimate();
+            sfx.playSoundEffect("jina_ult_sfx.wav", 0);
+
+            // Clear any existing animations
+            activeHealingAnimations.clear();
+
+            // Schedule healing for all characters
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    sfx.playSoundEffect("ult_heal.wav", 1f);
+
+                    // Heal all characters and create animations
+                    if (umbra != null && umbra.getHP() > 0) {
+                        umbra.setHP(Math.min(umbra.getMaxHP(), umbra.getHP() + jina.getHealAmount()));
+                        activeHealingAnimations.add(new HealingAnimation(calculateHealPosition(umbra)));
+                    }
+                    if (nova != null && nova.getHP() > 0) {
+                        nova.setHP(Math.min(nova.getMaxHP(), nova.getHP() + jina.getHealAmount()));
+                        activeHealingAnimations.add(new HealingAnimation(calculateHealPosition(nova)));
+                    }
+                    if (jina != null && jina.getHP() > 0) {
+                        jina.setHP(Math.min(jina.getMaxHP(), jina.getHP() + jina.getHealAmount()));
+                        activeHealingAnimations.add(new HealingAnimation(calculateHealPosition(jina)));
+                    }
+                }
+            }, jina.getUltimateAnimationDuration() * 1);
         }
         debugEnemyHP();
-
         checkBattleConditions();
+    }
+    private void startHealAnimation(Character_BattleStats character) {
+        isPlayingHeal = true;
+        healAnimationTimer = 0f;
+
+        float totalCharactersWidth = characters.size() * 300;
+        float currentStartX = (viewport.getWorldWidth() - totalCharactersWidth) / 2;
+
+        if (character instanceof Character_Umbra) {
+            healTargetPosition = new Vector2(
+                currentStartX + characters.indexOf("Umbra") * 300 + 125,
+                PLATFORM_Y + 160
+            );
+        } else if (character instanceof Character_Nova) {
+            healTargetPosition = new Vector2(
+                currentStartX + characters.indexOf("Nova") * 300 + 125,
+                PLATFORM_Y + 160
+            );
+        } else {
+            healTargetPosition = new Vector2(
+                currentStartX + characters.indexOf("Jina") * 300 + 125,
+                PLATFORM_Y + 160
+            );
+        }
     }
 
     public void addSkillPoint() {
@@ -827,6 +899,9 @@ public class BattleClass implements Screen {
             if (nova != null) {
                 nova.updateUltimate(delta);
             }
+            if (jina != null) {
+                jina.updateUltimate(delta);
+            }
             enemy.update(delta);
 
             // Update target selection during enemy's turn
@@ -998,6 +1073,7 @@ public class BattleClass implements Screen {
                 TextureRegion currentFrame = nova.getCurrentFrame();
                 spriteBatch.draw(currentFrame, characterX, characterY, 250, 250);
             } else if (character.equals("Jina")) {
+                jina.update(delta);
                 TextureRegion currentFrame = jina.getCurrentFrame();
                 spriteBatch.draw(currentFrame, characterX, characterY, 250, 250);
             }
@@ -1149,38 +1225,6 @@ public class BattleClass implements Screen {
             spriteBatch.setColor(originalColor);
         }
 
-        if (umbra != null && umbra.isUltimatePlaying()) {
-            TextureRegion ultimateFrame = umbra.getCurrentUltimateFrame();
-
-            // Save original color
-            Color original = spriteBatch.getColor();
-            spriteBatch.setColor(Color.WHITE);
-
-            // Draw fullscreen
-            spriteBatch.draw(ultimateFrame,
-                0, 0,
-                viewport.getWorldWidth(),
-                viewport.getWorldHeight());
-
-            // Restore color
-            spriteBatch.setColor(original);
-        }
-        if (nova != null && nova.isUltimatePlaying()) {
-            TextureRegion ultimateFrame = nova.getCurrentUltimateFrame();
-
-            // Save original color
-            Color original = spriteBatch.getColor();
-            spriteBatch.setColor(Color.WHITE);
-
-            // Draw fullscreen
-            spriteBatch.draw(ultimateFrame,
-                0, 0,
-                viewport.getWorldWidth(),
-                viewport.getWorldHeight());
-
-            // Restore color
-            spriteBatch.setColor(original);
-        }
         spriteBatch.end();
 
         // Add this in the render method, before the stage.draw() call
@@ -1225,7 +1269,53 @@ public class BattleClass implements Screen {
             }
             spriteBatch.end();
         }
+        spriteBatch.begin();
+        if (umbra != null && umbra.isUltimatePlaying()) {
+            TextureRegion ultimateFrame = umbra.getCurrentUltimateFrame();
 
+            // Save original color
+            Color original = spriteBatch.getColor();
+            spriteBatch.setColor(Color.WHITE);
+
+            // Draw fullscreen
+            spriteBatch.draw(ultimateFrame,
+                0, 0,
+                viewport.getWorldWidth(),
+                viewport.getWorldHeight());
+
+            // Restore color
+            spriteBatch.setColor(original);
+        }
+        if (nova != null && nova.isUltimatePlaying()) {
+            TextureRegion ultimateFrame = nova.getCurrentUltimateFrame();
+
+            // Save original color
+            Color original = spriteBatch.getColor();
+            spriteBatch.setColor(Color.WHITE);
+
+            // Draw fullscreen
+            spriteBatch.draw(ultimateFrame,
+                0, 0,
+                viewport.getWorldWidth(),
+                viewport.getWorldHeight());
+
+            // Restore color
+            spriteBatch.setColor(original);
+        }
+        if (jina != null && jina.isUltimatePlaying()) {
+            TextureRegion ultimateFrame = jina.getCurrentUltimateFrame();
+            // Save original color
+            Color original = spriteBatch.getColor();
+            spriteBatch.setColor(Color.WHITE);
+            // Draw fullscreen
+            spriteBatch.draw(ultimateFrame,
+                0, 0,
+                viewport.getWorldWidth(),
+                viewport.getWorldHeight());
+            // Restore color
+            spriteBatch.setColor(original);
+        }
+        spriteBatch.end();
         // Handle enemy turn
         if (isEnemyTurn) {
             enemyTurnTimer -= delta;
@@ -1241,23 +1331,21 @@ public class BattleClass implements Screen {
                 debugTurnState("Enemy turn finished");
             }
         }
-        if (isPlayingHeal) {
-            healAnimationTimer += delta;
-            if (healAnimationTimer >= healAnimationDuration) {
-                isPlayingHeal = false;
+        spriteBatch.begin();
+        Iterator<HealingAnimation> iterator = activeHealingAnimations.iterator();
+        while (iterator.hasNext()) {
+            HealingAnimation anim = iterator.next();
+            anim.timer += delta;
+
+            if (anim.timer < healAnimationDuration) {
+                TextureRegion frame = healAnimation.getKeyFrame(anim.timer, false);
+                spriteBatch.draw(frame, anim.position.x - 100, anim.position.y - 120, 180, 180);
+            } else {
+                iterator.remove();
             }
         }
-
-        spriteBatch.begin();
-        if (isPlayingHeal) {
-            TextureRegion currentHealFrame = healAnimation.getKeyFrame(healAnimationTimer, false);
-            spriteBatch.draw(currentHealFrame,
-                healTargetPosition.x - 100, // Adjust position as needed
-                healTargetPosition.y - 120,
-                180, 180);
-        }
-
         spriteBatch.end();
+
         if (playCloseTransition) {
             spriteBatch.begin();
             closeTransitionStateTime += delta;
@@ -1315,6 +1403,35 @@ public class BattleClass implements Screen {
     }
 
     private void enemyAttack() {
+        // First determine if we need to wait based on the last attack
+        float waitTime = 0f;
+
+        // Check which character's turn it was and if they used an ultimate
+        if (currentTurn >= 0 && currentTurn < characters.size()) {
+            String characterName = characters.get(currentTurn);
+            if (characterName.equals("Umbra") && umbra != null && umbra.isUltimatePlaying()) {
+                waitTime = 2.61f;
+            } else if (characterName.equals("Nova") && nova != null && nova.isUltimatePlaying()) {
+                waitTime = 2.9f;
+            } else if (characterName.equals("Jina") && jina != null && jina.isUltimatePlaying()) {
+                waitTime = 4.1f;
+            }
+        }
+
+        if (waitTime > 0) {
+            // Use a Timer to schedule the enemy attack after the delay
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    startEnemyTurn();
+                }
+            }, waitTime);
+        } else {
+            // No delay needed, start enemy turn immediately
+            startEnemyTurn();
+        }
+    }
+    private void startEnemyTurn() {
         isEnemyTurn = true;
         enemyTurnTimer = ENEMY_TURN_DURATION;
         roundCount++;
@@ -1325,75 +1442,104 @@ public class BattleClass implements Screen {
         isTargetLocked = false;
         targetSelectionTimer = 0f;
 
-        // Schedule the target selection
+        // Wait for any ultimate to finish before proceeding
+        Timer.schedule(new Timer.Task() {
+            @Override
+            public void run() {
+                if (isAnyUltimatePlaying()) {
+                    // If an ultimate is still playing, check again in 0.1 seconds
+                    Timer.schedule(this, 0.1f);
+                    return;
+                }
+
+                // Only proceed with target selection if it's still the enemy's turn
+                if (isEnemyTurn) {
+                    startTargetSelection();
+                }
+            }
+        }, 0f);
+    }
+    private void startTargetSelection() {
+        // Begin the target selection phase
         Timer.schedule(new Timer.Task() {
             @Override
             public void run() {
                 if (!isEnemyTurn) return;
 
-                // Select a random target from alive characters
                 List<Character_BattleStats> aliveTargets = getAliveCharacters();
                 if (!aliveTargets.isEmpty()) {
-                    int randomIndex = (int)(Math.random() * aliveTargets.size());
-                    selectedTarget = aliveTargets.get(randomIndex);
-                    isTargetLocked = true;
+                    // Start cycling through targets
+                    targetSelectionTimer = 0f;
+                    isTargetLocked = false;
 
-                    // Schedule the actual attack to happen after a brief delay
+                    // After cycling duration, lock onto a target
                     Timer.schedule(new Timer.Task() {
                         @Override
                         public void run() {
-                            if (selectedTarget != null && selectedTarget.getHP() > 0) {
-                                int damage = enemy.getAtk();
-                                selectedTarget.takeDamage(damage);
+                            if (!isEnemyTurn) return;
 
-                                if (selectedTarget instanceof Character_Umbra) {
-                                    umbra.playHitAnimation();
-                                } else if (selectedTarget instanceof Character_Nova) {
-                                    nova.playHitAnimation();
-                                } else if (selectedTarget instanceof Character_Jina) {
-                                    jina.playHitAnimation();
+                            // Lock onto a random target
+                            int randomIndex = (int)(Math.random() * aliveTargets.size());
+                            selectedTarget = aliveTargets.get(randomIndex);
+                            isTargetLocked = true;
+
+                            // After a brief delay, deal damage
+                            Timer.schedule(new Timer.Task() {
+                                @Override
+                                public void run() {
+                                    if (selectedTarget != null && selectedTarget.getHP() > 0) {
+                                        int damage = enemy.getAtk();
+                                        selectedTarget.takeDamage(damage);
+
+                                        if (selectedTarget instanceof Character_Umbra) {
+                                            umbra.playHitAnimation();
+                                        } else if (selectedTarget instanceof Character_Nova) {
+                                            nova.playHitAnimation();
+                                        } else if (selectedTarget instanceof Character_Jina) {
+                                            jina.playHitAnimation();
+                                        }
+
+                                        // Clear the target after damage is dealt
+                                        selectedTarget = null;
+                                        isTargetLocked = false;
+                                    }
+
+                                    // End enemy turn after attack
+                                    endEnemyTurn();
                                 }
-
-                                // Clear the target after damage is dealt
-                                selectedTarget = null;
-                                isTargetLocked = false;
-                            }
-                            debugTurnState("Enemy attacked");
+                            }, 0.5f); // Delay after locking target
                         }
-                    }, 0.5f); // Short delay after locking to show the target
+                    }, TARGET_SELECTION_DURATION); // Cycling duration
+                } else {
+                    // No alive targets, end turn immediately
+                    endEnemyTurn();
                 }
             }
-        }, TARGET_SELECTION_DURATION);
+        }, 0f);
+    }
+    private void endEnemyTurn() {
+        isEnemyTurn = false;
+        currentTurn = findFirstAliveCharacter();
+        if (currentTurn == -1) {
+            checkBattleConditions();
+        } else {
+            updateCurrentCharacter();
+            updateButtons();
+        }
+        debugTurnState("Enemy turn finished");
     }
     private void updateTargetSelection(float delta) {
-        if (!isEnemyTurn) return;
+        if (!isEnemyTurn || isTargetLocked || isAnyUltimatePlaying()) return;
 
         targetSelectionTimer += delta;
 
         List<Character_BattleStats> aliveTargets = getAliveCharacters();
         if (aliveTargets.isEmpty()) return;
 
-        // If we're past both phases, don't show any target
-        if (targetSelectionTimer >= TARGET_SELECTION_DURATION + TARGET_LOCK_DURATION) {
-            cyclingTarget = null;
-            selectedTarget = null;
-            return;
-        }
-
         // Cycling phase
         if (targetSelectionTimer < TARGET_SELECTION_DURATION) {
-            // Calculate which target to highlight based on time
             int targetIndex = (int)((targetSelectionTimer / targetCycleSpeed) % aliveTargets.size());
             cyclingTarget = aliveTargets.get(targetIndex);
-            isTargetLocked = false;
-        }
-        // Locking phase
-        else if (!isTargetLocked) {
-            // Randomly select final target
-            int randomIndex = (int)(Math.random() * aliveTargets.size());
-            selectedTarget = aliveTargets.get(randomIndex);
-            cyclingTarget = null; // Clear cycling target
-            isTargetLocked = true;
         }
     }
     private List<Character_BattleStats> getAliveCharacters() {
@@ -2015,5 +2161,26 @@ public class BattleClass implements Screen {
 
     public int getRoundCount() {
         return roundCount;
+    }
+    private Vector2 calculateHealPosition(Character_BattleStats character) {
+        float totalCharactersWidth = characters.size() * 300;
+        float currentStartX = (viewport.getWorldWidth() - totalCharactersWidth) / 2;
+
+        if (character instanceof Character_Umbra) {
+            return new Vector2(
+                currentStartX + characters.indexOf("Umbra") * 300 + 125,
+                PLATFORM_Y + 160
+            );
+        } else if (character instanceof Character_Nova) {
+            return new Vector2(
+                currentStartX + characters.indexOf("Nova") * 300 + 125,
+                PLATFORM_Y + 160
+            );
+        } else {
+            return new Vector2(
+                currentStartX + characters.indexOf("Jina") * 300 + 125,
+                PLATFORM_Y + 160
+            );
+        }
     }
 }
