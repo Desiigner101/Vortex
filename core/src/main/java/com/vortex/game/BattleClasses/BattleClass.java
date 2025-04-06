@@ -515,10 +515,13 @@ public class BattleClass implements Screen {
 
         if (currentCharacter instanceof Character_Umbra) {
             umbra.playBasicAttackAnimation();
+            sfx.playSoundEffect("1stSkUmbra.wav", 0.1f);
         }else if (currentCharacter instanceof Character_Nova) {
             nova.playBasicAttackAnimation();
+            sfx.playSoundEffect("1stSkNova.wav", 0.5f);
         } else if (currentCharacter instanceof Character_Jina) {
             jina.playBasicAttackAnimation();
+            sfx.playSoundEffect("1stSkJina.wav", 0.2f);
         }
         debugEnemyHP();
         checkBattleConditions();
@@ -549,8 +552,10 @@ public class BattleClass implements Screen {
         // Play appropriate animation
         if (currentCharacter instanceof Character_Umbra) {
             umbra.playSkillAnimation();
+            sfx.playSoundEffect("2ndSkUmbra.wav", 0.5f);
         } else if (currentCharacter instanceof Character_Nova) {
             nova.playSkillAnimation();
+            sfx.playSoundEffect("2ndSkNova.wav", 0.7f);
         }
         debugEnemyHP();
         checkBattleConditions();
