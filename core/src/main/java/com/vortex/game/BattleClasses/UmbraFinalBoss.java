@@ -10,7 +10,7 @@ public class UmbraFinalBoss implements EnemyClass {
     // Stats
     private int HP = 5000;
     private int maxHP = 5000;
-    private int Atk =  300;
+    private int Atk =  240;
     private String name = "UMBRA";
     private boolean isBoss = true;
     // Animation

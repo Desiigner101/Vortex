@@ -100,6 +100,12 @@ public class BorderedTextBox {
                 if (speaker.equals("Nova") && currentChar != ' ' && soundTimer >= 0.05f) {
                     sfx.playSoundEffect("NovaTalk.wav", 0);
                     soundTimer = 0;
+                }else if (speaker.equals("Jina") && currentChar != ' ' && soundTimer >= 0.05f) {
+                    sfx.playSoundEffect("JinaTalk.wav", 0);
+                    soundTimer = 0;
+                }else if (speaker.equals("Umbra") && currentChar != ' ' && soundTimer >= 0.05f) {
+                    sfx.playSoundEffect("UmbraTalk.wav", 0);
+                    soundTimer = 0;
                 }
 
                 charIndex++;
