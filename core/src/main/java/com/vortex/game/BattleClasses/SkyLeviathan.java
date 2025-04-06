@@ -10,8 +10,8 @@ import com.vortex.SFX.PlayAudio;
 
 public class SkyLeviathan implements EnemyClass {
     // Stats
-    private int HP = 1500;
-    private int maxHP = 1500;
+    private int HP = 1200;
+    private int maxHP = 1200;
     private int Atk = 100;
     private String name = "Sky Leviathan";
     private boolean isBoss = true;

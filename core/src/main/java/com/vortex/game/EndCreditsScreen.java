@@ -25,12 +25,14 @@ public class EndCreditsScreen implements Screen {
     private Music creditsMusic;
     private PlayAudio playAudio;
     private boolean isTransitioning = false;
+    private float totalCreditsHeight;
+    private boolean creditsStarted = false;
 
     public EndCreditsScreen(GameTransitions game) {
         playAudio = new PlayAudio();
         this.game = game;
         this.batch = new SpriteBatch();
-        this.background = new Texture(Gdx.files.internal("Backgrounds/LabMenu_temp.png"));
+        this.background = new Texture(Gdx.files.internal("Backgrounds/EndCredits.png"));
 
         // Initialize fonts
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Poppins-SemiBold.ttf"));
@@ -65,56 +67,70 @@ public class EndCreditsScreen implements Screen {
 
         // Credits text
         credits = new String[] {
-            "VORTEX",
+            "All Rights Reserved",
+            "© 2025 Vortex",
+            "",
+            "Sir Khai 'The Goat' Gumonan",
+            "Supporters",
+            "Testers",
+            "Special Thanks",
+            "",
+            "Kervin Gino M. Sarsonas",
+            "Ashley Igonia",
+            "Story Editor & Supervisor",
+            "",
+            "Michelle Marie P. Habon",
+            "Music Curator",
+            "",
+            "",
+            "Daniel Luis P. Garcia",
+            "Art & Animation Production",
+            "",
+            "Sophia Bianca Aloria",
+            "Logo Editor",
+            "",
+            "Ashley Igonia",
+            "Michelle Marie P. Habon",
+            "Daniel Luis P. Garcia",
+            "Game Designers",
+            "",
+            "Michelle Marie P. Habon",
+            "Ashley Igonia",
+            "Co-Programmers",
+            "",
+            "Sophia Bianca Aloria",
+            "Kervin Gino M. Sarsonas",
+            "Daniel luis P. Garcia",
+            "Lead Programmers",
             "",
             "Game Development Team",
             "",
-            "Lead Programmers",
-            "Daniel luis P. Garcia",
-            "Gino M. Sarsonas",
-            "Sophia Bianca Aloria",
-            "",
-            "Game Design",
-            "Daniel Luis P. Garcia",
-            "Michelle Marie P. Habon",
-            "Ashley Igonia",
-            "",
-            "Art & Animation",
-            "Daniel Luis P. Garcia",
-            "",
-            "",
-            "Sound & Music",
-            "Gino M. Sarsonas",
-            "Michelle Marie P. Habon",
-            "Ashley Igonia",
-            "",
-            "Special Thanks",
-            "Testers",
-            "Supporters",
-            "Sir Khai the Goat Gumonan",
-            "",
-            "© 2025 Vortex",
-            "All Rights Reserved"
+            "VORTEX"
         };
 
         scrollSpeed = 60f;
-        yPosition = Gdx.graphics.getHeight();
+        totalCreditsHeight = calculateTotalCreditsHeight();
+        yPosition = -totalCreditsHeight; // Start below the screen
     }
 
     @Override
     public void show() {
-        yPosition = Gdx.graphics.getHeight();
+        yPosition = -totalCreditsHeight;
         isTransitioning = false;
+        creditsStarted = false;
 
-       playAudio.playMusic("EndCreditMusic.wav");
+        playAudio.playMusic("EndCreditMusic.wav");
     }
 
     @Override
     public void render(float delta) {
         if (isTransitioning) return;
 
-        // Update scroll position
-        yPosition -= scrollSpeed * delta;
+        // Update scroll position - move up until all credits are visible
+        if (yPosition < Gdx.graphics.getHeight()) {
+            yPosition += scrollSpeed * delta;
+            creditsStarted = true;
+        }
 
         // Clear screen
         Gdx.gl.glClearColor(0, 0, 0, 1);
@@ -138,11 +154,13 @@ public class EndCreditsScreen implements Screen {
                 line.equals("Special Thanks");
 
             boolean isTitle = !isMainHeader && (line.equals("Lead Programmers") ||
-                line.equals("Game Design") ||
-                line.equals("Art & Animation") ||
-                line.equals("Sound & Music") ||
-                line.equals("Testers") ||
-                line.equals("Supporters") ||
+                line.equals("Co-Programmers") ||
+                line.equals("Game Designers") ||
+                line.equals("Logo Editor") ||
+                line.equals("Art & Animation Production") ||
+                line.equals("Music Curator") ||
+                line.equals("Story Editor & Supervisor") ||
+                line.equals("Special Thanks") ||
                 line.equals("© 2025 Vortex") ||
                 line.equals("All Rights Reserved"));
 
@@ -155,7 +173,7 @@ public class EndCreditsScreen implements Screen {
         batch.end();
 
         // Check if credits finished or screen was touched
-        if (currentY < -calculateTotalCreditsHeight() || Gdx.input.justTouched()) {
+        if ((creditsStarted && currentY < 0) || Gdx.input.justTouched()) {
             returnToMenu();
         }
     }
@@ -169,8 +187,6 @@ public class EndCreditsScreen implements Screen {
         if (creditsMusic != null && creditsMusic.isPlaying()) {
             creditsMusic.stop();
         }
-
-
 
         // Return to main menu
         game.setScreen(new GameMenu(game));

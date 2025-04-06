@@ -106,3 +106,111 @@ Total Wins: 1
 Total Defeats: 0
 Time Duration: 19 seconds (0.32 minutes)
 --------------------------------
+Game Summary Date: 2025-04-06 21:28:31
+Total Skill Points Used: 7
+Total Wins: 1
+Total Defeats: 0
+Total Time Duration: 35 seconds (0.58 minutes)
+================================
+Game Summary Date: 2025-04-06 21:33:47
+Total Skill Points Used: 27
+Total Wins: 1
+Total Defeats: 0
+Total Time Duration: 14 seconds (0.23 minutes)
+================================
+Game Summary Date: 2025-04-06 21:34:30
+Total Skill Points Used: 11
+Total Wins: 1
+Total Defeats: 0
+Total Time Duration: 24 seconds (0.40 minutes)
+================================
+Game Summary Date: 2025-04-06 21:35:11
+Total Skill Points Used: 10
+Total Wins: 1
+Total Defeats: 0
+Total Time Duration: 32 seconds (0.53 minutes)
+================================
+Game Summary Date: 2025-04-06 21:35:59
+Total Skill Points Used: 28
+Total Wins: 1
+Total Defeats: 0
+Total Time Duration: 48 seconds (0.80 minutes)
+================================
+Game Summary Date: 2025-04-06 21:40:47
+Total Skill Points Used: 17
+Total Wins: 1
+Total Defeats: 0
+Total Time Duration: 58 seconds (0.97 minutes)
+================================
+Game Summary Date: 2025-04-06 21:46:13
+Total Skill Points Used: 28
+Total Wins: 1
+Total Defeats: 0
+Total Time Duration: 93 seconds (1.55 minutes)
+================================
+Game Summary Date: 2025-04-06 21:48:55
+Total Skill Points Used: 4
+Total Wins: 0
+Total Defeats: 1
+Total Time Duration: 32 seconds (0.53 minutes)
+================================
+Game Summary Date: 2025-04-06 21:52:44
+Total Skill Points Used: 49
+Total Wins: 1
+Total Defeats: 0
+Total Time Duration: 57 seconds (0.95 minutes)
+================================
+Game Summary Date: 2025-04-06 21:52:47
+Total Skill Points Used: 49
+Total Wins: 1
+Total Defeats: 0
+Total Time Duration: 0 seconds (0.00 minutes)
+================================
+Game Summary Date: 2025-04-06 21:54:21
+Total Skill Points Used: 11
+Total Wins: 1
+Total Defeats: 0
+Total Time Duration: 7 seconds (0.12 minutes)
+================================
+Game Summary Date: 2025-04-06 21:59:30
+Total Skill Points Used: 28
+Total Wins: 1
+Total Defeats: 0
+Total Time Duration: 10 seconds (0.17 minutes)
+================================
+Game Summary Date: 2025-04-06 22:09:47
+Total Skill Points Used: 46
+Total Wins: 1
+Total Defeats: 0
+Total Time Duration: 10 seconds (0.17 minutes)
+================================
+Game Summary Date: 2025-04-06 22:10:42
+Total Skill Points Used: 26
+Total Wins: 1
+Total Defeats: 0
+Total Time Duration: 6 seconds (0.10 minutes)
+================================
+Game Summary Date: 2025-04-06 22:12:25
+Total Skill Points Used: 35
+Total Wins: 1
+Total Defeats: 0
+Total Time Duration: 9 seconds (0.15 minutes)
+================================
+Game Summary Date: 2025-04-06 22:15:14
+Total Skill Points Used: 43
+Total Wins: 1
+Total Defeats: 0
+Total Time Duration: 7 seconds (0.12 minutes)
+================================
+Game Summary Date: 2025-04-06 22:21:10
+Total Skill Points Used: 50
+Total Wins: 1
+Total Defeats: 0
+Total Time Duration: 17 seconds (0.28 minutes)
+================================
+Game Summary Date: 2025-04-06 22:21:51
+Total Skill Points Used: 6
+Total Wins: 1
+Total Defeats: 0
+Total Time Duration: 31 seconds (0.52 minutes)
+================================

@@ -11,8 +11,8 @@ public class Character_Umbra implements Character_BattleStats {
     private int basicAttackDamage = 80;
     private int skillDamage = 300;
     private int skillCost = 3;
-    private int ultimateDamage = 700;
-    private int ultCooldown = 18;
+    private int ultimateDamage = 680;
+    private int ultCooldown = 10;
     private int currentUltCooldown = 0;
 
     // File paths

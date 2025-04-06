@@ -13,7 +13,7 @@ public class Character_Jina implements Character_BattleStats {
     private int skillDamage = 130;
     private int skillCost = 2;
     private int ultimateDamage = 170;
-    private int ultCooldown = 15;
+    private int ultCooldown = 9;
     private int currentUltCooldown = 0;
     private int HealAmount = 350;
     private PlayAudio sfx = new PlayAudio();

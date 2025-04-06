@@ -12,7 +12,7 @@ public class Character_Nova implements Character_BattleStats {
     private int skillDamage = 200;
     private int skillCost = 1;
     private int ultimateDamage = 400;
-    private int ultCooldown = 10;
+    private int ultCooldown = 6;
     private int currentUltCooldown = 0;
 
     // File paths

@@ -32,14 +32,14 @@ public class GameTransitions extends Game {
         audioManager = new PlayAudio();
         loadSettings();
 
-       //if (!introPlayed) {
-           //introPlayed = true;
-           //this.setScreen(new VideoIntro(this));
-      //} else {
-        // this.setScreen(new GameMenu(this));
-         this.setScreen(new Nyxarion_planetTransition(this));
+       if (!introPlayed) {
+           introPlayed = true;
+           this.setScreen(new VideoIntro(this));
+      } else {
+        this.setScreen(new GameMenu(this));
+         //this.setScreen(new Nyxarion_planetTransition(this));
 
-        //}
+        }
     }
 
     public void loadSettings() {
@@ -118,7 +118,7 @@ public class GameTransitions extends Game {
                 "Nova", "Not after everything I've worked for!", "Sequence1_7", NovaTextColor,
                 "", "But before she could react, a blinding light enveloped her, and in an instant, she was torn from her lab...", "Sequence1_8", WhiteText,
                 "", "... And catapulted into the unknown.", "Sequence1_9", WhiteText,
-            }, () -> {
+            },() -> {
                 this.setScreen(new Xyberion_planetTransition(this));
             });
             setScreen(currentScreen);
@@ -265,7 +265,7 @@ public class GameTransitions extends Game {
                 "", "She wasn’t sure what she had triggered, but before she could react, the world around her shifted.", "XYBERIA_BG", WhiteText,
                 "", "A blinding light engulfed her, and in an instant, she was pulled from Xyberia and flung into another universe.", "XYBERIA_BG", WhiteText
             },() -> {
-                this.setScreen(new Xyberion_planetTransition(this));
+                this.setScreen(new Aetheris_planetTransition(this));
             });
             setScreen(currentScreen);
         }
@@ -352,7 +352,7 @@ public class GameTransitions extends Game {
                         currentScreen = new BattleClass(
                             this, "AETHERIS",
                             new SkyLeviathan(),
-                            true, true, true,
+                            false, true, false,
                             "AETHERIS_BACKGROUND.png", "AETHERIS_TILES.png", "AETHERIS_MUSIC.wav",
                             () -> startNextSequence()
                         );
@@ -510,7 +510,7 @@ public class GameTransitions extends Game {
                 // Narration (portal transition)
                 "", "A brilliant flash engulfs them as Nova, Umbra, and Jina step through the portal. The air shifts—heavy, charged, and unsettling. As the light recedes, an eerie silence fills the space. They now stand on fractured ground, where time and reality seem to collide and shatter endlessly.", "Nova_CharViewBackground", WhiteText
             },() -> {
-                this.setScreen(new Xyberion_planetTransition(this));
+                this.setScreen(new Nyxarion_planetTransition(this));
             });
             setScreen(currentScreen);
         }
