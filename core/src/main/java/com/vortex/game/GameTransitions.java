@@ -271,78 +271,78 @@ public class GameTransitions extends Game {
         else if(sequenceCount == 4) {
             currentScreen = new StoryScene(this, new String[]{
                 // Narration
-                "", "The energy surge faded, and when Nova opened her eyes, she found herself on soft moss under a swirling sky with floating islands and strange creatures.", "Nova_CharViewBackground", WhiteText,
+                "", "The energy surge faded, and when Nova opened her eyes, she found herself on soft moss under a swirling sky with floating islands and strange creatures.", "AT", WhiteText,
 
                 // Nova's dialogue (breathing heavily and shaken)
-                "Nova", "What... wh–where am I?", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "What... wh–where am I?", "AT", NovaTextColor,
 
                 // Narration
-                "", "As she tried to gather her bearings, she spotted a glowing piece of tech in the wreckage. She noticed a small piece of glowing tech.", "Nova_CharViewBackground", WhiteText,
-                "", "She picked it up—it seemed to pulse with power. It wasn’t just any material—it was a key component she needed.", "Nova_CharViewBackground", WhiteText,
+                "", "As she tried to gather her bearings, she spotted a glowing piece of tech in the wreckage. She noticed a small piece of glowing tech.", "AT", WhiteText,
+                "", "She picked it up—it seemed to pulse with power. It wasn’t just any material—it was a key component she needed.", "AT", WhiteText,
 
                 // Nova's dialogue (realizing)
-                "Nova", "Wait... this could be it. This could give me the firepower I need!", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "Wait... this could be it. This could give me the firepower I need!", "AT", NovaTextColor,
 
                 // Narration
-                "", "She slotted the piece into her damaged device. The makeshift gadget hummed to life once more, but this time, it was different.", "Nova_CharViewBackground", WhiteText,
-                "", "A small display flickered on her wrist—Energy Blaster.", "Nova_CharViewBackground", WhiteText,
+                "", "She slotted the piece into her damaged device. The makeshift gadget hummed to life once more, but this time, it was different.", "AT", WhiteText,
+                "", "A small display flickered on her wrist—Energy Blaster.", "AT", WhiteText,
 
                 // Nova's dialogue (surprised, smiling faintly)
-                "Nova", "Woah…Looks like I’ve got an upgrade.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "Woah…Looks like I’ve got an upgrade.", "AT", NovaTextColor,
 
                 // Narration
-                "", "She wiped sweat from her brow, her legs aching from the constant running and fighting from her last battle in Xyberia.", "Nova_CharViewBackground", WhiteText,
-                "", "Her body screamed for rest, but she knew she couldn’t stop now.", "Nova_CharViewBackground", WhiteText,
-                "", "She clutched the Energy Blaster she recently unlocked, feeling a sliver of reassurance.", "Nova_CharViewBackground", WhiteText,
-                "", "She was better equipped for the challenges ahead—even if she was worn down.", "Nova_CharViewBackground", WhiteText,
+                "", "She wiped sweat from her brow, her legs aching from the constant running and fighting from her last battle in Xyberia.", "AT", WhiteText,
+                "", "Her body screamed for rest, but she knew she couldn’t stop now.", "AT", WhiteText,
+                "", "She clutched the Energy Blaster she recently unlocked, feeling a sliver of reassurance.", "AT", WhiteText,
+                "", "She was better equipped for the challenges ahead—even if she was worn down.", "AT", WhiteText,
 
                 // Narration
-                "", "Suddenly, grotesque creatures with jagged limbs appeared out of thin air.", "Nova_CharViewBackground", WhiteText,
+                "", "Suddenly, grotesque creatures with jagged limbs appeared out of thin air.", "AT", WhiteText,
 
                 // Nova's dialogue (gritting her teeth, weary)
-                "Nova", "Of course... more of you. Couldn’t have a break, could I?", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "Of course... more of you. Couldn’t have a break, could I?", "AT", NovaTextColor,
 
                 // Narration
-                "", "She looked up, eyes widening as a massive Sky Leviathan circled overhead, casting a dark shadow over the island.", "Nova_CharViewBackground", WhiteText,
+                "", "She looked up, eyes widening as a massive Sky Leviathan circled overhead, casting a dark shadow over the island.", "AT", WhiteText,
 
                 // Sky Leviathan's dialogue (booming from above)
-                "Sky Leviathan", "Intruder! You dare trespass in my domain? You will pay for your arrogance!", "Nova_CharViewBackground", RedText,
+                "Sky Leviathan", "Intruder! You dare trespass in my domain? You will pay for your arrogance!", "AT", RedText,
 
                 // Narration
-                "", "Nova stood tall despite her exhaustion. Her muscles burned, but her resolve was as unyielding as steel.", "Nova_CharViewBackground", WhiteText,
+                "", "Nova stood tall despite her exhaustion. Her muscles burned, but her resolve was as unyielding as steel.", "AT", WhiteText,
 
                 // Nova's dialogue (defiant, with a slight smirk)
-                "Nova", "Figures... A giant sky monster. Fine, let’s get this over with.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "Figures... A giant sky monster. Fine, let’s get this over with.", "AT", NovaTextColor,
 
                 // Narration
-                "", "With a deafening roar, the Sky Leviathan dove toward her. Winds howled in its wake, tearing at the air. Nova dove to the side, landing hard but keeping her footing.", "Nova_CharViewBackground", WhiteText,
+                "", "With a deafening roar, the Sky Leviathan dove toward her. Winds howled in its wake, tearing at the air. Nova dove to the side, landing hard but keeping her footing.", "AT", WhiteText,
 
                 // Sky Leviathan's dialogue (snarling)
-                "Sky Leviathan", "You won’t last! I will rip you apart, mortal!", "Nova_CharViewBackground", RedText,
+                "Sky Leviathan", "You won’t last! I will rip you apart, mortal!", "AT", RedText,
 
                 // Nova's dialogue (defiant)
-                "Nova", "I may be tired, but that doesn’t mean I’m going down easy. Bring it on!", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "I may be tired, but that doesn’t mean I’m going down easy. Bring it on!", "AT", NovaTextColor,
 
                 // Sky Leviathan's dialogue
-                "Sky Leviathan", "I will crush you beneath my wings, mortal! Prepare to be obliterated!", "Nova_CharViewBackground", RedText,
+                "Sky Leviathan", "I will crush you beneath my wings, mortal! Prepare to be obliterated!", "AT", RedText,
 
                 // Narration
-                "", "Nova felt the weight of the creature’s presence, but she refused to yield. Her pulse quickened, and despite the exhaustion that weighed down on her, she steeled herself for the battle ahead.", "Nova_CharViewBackground", WhiteText,
+                "", "Nova felt the weight of the creature’s presence, but she refused to yield. Her pulse quickened, and despite the exhaustion that weighed down on her, she steeled herself for the battle ahead.", "AT", WhiteText,
 
                 // Nova's dialogue
-                "Nova", "Just one more fight… I–I can do this. I’ve come too far to quit now.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "Just one more fight… I–I can do this. I’ve come too far to quit now.", "AT", NovaTextColor,
 
                 // Narration
-                "", "The Sky Leviathan roars and charges, its massive claws raking the ground. Nova rolls to the side, narrowly avoiding the blow, and counters with an Energy Punch to its side. The impact sends a shockwave through its scales, but the creature barely flinches.", "Nova_CharViewBackground", WhiteText,
+                "", "The Sky Leviathan roars and charges, its massive claws raking the ground. Nova rolls to the side, narrowly avoiding the blow, and counters with an Energy Punch to its side. The impact sends a shockwave through its scales, but the creature barely flinches.", "AT", WhiteText,
 
                 // Sky Leviathan's dialogue
-                "Sky Leviathan", "You may have fought and survived, but no mortal can defeat the skies. I'll make sure your struggle ends in the dust of this realm. You will be forgotten.", "Nova_CharViewBackground", RedText,
+                "Sky Leviathan", "You may have fought and survived, but no mortal can defeat the skies. I'll make sure your struggle ends in the dust of this realm. You will be forgotten.", "AT", RedText,
 
                 // Nova's dialogue
-                "Nova", "You’re right about one thing—this ends here. But it’s not my struggle that’ll be forgotten. It’s you.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "You’re right about one thing—this ends here. But it’s not my struggle that’ll be forgotten. It’s you.", "AT", NovaTextColor,
 
                 // Narration
-                "", "The Leviathan's eyes burned with fury at Nova's confidence. With a deafening roar, it unleashed a fierce gust of wind. Nova dodged swiftly, determination blazing in her eyes. The battle had begun.", "Nova_CharViewBackground", WhiteText
+                "", "The Leviathan's eyes burned with fury at Nova's confidence. With a deafening roar, it unleashed a fierce gust of wind. Nova dodged swiftly, determination blazing in her eyes. The battle had begun.", "AT", WhiteText
             },
                 () -> {
                     Runnable createBattle1 = () -> {
