@@ -2,6 +2,7 @@ package WorldTransitions;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -109,7 +110,7 @@ public class Nyxarion_planetTransition implements Screen {
     private final String worldDescription = "Nyxarion is a terrifying void realm where shadows twist reality and the land crumbles under the weight of corrupted magic. " +
         "Here, darkness feeds on memory and fear, warping the minds of those who linger too long. " +
         "The terrain constantly shifts, hiding ancient ruins and lurking horrors in its folds. " +
-        "It is a collapsing domain of forgotten power, where survival means resisting the void—and your own unraveling sanity.";
+        "It is a collapsing domain of forgotten power, where survival means resisting the void and your own unraveling sanity.";
     private final GlyphLayout worldTitleLayout = new GlyphLayout();
     private final GlyphLayout worldSubtitleLayout = new GlyphLayout();
     private final GlyphLayout worldDescLayout = new GlyphLayout();
@@ -120,6 +121,8 @@ public class Nyxarion_planetTransition implements Screen {
     private final BitmapFont menuFont;
     private float panelWidth = 950;
     private float panelHeight = 600;
+
+    private Sound introSound;
 
     // Particle class for effects
     private static class Particle {
@@ -132,6 +135,7 @@ public class Nyxarion_planetTransition implements Screen {
     }
 
     public  Nyxarion_planetTransition(GameTransitions game) {
+        this.introSound = Gdx.audio.newSound(Gdx.files.internal("assets/SoundEffectsFolder/nyxarionMusic.wav"));
         this.game = game;
         this.batch = new SpriteBatch();
         this.shapeRenderer = new ShapeRenderer();
@@ -153,6 +157,7 @@ public class Nyxarion_planetTransition implements Screen {
 
         createButtons();
         calculateTextLayouts();
+        introSound.play();
     }
 
     private Texture createScanlineTexture() {
@@ -390,7 +395,6 @@ public class Nyxarion_planetTransition implements Screen {
                         fadeOutAllElements(new Runnable() {
                             @Override
                             public void run() {
-                                // Transition to DisplayCharacters screen
                                 game.startNextSequence();
                                 dispose();
                             }
@@ -852,6 +856,7 @@ public class Nyxarion_planetTransition implements Screen {
         shapeRenderer.dispose();
         stage.dispose();
         skin.dispose();
+        introSound.dispose();
     }
 
     @Override

@@ -2,6 +2,7 @@ package WorldTransitions;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -119,6 +120,9 @@ public class Xyberion_planetTransition implements Screen {
     private float panelWidth = 950;
     private float panelHeight = 600;
 
+    private Sound introSound;
+
+
     // Particle class for effects
     private static class Particle {
         float x, y;
@@ -130,6 +134,7 @@ public class Xyberion_planetTransition implements Screen {
     }
 
     public Xyberion_planetTransition(GameTransitions game) {
+        this.introSound = Gdx.audio.newSound(Gdx.files.internal("assets/SoundEffectsFolder/xyberionMusic.wav"));
         this.game = game;
         this.batch = new SpriteBatch();
         this.shapeRenderer = new ShapeRenderer();
@@ -151,6 +156,7 @@ public class Xyberion_planetTransition implements Screen {
 
         createButtons();
         calculateTextLayouts();
+        introSound.play();
     }
 
     private Texture createScanlineTexture() {
@@ -388,7 +394,6 @@ public class Xyberion_planetTransition implements Screen {
                         fadeOutAllElements(new Runnable() {
                             @Override
                             public void run() {
-                                // Transition to DisplayCharacters screen
                                 game.startNextSequence();
                                 dispose();
                             }
@@ -848,6 +853,7 @@ public class Xyberion_planetTransition implements Screen {
         shapeRenderer.dispose();
         stage.dispose();
         skin.dispose();
+        introSound.dispose();
     }
 
     @Override

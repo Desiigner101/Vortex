@@ -2,6 +2,7 @@ package WorldTransitions;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -124,6 +125,8 @@ public class Aetheris_planetTransition implements Screen {
     private float panelWidth = 950;
     private float panelHeight = 600;
 
+    private Sound introSound;
+
     // Particle class for effects
     private static class Particle {
         float x, y;
@@ -135,6 +138,7 @@ public class Aetheris_planetTransition implements Screen {
     }
 
     public Aetheris_planetTransition(GameTransitions game) {
+        this.introSound = Gdx.audio.newSound(Gdx.files.internal("assets/SoundEffectsFolder/aetherisMusic.wav"));
         this.game = game;
         this.batch = new SpriteBatch();
         this.shapeRenderer = new ShapeRenderer();
@@ -156,6 +160,7 @@ public class Aetheris_planetTransition implements Screen {
 
         createButtons();
         calculateTextLayouts();
+        introSound.play();
     }
 
     private Texture createScanlineTexture() {
@@ -843,6 +848,7 @@ public class Aetheris_planetTransition implements Screen {
         shapeRenderer.dispose();
         stage.dispose();
         skin.dispose();
+        introSound.dispose();
     }
 
     @Override

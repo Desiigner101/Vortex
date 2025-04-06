@@ -587,9 +587,11 @@ public class DisplayCharacters implements Screen {
            font.draw(batch, "JINA", textXx, textYy);
            font.getData().setScale(1.5f);
            float descriptionY = textYy - 50;
-           font.draw(batch, "A logical thinker with stubborn", textXx, descriptionY - 30);
-           font.draw(batch, "tendencies, struggles with unclear", textXx, descriptionY - 60);
-           font.draw(batch, "motives of allies.", textXx, descriptionY - 90);
+           font.draw(batch, "A battle-hardened mercenary", textXx, descriptionY - 30);
+           font.draw(batch, "Jina Melody Known for her calculated", textXx, descriptionY - 60);
+           font.draw(batch, "strategies and unwavering focus", textXx, descriptionY - 90);
+
+
 
            // Load the image (Make sure displayImage is initialized in create())
            float displayImageX = 90;  // Adjust X position
@@ -671,12 +673,6 @@ public class DisplayCharacters implements Screen {
                     "Ultimate Attack: 250",
                     "Cooldown (CD): 3 turns."
                 },
-                {
-                    "Character Info",
-                    "Name: Kaia \"Nova\" Novere",
-                    "Background: A logical thinker with stubborn tendencies.",
-                    "Struggles with unclear motives of allies."
-                }
             };
 
             for (String line : skillDescriptions[selectedSkill]) {

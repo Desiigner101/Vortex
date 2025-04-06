@@ -36,9 +36,7 @@ public class GameTransitions extends Game {
            introPlayed = true;
            this.setScreen(new VideoIntro(this));
       } else {
-        this.setScreen(new GameMenu(this));
-         //this.setScreen(new Nyxarion_planetTransition(this));
-
+         this.setScreen(new GameMenu(this));
         }
     }
 
@@ -118,7 +116,7 @@ public class GameTransitions extends Game {
                 "Nova", "Not after everything I've worked for!", "Sequence1_7", NovaTextColor,
                 "", "But before she could react, a blinding light enveloped her, and in an instant, she was torn from her lab...", "Sequence1_8", WhiteText,
                 "", "... And catapulted into the unknown.", "Sequence1_9", WhiteText,
-            },() -> {
+            }, () -> {
                 this.setScreen(new Xyberion_planetTransition(this));
             });
             setScreen(currentScreen);
@@ -352,7 +350,7 @@ public class GameTransitions extends Game {
                         currentScreen = new BattleClass(
                             this, "AETHERIS",
                             new SkyLeviathan(),
-                            false, true, false,
+                            true, true, true,
                             "AETHERIS_BACKGROUND.png", "AETHERIS_TILES.png", "AETHERIS_MUSIC.wav",
                             () -> startNextSequence()
                         );
