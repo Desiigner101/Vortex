@@ -21,7 +21,7 @@ public class EnergyWyrm implements EnemyClass {
     private Animation<TextureRegion> currentAnimation;
 
     // Animation parameters
-    private static final int IDLE_FRAME_COUNT = 15;
+    private static final int IDLE_FRAME_COUNT = 27;
     private static final float IDLE_FRAME_DURATION = 0.1f; // 0.1s per frame = 1.5s total animation
 
     public EnergyWyrm() {
@@ -33,11 +33,11 @@ public class EnergyWyrm implements EnemyClass {
     private void loadAnimations() {
         Texture idleSheet = new Texture(Gdx.files.internal("Enemies/EnergyWyrm.png"));
         TextureRegion[][] frames = TextureRegion.split(idleSheet,
-            idleSheet.getWidth()/15, // 15 frames wide
+            idleSheet.getWidth()/27, // 15 frames wide
             idleSheet.getHeight());
 
-        TextureRegion[] idleFrames = new TextureRegion[15];
-        System.arraycopy(frames[0], 0, idleFrames, 0, 15);
+        TextureRegion[] idleFrames = new TextureRegion[IDLE_FRAME_COUNT];
+        System.arraycopy(frames[0], 0, idleFrames, 0, IDLE_FRAME_COUNT);
 
         idleAnimation = new Animation<>(0.1f, idleFrames);
         idleAnimation.setPlayMode(Animation.PlayMode.LOOP);

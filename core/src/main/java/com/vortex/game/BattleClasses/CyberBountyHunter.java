@@ -15,13 +15,13 @@ public class CyberBountyHunter implements EnemyClass {
     private boolean isBoss = false;
 
     // Animation
-    private final String idleAnimationPath = "Enemies/CyberBountyHunter.png";
+    private final String idleAnimationPath = "Enemies/CyberBountyHunters.png";
     private Animation<TextureRegion> idleAnimation;
     private float stateTime = 0;
     private Animation<TextureRegion> currentAnimation;
 
     // Animation parameters
-    private static final int IDLE_FRAME_COUNT = 15;
+    private static final int IDLE_FRAME_COUNT = 11;
     private static final float IDLE_FRAME_DURATION = 0.1f;
 
     public CyberBountyHunter() {
@@ -33,7 +33,7 @@ public class CyberBountyHunter implements EnemyClass {
     private void loadAnimations() {
         Texture idleSheet = new Texture(Gdx.files.internal(idleAnimationPath));
         TextureRegion[][] frames = TextureRegion.split(idleSheet,
-            idleSheet.getWidth()/15,
+            idleSheet.getWidth()/11,
             idleSheet.getHeight());
 
         TextureRegion[] idleFrames = new TextureRegion[IDLE_FRAME_COUNT];

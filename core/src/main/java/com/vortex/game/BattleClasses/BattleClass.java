@@ -217,6 +217,28 @@ public class BattleClass implements Screen {
     public BattleClass(GameTransitions game,String universeName,EnemyClass enemy, boolean hasUmbra, boolean hasNova, boolean hasJina,
                        String background, String roadTile, String musicFile, Runnable onBattleComplete) {
         //new
+        if(enemy.getName().equals("Cyber Bounty Hunter")){
+            enemyWidth = 900f;  // Drawing width
+            enemyHeight = 900f;
+            enemyX = (1600 - enemyWidth) / 2f + -25;;  // X position on screen
+            enemyY = (900 - enemyHeight) / 2f + 27f;
+        }else if(enemy.getName().equals("Sky Leviathan")){
+            enemyWidth = 1100f;  // Drawing width
+            enemyHeight = 900f;
+            enemyX = (1600 - enemyWidth) / 2f;;  // X position on screen
+            enemyY = (900 - enemyHeight) / 2f + 70f;
+        }else if(enemy.getName().equals("Energy Wyrm")){
+            enemyWidth = 900f;  // Drawing width
+            enemyHeight = 900f;
+            enemyX = (1600 - enemyWidth) / 2f;;  // X position on screen
+            enemyY = (900 - enemyHeight) / 2f + 70f;
+        }else if(enemy.getName().equals("UMBRA")){
+            enemyWidth = 350f;  // Drawing width
+            enemyHeight = 390f;
+            enemyX = (1600 - enemyWidth) / 2f;;  // X position on screen
+            enemyY = (900 - enemyHeight) / 2f + 180f;
+        }
+
         FileHandler.startMatchTimer();
         this.game = game;
         this.sfx = game.getAudioManager();
@@ -2091,7 +2113,7 @@ public class BattleClass implements Screen {
                         roundCount // Add round count here
                     ));
                 }
-            }, 3.75f);
+            }, .75f);
             return;
         }
 
@@ -2128,7 +2150,7 @@ public class BattleClass implements Screen {
                         0 // Pass 0 for defeat (won't be shown anyway)
                     ));
                 }
-            }, 3.75f);
+            }, .75f);
         }
     }
     private void debugTurnState(String event) {

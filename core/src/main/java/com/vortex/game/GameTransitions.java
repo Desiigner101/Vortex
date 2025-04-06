@@ -5,8 +5,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.Preferences;
 import com.vortex.SFX.PlayAudio;
-import com.vortex.game.BattleClasses.BattleClass;
-import com.vortex.game.BattleClasses.TestBossClass;
+import com.vortex.game.BattleClasses.*;
 
 public class GameTransitions extends Game {
     private static boolean introPlayed = false;
@@ -30,13 +29,13 @@ public class GameTransitions extends Game {
         audioManager = new PlayAudio();
         loadSettings();
 
-       if (!introPlayed) {
-           introPlayed = true;
-           this.setScreen(new VideoIntro(this));
-      } else {
+       //if (!introPlayed) {
+           //introPlayed = true;
+           //this.setScreen(new VideoIntro(this));
+      //} else {
          this.setScreen(new GameMenu(this));
          //this.setScreen(new WorldTransitions(this));
-        }
+        //}
     }
 
     public void loadSettings() {
@@ -168,7 +167,7 @@ public class GameTransitions extends Game {
                 Runnable createBattle1 = () -> {
                     currentScreen = new BattleClass(
                         this, "XYBERIA",
-                        new TestBossClass(),
+                        new CyberBountyHunter(),
                         false, true, false,
                         "XYBERIA_BACKGROUND.png", "RoadTile.png", "XYBERIA_MUSIC.wav",
                         () -> startNextSequence()
@@ -320,7 +319,7 @@ public class GameTransitions extends Game {
                     Runnable createBattle1 = () -> {
                         currentScreen = new BattleClass(
                             this, "AETHERIS",
-                            new TestBossClass(),
+                            new SkyLeviathan(),
                             true, true, true,
                             "AETHERIS_BACKGROUND.png", "AETHERIS_TILES.png", "AETHERIS_MUSIC.wav",
                             () -> startNextSequence()
@@ -357,7 +356,7 @@ public class GameTransitions extends Game {
                     Runnable createBattle1 = () -> {
                         currentScreen = new BattleClass(
                             this, "AETHERIS",
-                            new TestBossClass(),
+                            new SkyLeviathan(),
                             true, true, true,
                             "AETHERIS_BACKGROUND.png", "AETHERIS_TILES.png", "AETHERIS_MUSIC.wav",
                             () -> startNextSequence()
@@ -403,7 +402,7 @@ public class GameTransitions extends Game {
                     Runnable createBattle1 = () -> {
                         currentScreen = new BattleClass(
                             this, "AETHERIS",
-                            new TestBossClass(),
+                            new SkyLeviathan(),
                             true, true, true,
                             "AETHERIS_BACKGROUND.png", "AETHERIS_TILES.png", "AETHERIS_MUSIC.wav",
                             () -> startNextSequence()
@@ -645,7 +644,7 @@ public class GameTransitions extends Game {
                     Runnable createBattle1 = () -> {
                         currentScreen = new BattleClass(
                             this, "NYXARION",
-                            new TestBossClass(),
+                            new VoidSentinel(),
                             true, true, true,
                             "NYXARION_BACKGROUND.png", "NYXARION_TILE.png", "NYXARION_MUSIC.wav",
                             () -> startNextSequence()
@@ -736,7 +735,7 @@ public class GameTransitions extends Game {
                     Runnable createBattle1 = () -> {
                         currentScreen = new BattleClass(
                             this, "NYXARION",
-                            new TestBossClass(),
+                            new EnergyWyrm(),
                             true, true, true,
                             "NYXARION_BACKGROUND.png", "NYXARION_TILE.png", "NYXARION_MUSIC.wav",
                             () -> startNextSequence()
@@ -1022,7 +1021,7 @@ public class GameTransitions extends Game {
                     Runnable createBattle1 = () -> {
                         currentScreen = new BattleClass(
                             this, "NYXARION",
-                            new TestBossClass(),
+                            new UmbraFinalBoss(),
                             true, true, true,
                             "NYXARION_BACKGROUND.png", "NYXARION_TILE.png", "NYXARION_MUSIC.wav",
                             () -> {

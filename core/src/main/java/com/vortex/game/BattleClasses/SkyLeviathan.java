@@ -4,25 +4,24 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.vortex.SFX.PlayAudio;
 
 public class SkyLeviathan implements EnemyClass {
     // Stats
     private int HP = 1500;
     private int maxHP = 1500;
-    private int Atk = 100 ;
+    private int Atk = 100;
     private String name = "Sky Leviathan";
     private boolean isBoss = true;
+
     // Animation
-    private final String idleAnimationPath = "Enemies/SkyLeviathan.png";
-    private Texture idleSheet;
+    private static final int FRAME_COUNT = 31;
+    private static final float FRAME_DURATION = 0.1f;
     private Animation<TextureRegion> idleAnimation;
     private float stateTime = 0;
     private Animation<TextureRegion> currentAnimation;
-
-    // Animation parameters
-    private static final int IDLE_FRAME_COUNT = 15;
-    private static final float IDLE_FRAME_DURATION = 0.1f; // 0.1s per frame = 1.5s total animation
 
     public SkyLeviathan() {
         loadAnimations();
@@ -31,15 +30,22 @@ public class SkyLeviathan implements EnemyClass {
     }
 
     private void loadAnimations() {
-        Texture idleSheet = new Texture(Gdx.files.internal("Enemies/SkyLeviathan.png"));
-        TextureRegion[][] frames = TextureRegion.split(idleSheet,
-            idleSheet.getWidth()/15, // 15 frames wide
-            idleSheet.getHeight());
+        Array<TextureRegion> idleFrames = new Array<TextureRegion>();
 
-        TextureRegion[] idleFrames = new TextureRegion[15];
-        System.arraycopy(frames[0], 0, idleFrames, 0, 15);
+        for (int i = 1; i <= FRAME_COUNT; i++) {
+            String framePath = String.format("Enemies/SkyLeviathanFrames/SkyLeviathan%d.png", i);
+            try {
+                Texture frameTexture = new Texture(Gdx.files.internal(framePath));
+                idleFrames.add(new TextureRegion(frameTexture));
+            } catch (GdxRuntimeException e) {
+                Gdx.app.error("SkyLeviathan", "Failed to load frame: " + framePath, e);
+                // Fallback - create an empty texture if loading fails
+                Texture fallbackTexture = new Texture(1, 1, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
+                idleFrames.add(new TextureRegion(fallbackTexture));
+            }
+        }
 
-        idleAnimation = new Animation<>(0.1f, idleFrames);
+        idleAnimation = new Animation<>(FRAME_DURATION, idleFrames);
         idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
     }
 
@@ -90,11 +96,14 @@ public class SkyLeviathan implements EnemyClass {
 
     @Override
     public String getIdleAnimation() {
-        return idleAnimationPath;
+        return "Enemies/SkyLeviathan1.png"; // Returns path to first frame
     }
 
     @Override
     public void dispose() {
-        idleAnimation.getKeyFrames()[0].getTexture().dispose();
+        // Dispose all textures in the animation
+        for (TextureRegion frame : idleAnimation.getKeyFrames()) {
+            frame.getTexture().dispose();
+        }
     }
 }
