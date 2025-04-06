@@ -339,7 +339,7 @@ public class GameTransitions extends Game {
                 "Sky Leviathan", "You may have fought and survived, but no mortal can defeat the skies. I'll make sure your struggle ends in the dust of this realm. You will be forgotten.", "Nova_CharViewBackground", RedText,
 
                 // Nova's dialogue
-                "Nova", "You may have fought and survived, but no mortal can defeat the skies. I'll make sure your struggle ends in the dust of this realm. You will be forgotten.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "You’re right about one thing—this ends here. But it’s not my struggle that’ll be forgotten. It’s you.", "Nova_CharViewBackground", NovaTextColor,
 
                 // Narration
                 "", "The Leviathan's eyes burned with fury at Nova's confidence. With a deafening roar, it unleashed a fierce gust of wind. Nova dodged swiftly, determination blazing in her eyes. The battle had begun.", "Nova_CharViewBackground", WhiteText
