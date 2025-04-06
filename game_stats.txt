@@ -1,0 +1,186 @@
+Match Date: 2025-04-01 15:11:21
+Total Skill Points Used: 13
+Total Wins: 0
+Total Defeats: 1
+Time Duration (seconds): 0
+----------------------------------
+Match Date: 2025-04-01 15:39:33
+Total Skill Points Used: 15
+Total Wins: 0
+Total Defeats: 1
+Time Duration (seconds): 0
+----------------------------------
+Match Date: 2025-04-01 15:41:53
+Total Skill Points Used: 50
+Total Wins: 0
+Total Defeats: 1
+Time Duration (seconds): 0
+----------------------------------
+Match Date: 2025-04-01 15:42:14
+Total Skill Points Used: 37
+Total Wins: 1
+Total Defeats: 0
+Time Duration (seconds): 0
+----------------------------------
+Match Date: 2025-04-01 15:43:25
+Total Skill Points Used: 18
+Total Wins: 0
+Total Defeats: 1
+Time Duration (seconds): 0
+----------------------------------
+Match Date: 2025-04-01 15:44:33
+Total Skill Points Used: 44
+Total Wins: 0
+Total Defeats: 1
+Time Duration (seconds): 0
+----------------------------------
+Match Date: 2025-04-01 15:45:22
+Total Skill Points Used: 18
+Total Wins: 0
+Total Defeats: 1
+Time Duration (seconds): 0
+----------------------------------
+Match Date: 2025-04-01 15:46:03
+Total Skill Points Used: 28
+Total Wins: 0
+Total Defeats: 1
+Time Duration (seconds): 0
+----------------------------------
+Match Date: 2025-04-01 15:54:26
+Total Skill Points Used: 29
+Total Wins: 0
+Total Defeats: 1
+Time Duration (seconds): 0
+----------------------------------
+Match Date: 2025-04-05 13:39:52
+Total Skill Points Used: 31
+Total Wins: 1
+Total Defeats: 0
+Time Duration: 165 seconds (2.75 minutes)
+--------------------------------
+Match Date: 2025-04-05 13:42:19
+Total Skill Points Used: 43
+Total Wins: 1
+Total Defeats: 0
+Time Duration: 89 seconds (1.48 minutes)
+--------------------------------
+Match Date: 2025-04-05 13:44:50
+Total Skill Points Used: 17
+Total Wins: 1
+Total Defeats: 0
+Time Duration: 120 seconds (2.00 minutes)
+--------------------------------
+Match Date: 2025-04-05 14:11:44
+Total Skill Points Used: 28
+Total Wins: 1
+Total Defeats: 0
+Time Duration: 104 seconds (1.73 minutes)
+--------------------------------
+Match Date: 2025-04-05 14:13:00
+Total Skill Points Used: 38
+Total Wins: 1
+Total Defeats: 0
+Time Duration: 74 seconds (1.23 minutes)
+--------------------------------
+Match Date: 2025-04-05 14:15:50
+Total Skill Points Used: 38
+Total Wins: 1
+Total Defeats: 0
+Time Duration: 168 seconds (2.80 minutes)
+--------------------------------
+Match Date: 2025-04-05 14:21:07
+Total Skill Points Used: 17
+Total Wins: 1
+Total Defeats: 0
+Time Duration: 93 seconds (1.55 minutes)
+--------------------------------
+Match Date: 2025-04-05 16:23:44
+Total Skill Points Used: 12
+Total Wins: 1
+Total Defeats: 0
+Time Duration: 44 seconds (0.73 minutes)
+--------------------------------
+Match Date: 2025-04-05 16:24:57
+Total Skill Points Used: 38
+Total Wins: 1
+Total Defeats: 0
+Time Duration: 70 seconds (1.17 minutes)
+--------------------------------
+Match Date: 2025-04-05 16:32:36
+Total Skill Points Used: 46
+Total Wins: 1
+Total Defeats: 0
+Time Duration: 79 seconds (1.32 minutes)
+--------------------------------
+Match Date: 2025-04-05 16:34:04
+Total Skill Points Used: 23
+Total Wins: 1
+Total Defeats: 0
+Time Duration: 86 seconds (1.43 minutes)
+--------------------------------
+Match Date: 2025-04-05 16:37:42
+Total Skill Points Used: 38
+Total Wins: 1
+Total Defeats: 0
+Time Duration: 217 seconds (3.62 minutes)
+--------------------------------
+Match Date: 2025-04-05 16:38:37
+Total Skill Points Used: 39
+Total Wins: 1
+Total Defeats: 0
+Time Duration: 54 seconds (0.90 minutes)
+--------------------------------
+Match Date: 2025-04-05 16:45:00
+Total Skill Points Used: 35
+Total Wins: 1
+Total Defeats: 0
+Time Duration: 76 seconds (1.27 minutes)
+--------------------------------
+Match Date: 2025-04-05 16:46:06
+Total Skill Points Used: 18
+Total Wins: 1
+Total Defeats: 0
+Time Duration: 64 seconds (1.07 minutes)
+--------------------------------
+Match Date: 2025-04-05 17:06:43
+Total Skill Points Used: 48
+Total Wins: 1
+Total Defeats: 0
+Time Duration: 11 seconds (0.18 minutes)
+--------------------------------
+Match Date: 2025-04-06 07:33:24
+Total Skill Points Used: 44
+Total Wins: 1
+Total Defeats: 0
+Time Duration: 47 seconds (0.78 minutes)
+--------------------------------
+Match Date: 2025-04-06 10:36:47
+Total Skill Points Used: 12
+Total Wins: 1
+Total Defeats: 0
+Time Duration: 186 seconds (3.10 minutes)
+--------------------------------
+Match Date: 2025-04-06 12:36:58
+Total Skill Points Used: 45
+Total Wins: 1
+Total Defeats: 0
+Time Duration: 116 seconds (1.93 minutes)
+--------------------------------
+Match Date: 2025-04-06 12:44:19
+Total Skill Points Used: 45
+Total Wins: 1
+Total Defeats: 0
+Time Duration: 137 seconds (2.28 minutes)
+--------------------------------
+Match Date: 2025-04-06 15:53:35
+Total Skill Points Used: 9
+Total Wins: 0
+Total Defeats: 1
+Time Duration: 43 seconds (0.72 minutes)
+--------------------------------
+Match Date: 2025-04-06 17:39:30
+Total Skill Points Used: 35
+Total Wins: 1
+Total Defeats: 0
+Time Duration: 27 seconds (0.45 minutes)
+--------------------------------
