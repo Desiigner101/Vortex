@@ -63,8 +63,10 @@ public class BattleResultScreen implements Screen {
         "I need to rethink my strategy..."
     };
 
-    // new: Variables for tracking skill points used
+    // Variables for tracking overall game stats
     private int totalSkillPointsUsed = 0;
+    private int totalWins = 0;
+    private int totalDefeats = 0;
 
     public BattleResultScreen(GameTransitions game, boolean isVictory, String backgroundPath,
                               String musicFile, Runnable onContinueAction,
@@ -77,7 +79,10 @@ public class BattleResultScreen implements Screen {
         this.onRetryAction = onRetryAction;
         this.roundCount = roundCount;
 
-        FileHandler.startMatchTimer(); // new: Start match timer when the result screen is initialized
+        // Start match timer only once
+        if (totalWins == 0 && totalDefeats == 0) {
+            FileHandler.startGameTimer(); // Start match timer when the result screen is initialized
+        }
     }
 
 
@@ -139,12 +144,16 @@ public class BattleResultScreen implements Screen {
                 resultMessage = defeatMessages[random.nextInt(defeatMessages.length)];
             }
 
-            // new: Simulating skill points used (replace this with actual logic)
-            totalSkillPointsUsed = random.nextInt(50) + 1; // Random skill points between 1-50
+            // Simulate skill points used (replace this with actual logic)
+            int skillPointsUsed = random.nextInt(50) + 1;
 
-            // new: Save match stats to file
-            int wins = isVictory ? 1 : 0;
-            int defeats = isVictory ? 0 : 1;
+            // Update overall game stats
+            totalSkillPointsUsed += skillPointsUsed;
+            if (isVictory) {
+                totalWins++;
+            } else {
+                totalDefeats++;
+            }
 
             // Create button style with the new font
             TextButton.TextButtonStyle buttonStyle = new TextButton.TextButtonStyle();
@@ -205,8 +214,12 @@ public class BattleResultScreen implements Screen {
                         } else {
                             onRetryAction.run();
                         }
-                        // **Call saveStats() only once when the button is clicked**:
-                        FileHandler.saveStats(totalSkillPointsUsed, wins, defeats);  // Moved here to ensure only one call
+                        // Save match stats before calling saveFinalGameStats
+                        FileHandler.addMatchStats(skillPointsUsed, isVictory);
+
+                        // After adding the match stats, save the final stats
+                        FileHandler.saveFinalGameStats(); // Save game stats to the file
+
                     } catch (Exception e) {
                         Gdx.app.error("ButtonClick", "Error handling button click", e);
                     }
@@ -214,9 +227,6 @@ public class BattleResultScreen implements Screen {
             });
 
             stage.addActor(actionButton);
-
-            // new: Simulating skill points used (replace this with actual logic)
-            totalSkillPointsUsed = random.nextInt(50) + 1;
 
         } catch (Exception e) {
             Gdx.app.error("BattleResultScreen", "Error in show()", e);

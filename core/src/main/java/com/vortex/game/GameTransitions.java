@@ -293,7 +293,6 @@ public class GameTransitions extends Game {
                 "", "She wiped sweat from her brow, her legs aching from the constant running and fighting from her last battle in Xyberia.", "Nova_CharViewBackground", WhiteText,
                 "", "Her body screamed for rest, but she knew she couldn’t stop now.", "Nova_CharViewBackground", WhiteText,
                 "", "She clutched the Energy Blaster she recently unlocked, feeling a sliver of reassurance.", "Nova_CharViewBackground", WhiteText,
-                "", "Along with it, she’d gained another skill—the Energy Punch.", "Nova_CharViewBackground", WhiteText,
                 "", "She was better equipped for the challenges ahead—even if she was worn down.", "Nova_CharViewBackground", WhiteText,
 
                 // Narration
@@ -306,97 +305,43 @@ public class GameTransitions extends Game {
                 "", "She looked up, eyes widening as a massive Sky Leviathan circled overhead, casting a dark shadow over the island.", "Nova_CharViewBackground", WhiteText,
 
                 // Sky Leviathan's dialogue (booming from above)
-                "Sky Leviathan", "Intruder! You will pay for entering our domain!", "Nova_CharViewBackground", RedText,
+                "Sky Leviathan", "Intruder! You dare trespass in my domain? You will pay for your arrogance!", "Nova_CharViewBackground", RedText,
 
                 // Narration
-                "", "Without warning, a flock of Skyborne Minions swooped down, fast and vicious.", "Nova_CharViewBackground", WhiteText,
-                "", "Nova straightened, despite her exhaustion.", "Nova_CharViewBackground", WhiteText,
+                "", "Nova stood tall despite her exhaustion. Her muscles burned, but her resolve was as unyielding as steel.", "Nova_CharViewBackground", WhiteText,
 
-                // Nova's dialogue (exhaling shakily and gritting her teeth)
-                "Nova", "Ha! Fine. Let’s do this.", "Nova_CharViewBackground", NovaTextColor
-            },
-                () -> {
-                    Runnable createBattle1 = () -> {
-                        currentScreen = new BattleClass(
-                            this, "AETHERIS",
-                            new SkyLeviathan(),
-                            true, true, true,
-                            "AETHERIS_BACKGROUND.png", "AETHERIS_TILES.png", "AETHERIS_MUSIC.wav",
-                            () -> startNextSequence()
-                        );
-                        setScreen(currentScreen);
-                    };
-                    createBattle1.run();
-                });
-            setScreen(currentScreen);
-        }
+                // Nova's dialogue (defiant, with a slight smirk)
+                "Nova", "Figures... A giant sky monster. Fine, let’s get this over with.", "Nova_CharViewBackground", NovaTextColor,
 
-        //Fight Scene: Nova vs. Sky Leviathan Minions
-        else if(sequenceCount == 5) {
-            currentScreen = new StoryScene(this, new String[]{
                 // Narration
-                "", "A minion lunged at her. Nova ducked, delivering a sharp kick, sparks flying. She spun, throwing an Energy Punch that sent another crashing down. The minions regrouped.", "Nova_CharViewBackground", WhiteText,
+                "", "With a deafening roar, the Sky Leviathan dove toward her. Winds howled in its wake, tearing at the air. Nova dove to the side, landing hard but keeping her footing.", "Nova_CharViewBackground", WhiteText,
 
-                // Sky Minion's dialogue (snarling)
-                "Sky Minion", "You won’t last!", "Nova_CharViewBackground", RedText,
+                // Sky Leviathan's dialogue (snarling)
+                "Sky Leviathan", "You won’t last! I will rip you apart, mortal!", "Nova_CharViewBackground", RedText,
 
                 // Nova's dialogue (defiant)
-                "Nova", "I may be tired, but that doesn’t guarantee you can take me down easily. Bring it on!", "Nova_CharViewBackground", NovaTextColor,
-
-                // Narration
-                "", "One managed to hit her from behind, but she quickly raised her Energy Blaster and fired. A blue beam shot through the air, vaporizing the minions in a flash of light.", "Nova_CharViewBackground", WhiteText,
-
-                // Nova's dialogue (confident)
-                "Nova", "Never underestimate me.", "Nova_CharViewBackground", NovaTextColor,
-
-                // Narration
-                "", "The remaining minions hesitated. Nova fired again, finishing them off with precision.", "Nova_CharViewBackground", WhiteText
-            },
-                () -> {
-                    Runnable createBattle1 = () -> {
-                        currentScreen = new BattleClass(
-                            this, "AETHERIS",
-                            new SkyLeviathan(),
-                            true, true, true,
-                            "AETHERIS_BACKGROUND.png", "AETHERIS_TILES.png", "AETHERIS_MUSIC.wav",
-                            () -> startNextSequence()
-                        );
-                        setScreen(currentScreen);
-                    };
-                    createBattle1.run();
-                });
-            setScreen(currentScreen);
-        }
-
-        //Encounter with the Sky Leviathan
-        else if(sequenceCount == 6) {
-            currentScreen = new StoryScene(this, new String[]{
-                // Narration
-                "", "With the minions defeated, the Sky Leviathan, ruler of this realm, descends from the storm clouds above, its massive wings casting a shadow over Nova. Its glowing eyes lock onto her as it lands heavily on the island, shaking the very ground.", "Nova_CharViewBackground", WhiteText,
+                "Nova", "I may be tired, but that doesn’t mean I’m going down easy. Bring it on!", "Nova_CharViewBackground", NovaTextColor,
 
                 // Sky Leviathan's dialogue
-                "Sky Leviathan", "I will crush you beneath my wings, mortal!", "Nova_CharViewBackground", RedText,
+                "Sky Leviathan", "I will crush you beneath my wings, mortal! Prepare to be obliterated!", "Nova_CharViewBackground", RedText,
 
                 // Narration
-                "", "Nova feels the force of its presence, but she stands her ground, her heart pounding. She knows she has to end this quickly—she’s running on fumes.", "Nova_CharViewBackground", WhiteText,
+                "", "Nova felt the weight of the creature’s presence, but she refused to yield. Her pulse quickened, and despite the exhaustion that weighed down on her, she steeled herself for the battle ahead.", "Nova_CharViewBackground", WhiteText,
 
                 // Nova's dialogue
-                "Nova", "Just one more fight… I–I can do this.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "Just one more fight… I–I can do this. I’ve come too far to quit now.", "Nova_CharViewBackground", NovaTextColor,
 
                 // Narration
                 "", "The Sky Leviathan roars and charges, its massive claws raking the ground. Nova rolls to the side, narrowly avoiding the blow, and counters with an Energy Punch to its side. The impact sends a shockwave through its scales, but the creature barely flinches.", "Nova_CharViewBackground", WhiteText,
 
-                // Nova's dialogue
-                "Nova", "That barely scratched it…", "Nova_CharViewBackground", NovaTextColor,
-
                 // Sky Leviathan's dialogue
-                "Sky Leviathan", "You dare challenge me?", "Nova_CharViewBackground", RedText,
+                "Sky Leviathan", "You may have fought and survived, but no mortal can defeat the skies. I'll make sure your struggle ends in the dust of this realm. You will be forgotten.", "Nova_CharViewBackground", RedText,
 
                 // Nova's dialogue
-                "Nova", "I didn’t come this far to back down!", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "You may have fought and survived, but no mortal can defeat the skies. I'll make sure your struggle ends in the dust of this realm. You will be forgotten.", "Nova_CharViewBackground", NovaTextColor,
 
                 // Narration
-                "", "The Leviathan roared and launched a torrent of wind. Nova expertly dodged, determination burning in her eyes.", "Nova_CharViewBackground", WhiteText
+                "", "The Leviathan's eyes burned with fury at Nova's confidence. With a deafening roar, it unleashed a fierce gust of wind. Nova dodged swiftly, determination blazing in her eyes. The battle had begun.", "Nova_CharViewBackground", WhiteText
             },
                 () -> {
                     Runnable createBattle1 = () -> {
@@ -415,7 +360,7 @@ public class GameTransitions extends Game {
         }
 
         //Key Scenes (BATTLE ALREADY ENDED HERE)
-        else if(sequenceCount == 7) {
+        else if(sequenceCount == 5) {
             currentScreen = new StoryScene(this, new String[]{
                 // Narration
                 "", "As the echoes of battle faded, a sense of calm washed over the island. Nova stood victorious, but the air still crackled with residual tension. Suddenly, a soft glow emerged from the swirling mist.", "Nova_CharViewBackground", WhiteText,
@@ -567,7 +512,7 @@ public class GameTransitions extends Game {
         }
 
         //Key Scenes (BATTLE ALREADY ENDED HERE)
-        else if(sequenceCount == 8) {
+        else if(sequenceCount == 6) {
             currentScreen = new StoryScene(this, new String[]{
                 // Nova's dialogue (observant)
                 "Nova", "So… this is Nyxarion…", "Nova_CharViewBackground", NovaTextColor,
@@ -657,7 +602,7 @@ public class GameTransitions extends Game {
         }
 
         //THE BATTLE ENDED
-        else if(sequenceCount == 9) {
+        else if(sequenceCount == 7) {
             currentScreen = new StoryScene(this, new String[]{
                 // Narration
                 "", "The remains of the Void Sentinels dissolve into fragments of shadow, vanishing into the corrupted ground beneath them. Nova, Umbra, and Jina stand amidst the aftermath, their breaths steadying as the unsettling silence returns. But the air is heavier now—charged, as if the battle has disturbed something deeper within Nyxarion.", "Nova_CharViewBackground", WhiteText,
@@ -748,7 +693,7 @@ public class GameTransitions extends Game {
         }
 
         //FINAL SEQUENCE NIGGAREVELATIONS
-        else if(sequenceCount == 10) {
+        else if(sequenceCount == 8) {
             currentScreen = new StoryScene(this, new String[]{
                 // Narration
                 "", "(The battlefield is silent now, save for the faint crackle of dissipating energy. The shattered remains of the Energy Wyrm lie motionless, its once-vibrant core now dimming, releasing waves of unstable power into the air. Nova, Jina, and Umbra stand amidst the aftermath—wary but victorious.)", "Nova_CharViewBackground", WhiteText,

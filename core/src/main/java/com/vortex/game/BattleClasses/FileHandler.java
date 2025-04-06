@@ -6,53 +6,66 @@ import java.time.format.DateTimeFormatter;
 
 public class FileHandler {
     private static final String FILE_NAME = "game_stats.txt";
-    private static long startTime = -1; // Default to -1 to detect uninitialized timer
 
-    public static void startMatchTimer() {
-        if (startTime == -1) {  // Prevent multiple resets
+    // Global trackers
+    private static long startTime = -1;
+    private static int totalSkillPointsUsed = 0;
+    private static int totalWins = 0;
+    private static int totalDefeats = 0;
+
+    public static void startGameTimer() {
+        if (startTime == -1) {
             startTime = System.currentTimeMillis();
         }
     }
 
-    // Save match stats
-    public static void saveStats(int skillPointsUsed, int wins, int defeats) {
+    public static void addMatchStats(int skillPointsUsed, boolean won) {
+        totalSkillPointsUsed += skillPointsUsed;
+        if (won) {
+            totalWins++;
+        } else {
+            totalDefeats++;
+        }
+    }
+
+    public static void saveFinalGameStats() {
         long endTime = System.currentTimeMillis();
 
-        // Prevent incorrect calculations if timer wasn't started properly
         if (startTime == -1) {
-            System.err.println("Warning: Match timer was not started properly. Defaulting to 0 seconds.");
-            startTime = endTime; // Set start time to avoid negative duration
+            System.err.println("Game timer not started. Setting default start time.");
+            startTime = endTime;
         }
 
-        long durationSeconds = (endTime - startTime) / 1000; // Convert milliseconds to seconds
-        double durationMinutes = durationSeconds / 60.0; // Convert seconds to minutes
+        long durationSeconds = (endTime - startTime) / 1000;
+        double durationMinutes = durationSeconds / 60.0;
 
-        // Reset timer for next match
-        startTime = -1;
-
-        // Format date for better readability
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formattedDate = LocalDateTime.now().format(formatter);
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_NAME, true))) {
-            writer.write("Match Date: " + formattedDate);
+            writer.write("Game Summary Date: " + formattedDate);
             writer.newLine();
-            writer.write("Total Skill Points Used: " + skillPointsUsed);
+            writer.write("Total Skill Points Used: " + totalSkillPointsUsed);
             writer.newLine();
-            writer.write("Total Wins: " + wins);
+            writer.write("Total Wins: " + totalWins);
             writer.newLine();
-            writer.write("Total Defeats: " + defeats);
+            writer.write("Total Defeats: " + totalDefeats);
             writer.newLine();
-            writer.write(String.format("Time Duration: %d seconds (%.2f minutes)", durationSeconds, durationMinutes));
+            writer.write(String.format("Total Time Duration: %d seconds (%.2f minutes)", durationSeconds, durationMinutes));
             writer.newLine();
-            writer.write("--------------------------------");
+            writer.write("================================");
             writer.newLine();
         } catch (IOException e) {
-            System.err.println("Error saving game stats: " + e.getMessage());
+            System.err.println("Error saving final game stats: " + e.getMessage());
         }
+
+        // Reset for the next full playthrough
+        startTime = -1;
+        totalSkillPointsUsed = 0;
+        totalWins = 0;
+        totalDefeats = 0;
     }
 
-    // Read and print saved stats
     public static void readStats() {
         File file = new File(FILE_NAME);
         if (!file.exists()) {
