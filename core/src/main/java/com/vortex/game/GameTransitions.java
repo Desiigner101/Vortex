@@ -30,13 +30,13 @@ public class GameTransitions extends Game {
         audioManager = new PlayAudio();
         loadSettings();
 
-     //  if (!introPlayed) {
-        //   introPlayed = true;
-        //   this.setScreen(new VideoIntro(this));
-    //  } else {
-         //this.setScreen(new GameMenu(this));
-         this.setScreen(new WorldTransitions(this));
-        //}
+       if (!introPlayed) {
+           introPlayed = true;
+           this.setScreen(new VideoIntro(this));
+      } else {
+         this.setScreen(new GameMenu(this));
+         //this.setScreen(new WorldTransitions(this));
+        }
     }
 
     public void loadSettings() {
@@ -79,7 +79,7 @@ public class GameTransitions extends Game {
         audioManager.stopAudio();
     }
 
-    private void startNextSequence() {
+    public void startNextSequence() {
         sequenceCount++;
 
 
@@ -116,19 +116,7 @@ public class GameTransitions extends Game {
                 "", "But before she could react, a blinding light enveloped her, and in an instant, she was torn from her lab...", "Sequence1_8", WhiteText,
                 "", "... And catapulted into the unknown.", "Sequence1_9", WhiteText,
             }, () -> {
-                Runnable createBattle1 = () -> {
-                    currentScreen = new BattleClass(
-                        this, "NYXARION",
-                        new TestBossClass(),
-                        true, true, true,
-                        "XYBERIA_BACKGROUND.png", "RoadTile.png", "XYBERIA_MUSIC.wav",
-                        () -> {
-                            setScreen(new EndCreditsScreen(this));
-                        }
-                    );
-                    setScreen(currentScreen);
-                };
-                createBattle1.run();
+                this.setScreen(new WorldTransitions(this));
             });
             setScreen(currentScreen);
         }
@@ -181,7 +169,7 @@ public class GameTransitions extends Game {
                     currentScreen = new BattleClass(
                         this, "XYBERIA",
                         new TestBossClass(),
-                        true, true, true,
+                        false, true, false,
                         "XYBERIA_BACKGROUND.png", "RoadTile.png", "XYBERIA_MUSIC.wav",
                         () -> startNextSequence()
                     );
@@ -274,17 +262,7 @@ public class GameTransitions extends Game {
                 "", "She wasn’t sure what she had triggered, but before she could react, the world around her shifted.", "Nova_CharViewBackground", WhiteText,
                 "", "A blinding light engulfed her, and in an instant, she was pulled from Xyberia and flung into another universe.", "Nova_CharViewBackground", WhiteText
             },() -> {
-                Runnable createBattle1 = () -> {
-                    currentScreen = new BattleClass(
-                        this, "AETHERIS",
-                        new TestBossClass(),
-                        true, true, true,
-                        "AETHERIS_BACKGROUND.png", "AETHERIS_TILES.png", "AETHERIS_MUSIC.wav",
-                        () -> startNextSequence()
-                    );
-                    setScreen(currentScreen);
-                };
-                createBattle1.run();
+                this.setScreen(new WorldTransitions(this));
             });
             setScreen(currentScreen);
         }
@@ -582,8 +560,16 @@ public class GameTransitions extends Game {
                 "", "They step into the swirling portal, the world around them warping into nothingness.", "Nova_CharViewBackground", WhiteText,
 
                 // Narration (portal transition)
-                "", "A brilliant flash engulfs them as Nova, Umbra, and Jina step through the portal. The air shifts—heavy, charged, and unsettling. As the light recedes, an eerie silence fills the space. They now stand on fractured ground, where time and reality seem to collide and shatter endlessly.", "Nova_CharViewBackground", WhiteText,
+                "", "A brilliant flash engulfs them as Nova, Umbra, and Jina step through the portal. The air shifts—heavy, charged, and unsettling. As the light recedes, an eerie silence fills the space. They now stand on fractured ground, where time and reality seem to collide and shatter endlessly.", "Nova_CharViewBackground", WhiteText
+            },() -> {
+                this.setScreen(new WorldTransitions(this));
+            });
+            setScreen(currentScreen);
+        }
 
+        //Key Scenes (BATTLE ALREADY ENDED HERE)
+        else if(sequenceCount == 8) {
+            currentScreen = new StoryScene(this, new String[]{
                 // Nova's dialogue (observant)
                 "Nova", "So… this is Nyxarion…", "Nova_CharViewBackground", NovaTextColor,
                 "Nova", "This place… it feels wrong.", "Nova_CharViewBackground", NovaTextColor,
@@ -672,7 +658,7 @@ public class GameTransitions extends Game {
         }
 
         //THE BATTLE ENDED
-        else if(sequenceCount == 8) {
+        else if(sequenceCount == 9) {
             currentScreen = new StoryScene(this, new String[]{
                 // Narration
                 "", "The remains of the Void Sentinels dissolve into fragments of shadow, vanishing into the corrupted ground beneath them. Nova, Umbra, and Jina stand amidst the aftermath, their breaths steadying as the unsettling silence returns. But the air is heavier now—charged, as if the battle has disturbed something deeper within Nyxarion.", "Nova_CharViewBackground", WhiteText,
@@ -763,7 +749,7 @@ public class GameTransitions extends Game {
         }
 
         //FINAL SEQUENCE NIGGAREVELATIONS
-        else if(sequenceCount == 9) {
+        else if(sequenceCount == 10) {
             currentScreen = new StoryScene(this, new String[]{
                 // Narration
                 "", "(The battlefield is silent now, save for the faint crackle of dissipating energy. The shattered remains of the Energy Wyrm lie motionless, its once-vibrant core now dimming, releasing waves of unstable power into the air. Nova, Jina, and Umbra stand amidst the aftermath—wary but victorious.)", "Nova_CharViewBackground", WhiteText,

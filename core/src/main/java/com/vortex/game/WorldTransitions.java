@@ -390,7 +390,7 @@ public class WorldTransitions implements Screen {
                             @Override
                             public void run() {
                                 // Transition to DisplayCharacters screen
-                                game.displayCharacters();
+                                game.startNextSequence();
                                 dispose();
                             }
                         });
