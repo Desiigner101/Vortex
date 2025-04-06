@@ -126,51 +126,51 @@ public class GameTransitions extends Game {
         else if(sequenceCount == 2) {
             currentScreen = new StoryScene(this, new String[]{
                 // Narration (no speaker)
-                "", "Nova landed hard on a wet street bathed in neon lights.", "Nova_CharViewBackground", WhiteText,
-                "", "She found herself sprawled on a neon-lit street, the air thick with the scent of burnt circuitry and oil.", "Nova_CharViewBackground", WhiteText,
-                "", "Towering skyscrapers rose above her, covered with vibrant holograms that flickered erratically.", "Nova_CharViewBackground", WhiteText,
+                "", "Nova landed hard on a wet street bathed in neon lights.", "XYBERIA_BG", WhiteText,
+                "", "She found herself sprawled on a neon-lit street, the air thick with the scent of burnt circuitry and oil.", "XYBERIA_BG", WhiteText,
+                "", "Towering skyscrapers rose above her, covered with vibrant holograms that flickered erratically.", "XYBERIA_BG", WhiteText,
 
                 // Nova's dialogue
-                "Nova", "Where am I?", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "Where am I?", "NOVBK", NovaTextColor,
 
                 // Narration
-                "", "She glanced at her device, now crackling and broken in her hands, components hanging by mere threads.", "Nova_CharViewBackground", WhiteText,
+                "", "She glanced at her device, now crackling and broken in her hands, components hanging by mere threads.", "NOVHND", WhiteText,
 
                 // Nova's dialogue
-                "Nova", "Ugh! This can’t be happening! I spent years perfecting this device but now it’s broken! I need to find parts to fix this… but how?", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "Ugh! This can’t be happening! I spent years perfecting this device but now it’s broken! I need to find parts to fix this… but how?", "NOVHND", NovaTextColor,
 
                 // Narration
-                "", "As her thoughts raced, Nova looked around, feeling desperate yet determined.", "Nova_CharViewBackground", WhiteText,
-                "", "She clenched her fists, refusing to give up despite the overwhelming odds against her.", "Nova_CharViewBackground", WhiteText,
+                "", "As her thoughts raced, Nova looked around, feeling desperate yet determined.", "NOVBK", WhiteText,
+                "", "She clenched her fists, refusing to give up despite the overwhelming odds against her.", "NOVBK", WhiteText,
 
                 // Nova's dialogue
-                "Nova", "There has to be something or someone around here, anything, that can help me get back to my lab! I can’t give up now, not when I’m so close!", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "There has to be something or someone around here, anything, that can help me get back to my lab! I can’t give up now, not when I’m so close!", "NOVBK", NovaTextColor,
 
                 // Narration
-                "", "Suddenly, a group of cyber-enhanced bounty hunters approached, their glowing eyes scanning the area.", "Nova_CharViewBackground", WhiteText,
-                "", "Nova felt her heart race as they zeroed in on her, sensing her vulnerability.", "Nova_CharViewBackground", WhiteText,
+                "", "Suddenly, a group of cyber-enhanced bounty hunters approached, their glowing eyes scanning the area.", "CY", WhiteText,
+                "", "Nova felt her heart race as they zeroed in on her, sensing her vulnerability.", "CY", WhiteText,
 
                 // Bounty Hunter 1 (Enemy - RedText)
-                "Bounty Hunter 1", "Look what we have here—a lost little girl. Hand over your tech, and we might let you go.", "Nova_CharViewBackground", RedText,
+                "Bounty Hunter 1", "Look what we have here—a lost little girl. Hand over your tech, and we might let you go.", "CY1TK", RedText,
 
                 // Narration
-                "", "Panic surged through her. With no fighting skills, she took a deep breath and tried to think strategically.", "Nova_CharViewBackground", WhiteText,
+                "", "Panic surged through her. With no fighting skills, she took a deep breath and tried to think strategically.", "CY1TK", WhiteText,
 
                 // Nova's dialogue
-                "Nova", "I’m just a researcher! You don’t want to hurt me. I can… I can help you with tech upgrades!", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "I’m just a researcher! You don’t want to hurt me. I can… I can help you with tech upgrades!", "NOVTK", NovaTextColor,
 
                 // Narration
-                "", "The hunters hesitated, but one stepped forward, a wicked grin spreading across his face.", "Nova_CharViewBackground", WhiteText,
+                "", "The hunters hesitated, but one stepped forward, a wicked grin spreading across his face.", "CYNNV", WhiteText,
 
                 // Bounty Hunter 2 (Enemy - RedText)
-                "Bounty Hunter 2", "Oh, we’ll take our chances. Grab her!", "Nova_CharViewBackground", RedText
+                "Bounty Hunter 2", "Oh, we’ll take our chances. Grab her!", "CY2", RedText
             }, () -> {
                 Runnable createBattle1 = () -> {
                     currentScreen = new BattleClass(
                         this, "XYBERIA",
                         new CyberBountyHunter(),
                         false, true, false,
-                        "XYBERIA_BACKGROUND.png", "RoadTile.png", "XYBERIA_MUSIC.wav",
+                        "XYBERIA_BG.png", "RoadTile.png", "XYBERIA_MUSIC.wav",
                         () -> startNextSequence()
                     );
                     setScreen(currentScreen);
@@ -184,83 +184,83 @@ public class GameTransitions extends Game {
         else if(sequenceCount == 3) {
             currentScreen = new StoryScene(this, new String[]{
                 // Narration
-                "", "Nova kneels beside one of the fallen bounty hunters, inspecting the cybernetic parts on his arm.", "Nova_CharViewBackground", WhiteText,
-                "", "She carefully detaches a power core and a small circuit board—exactly the components she needs for her device.", "Nova_CharViewBackground", WhiteText,
+                "", "Nova kneels beside one of the fallen bounty hunters, inspecting the cybernetic parts on his arm.", "XYBERIA_BG", WhiteText,
+                "", "She carefully detaches a power core and a small circuit board—exactly the components she needs for her device.", "XYBERIA_BG", WhiteText,
 
                 // Nova's dialogue (muttering to herself)
-                "Nova", "Hmmm, this should work.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "Hmmm, this should work.", "XYBERIA_BG", NovaTextColor,
 
                 // Narration
-                "", "With the parts in hand, she pulled her device from her belt and carefully inserted the power core, followed by the circuit board.", "Nova_CharViewBackground", WhiteText,
-                "", "The device sputtered, emitting a low hum as energy began to flow through it once again.", "Nova_CharViewBackground", WhiteText,
+                "", "With the parts in hand, she pulled her device from her belt and carefully inserted the power core, followed by the circuit board.", "XYBERIA_BG", WhiteText,
+                "", "The device sputtered, emitting a low hum as energy began to flow through it once again.", "XYBERIA_BG", WhiteText,
 
                 // Nova's dialogue (whispering)
-                "Nova", "Yes! Just a few more parts and I can get out of here..", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "Yes! Just a few more parts and I can get out of here..", "XYBERIA_BG", NovaTextColor,
 
                 // Boss's dialogue (overhead, menacing)
-                "Boss", "Enough!", "Nova_CharViewBackground", RedText,
+                "Boss", "Enough!", "XYBERIA_BG", RedText,
 
                 // Narration
-                "", "From the shadows, the boss emerged—a towering figure clad in dark armor adorned with glowing circuitry, his glowing red eyes locked onto her.", "Nova_CharViewBackground", WhiteText,
+                "", "From the shadows, the boss emerged—a towering figure clad in dark armor adorned with glowing circuitry, his glowing red eyes locked onto her.", "XYBERIA_BG", WhiteText,
 
                 // Boss's dialogue
-                "Boss", "What do you think you’re doing? You’re out of your league here.", "Nova_CharViewBackground", RedText,
+                "Boss", "What do you think you’re doing? You’re out of your league here.", "XYBERIA_BG", RedText,
 
                 // Nova's dialogue (nervous)
-                "Nova", "...I’ll take my chances.", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "...I’ll take my chances.", "XYBERIA_BG", NovaTextColor,
 
                 // Boss's dialogue
-                "Boss", "You’re just a little girl playing in a world you can’t comprehend. Do you think you can take on my bounty hunters? You’ll regret crossing me.", "Nova_CharViewBackground", RedText,
+                "Boss", "You’re just a little girl playing in a world you can’t comprehend. Do you think you can take on my bounty hunters? You’ll regret crossing me.", "XYBERIA_BG", RedText,
 
                 // Narration
-                "", "Nova’s heart raced as she stared down the towering figure before her.", "Nova_CharViewBackground", WhiteText,
-                "", "The boss lunged forward, his massive fist swinging toward her with terrifying force.", "Nova_CharViewBackground", WhiteText,
-                "", "Nova barely dodged, desperation gripped her—her usual kicks and punches wouldn’t be enough to take him down.", "Nova_CharViewBackground", WhiteText,
+                "", "Nova’s heart raced as she stared down the towering figure before her.", "XYBERIA_BG", WhiteText,
+                "", "The boss lunged forward, his massive fist swinging toward her with terrifying force.", "XYBERIA_BG", WhiteText,
+                "", "Nova barely dodged, desperation gripped her—her usual kicks and punches wouldn’t be enough to take him down.", "XYBERIA_BG", WhiteText,
 
                 // Nova's dialogue (panting)
-                "Nova", "I…I’m so tired. Why can’t I…?", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "I…I’m so tired. Why can’t I…?", "XYBERIA_BG", NovaTextColor,
 
                 // Narration
-                "", "With her legs wobbling and exhaustion creeping into every muscle, Nova delivers a sharp elbow strike to the boss, but it barely fazes him.", "Nova_CharViewBackground", WhiteText,
+                "", "With her legs wobbling and exhaustion creeping into every muscle, Nova delivers a sharp elbow strike to the boss, but it barely fazes him.", "XYBERIA_BG", WhiteText,
 
                 // Boss's dialogue
-                "Boss", "Pathetic. You can’t win with those weak attacks!", "Nova_CharViewBackground", RedText,
+                "Boss", "Pathetic. You can’t win with those weak attacks!", "XYBERIA_BG", RedText,
 
                 // Narration
-                "", "The boss retaliated with a powerful roundhouse kick, and though Nova leaped backward to avoid the blow, the fatigue was setting in fast.", "Nova_CharViewBackground", WhiteText,
-                "", "She darted into the shadows, her eyes scanning for a weapon.", "Nova_CharViewBackground", WhiteText,
-                "", "Spotting a bounty hunter wielding a plasma blade, she seized the moment.", "Nova_CharViewBackground", WhiteText,
-                "", "A swift strike disarmed him, and she snatched the blade just in time to block a massive punch from the boss.", "Nova_CharViewBackground", WhiteText,
+                "", "The boss retaliated with a powerful roundhouse kick, and though Nova leaped backward to avoid the blow, the fatigue was setting in fast.", "XYBERIA_BG", WhiteText,
+                "", "She darted into the shadows, her eyes scanning for a weapon.", "XYBERIA_BG", WhiteText,
+                "", "Spotting a bounty hunter wielding a plasma blade, she seized the moment.", "XYBERIA_BG", WhiteText,
+                "", "A swift strike disarmed him, and she snatched the blade just in time to block a massive punch from the boss.", "XYBERIA_BG", WhiteText,
 
                 // Boss's dialogue
-                "Boss", "You think that will save you?", "Nova_CharViewBackground", RedText,
+                "Boss", "You think that will save you?", "XYBERIA_BG", RedText,
 
                 // Narration
-                "", "She struck at his side with a quick jab, but the blade barely left a mark.", "Nova_CharViewBackground", WhiteText,
+                "", "She struck at his side with a quick jab, but the blade barely left a mark.", "XYBERIA_BG", WhiteText,
 
                 // Nova's dialogue (panting)
-                "Nova", "Argh! I’m doomed!", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "Argh! I’m doomed!", "XYBERIA_BG", NovaTextColor,
 
                 // Narration
-                "", "She darted to the side, narrowly dodging another of his attacks, then ran. Not from fear, but from a growing sense of helplessness.", "Nova_CharViewBackground", WhiteText,
-                "", "The Boss charged at her with incredible speed. He swung a metallic arm in an arc, and Nova barely ducked beneath it.", "Nova_CharViewBackground", WhiteText,
+                "", "She darted to the side, narrowly dodging another of his attacks, then ran. Not from fear, but from a growing sense of helplessness.", "XYBERIA_BG", WhiteText,
+                "", "The Boss charged at her with incredible speed. He swung a metallic arm in an arc, and Nova barely ducked beneath it.", "XYBERIA_BG", WhiteText,
 
                 // Nova's dialogue (panting)
-                "Nova", "I can’t… I can’t fight him like this!", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "I can’t… I can’t fight him like this!", "XYBERIA_BG", NovaTextColor,
 
                 // Narration
-                "", "With her breath ragged, she backed away, tweaking her damaged device out of desperation.", "Nova_CharViewBackground", WhiteText,
-                "", "Nova ducked into a corner, frantically trying to adjust the power core.", "Nova_CharViewBackground", WhiteText,
-                "", "The device sputtered, sparks flying.", "Nova_CharViewBackground", WhiteText,
-                "", "Nova cursed under her breath as the device malfunctioned.", "Nova_CharViewBackground", WhiteText,
+                "", "With her breath ragged, she backed away, tweaking her damaged device out of desperation.", "XYBERIA_BG", WhiteText,
+                "", "Nova ducked into a corner, frantically trying to adjust the power core.", "XYBERIA_BG", WhiteText,
+                "", "The device sputtered, sparks flying.", "XYBERIA_BG", WhiteText,
+                "", "Nova cursed under her breath as the device malfunctioned.", "XYBERIA_BG", WhiteText,
 
                 // Nova's dialogue (desperate)
-                "Nova", "Work, dang it! I have to get out of here!", "Nova_CharViewBackground", NovaTextColor,
+                "Nova", "Work, dang it! I have to get out of here!", "XYBERIA_BG", NovaTextColor,
 
                 // Narration
-                "", "Suddenly, the device gave a loud hum, and a surge of energy shot through her arm.", "Nova_CharViewBackground", WhiteText,
-                "", "She wasn’t sure what she had triggered, but before she could react, the world around her shifted.", "Nova_CharViewBackground", WhiteText,
-                "", "A blinding light engulfed her, and in an instant, she was pulled from Xyberia and flung into another universe.", "Nova_CharViewBackground", WhiteText
+                "", "Suddenly, the device gave a loud hum, and a surge of energy shot through her arm.", "XYBERIA_BG", WhiteText,
+                "", "She wasn’t sure what she had triggered, but before she could react, the world around her shifted.", "XYBERIA_BG", WhiteText,
+                "", "A blinding light engulfed her, and in an instant, she was pulled from Xyberia and flung into another universe.", "XYBERIA_BG", WhiteText
             },() -> {
                 this.setScreen(new Xyberion_planetTransition(this));
             });
