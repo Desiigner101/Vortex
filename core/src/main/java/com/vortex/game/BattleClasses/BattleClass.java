@@ -35,7 +35,7 @@ import java.util.*;
 
 public class BattleClass implements Screen {
 
-    // Add these near the top with other fields
+    // skill description pointer
     private BitmapFont tooltipFont;
     private String currentTooltip = "";
     private float tooltipTimer = 0;
@@ -1680,7 +1680,7 @@ public class BattleClass implements Screen {
                 if (!askingToQuit) {
                     // First click - show confirmation
                     askingToQuit = true;
-                    sfx.playSoundEffect("ui.wav", 0.5f);
+                    sfx.playSoundEffect("buttonClicked.wav", 0.5f);
                 } else {
                     // Second click - actually quit
                     saveSettings();
@@ -1733,7 +1733,7 @@ public class BattleClass implements Screen {
             if (isDraggingMusic || isDraggingSound) {
                 saveSettings();
                 if (isDraggingSound && soundVolume > 0.01f) {
-                    sfx.playSoundEffect("ui.wav", 0);
+                    sfx.playSoundEffect("buttonClicked.wav", 0);
                 }
             }
             isDraggingMusic = false;
