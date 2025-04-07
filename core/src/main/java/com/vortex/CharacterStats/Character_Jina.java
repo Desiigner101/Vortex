@@ -86,7 +86,7 @@ public class Character_Jina implements Character_BattleStats {
             }
         } catch (Exception e) {
             System.err.println("Error loading ultimate frames: " + e.getMessage());
-            throw new RuntimeException("Failed to load Jina's ultimate animation frames", e);
+            throw new RuntimeException("Failed to load Jina's ultimate animation frames", e);//4.6
         }
 
         fullscreenUltAnimation = new Animation<>(0.1f, ultRegions);

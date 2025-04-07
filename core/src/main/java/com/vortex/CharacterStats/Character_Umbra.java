@@ -64,7 +64,7 @@ public class Character_Umbra implements Character_BattleStats {
         basicAtkAnimation = createAnimation(basicAtkSheet, 64, 64, 12, 1, 0.1f);
         skillAnimation = createAnimation(skillSheet, 64, 64, 12, 1, 0.1f);
         hitAnimation = createAnimation(hitSheet, 64, 64, 6, 1, 0.15f);
-        ultAnimation = new Animation<>(0.2f, ultRegions);
+        ultAnimation = new Animation<>(0.2f, ultRegions);//0.2*29 = 5.8
 
         // Set loop modes
         idleAnimation.setPlayMode(Animation.PlayMode.LOOP);
@@ -104,7 +104,7 @@ public class Character_Umbra implements Character_BattleStats {
             ultRegions[i] = new TextureRegion(frame);
         }
 
-        fullscreenUltAnimation = new Animation<>(0.09f, ultRegions);
+        fullscreenUltAnimation = new Animation<>(0.09f, ultRegions);//2.61
         fullscreenUltAnimation.setPlayMode(Animation.PlayMode.NORMAL);
     }
 
@@ -196,7 +196,9 @@ public class Character_Umbra implements Character_BattleStats {
 
     @Override
     public int getBasicAttackDamage() { return basicAttackDamage; }
-
+    public float getUltimateAnimationDuration() {
+        return fullscreenUltAnimation.getAnimationDuration();
+    }
     @Override
     public int getSkillDamage() { return skillDamage; }
 

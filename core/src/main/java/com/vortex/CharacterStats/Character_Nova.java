@@ -87,7 +87,7 @@ public class Character_Nova implements Character_BattleStats {
             throw new RuntimeException("Failed to load Nova's ultimate animation frames", e);
         }
 
-        fullscreenUltAnimation = new Animation<>(0.1f, ultRegions);
+        fullscreenUltAnimation = new Animation<>(0.1f, ultRegions);//2.9 duration
         fullscreenUltAnimation.setPlayMode(Animation.PlayMode.NORMAL);
     }
 
@@ -227,7 +227,9 @@ public class Character_Nova implements Character_BattleStats {
     public float getUltimateAnimationProgress() {
         return stateTime / ultAnimation.getAnimationDuration();
     }
-
+    public float getUltimateAnimationDuration() {
+        return fullscreenUltAnimation.getAnimationDuration();
+    }
     public boolean isUltimateFinished() {
         return ultAnimation.isAnimationFinished(stateTime);
     }

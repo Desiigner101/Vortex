@@ -680,11 +680,23 @@ public class BattleClass implements Screen {
         enemyCurrentHp = Math.max(0, enemyCurrentHp - damage);
         if (currentCharacter instanceof Character_Umbra) {
             umbra.startUltimate();
-            sfx.playSoundEffect("umbra_ult_sfx.wav", 0); // Make sure you have this sound file
+            sfx.playSoundEffect("umbra_ult_sfx.wav", 0);// Make sure you have this sound file
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    checkBattleConditions();
+                }
+            }, umbra.getUltimateAnimationDuration() * 1);
         }
         else if (currentCharacter instanceof Character_Nova) {
             nova.startUltimate();
             sfx.playSoundEffect("nova_ult_sfx.wav", 0); // Make sure you have this sound file
+            Timer.schedule(new Timer.Task() {
+                @Override
+                public void run() {
+                    checkBattleConditions();
+                }
+            }, nova.getUltimateAnimationDuration() * 1);
         }
         else if (currentCharacter instanceof Character_Jina) {
             jina.startUltimate();
@@ -712,11 +724,11 @@ public class BattleClass implements Screen {
                         jina.setHP(Math.min(jina.getMaxHP(), jina.getHP() + jina.getHealAmount()));
                         activeHealingAnimations.add(new HealingAnimation(calculateHealPosition(jina)));
                     }
+                    checkBattleConditions();
                 }
             }, jina.getUltimateAnimationDuration() * 1);
         }
         debugEnemyHP();
-        checkBattleConditions();
     }
     private void startHealAnimation(Character_BattleStats character) {
         isPlayingHeal = true;

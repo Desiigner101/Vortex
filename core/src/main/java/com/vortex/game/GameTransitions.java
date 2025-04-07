@@ -32,13 +32,13 @@ public class GameTransitions extends Game {
         audioManager = new PlayAudio();
         loadSettings();
 
-      // if (!introPlayed) {
-     //      introPlayed = true;
-    //       this.setScreen(new VideoIntro(this));
-    //  } else {
-        // this.setScreen(new GameMenu(this));
-           this.setScreen(new Nyxarion_planetTransition(this));
-     //   }
+      if (!introPlayed) {
+           introPlayed = true;
+           this.setScreen(new VideoIntro(this));
+      } else {
+        this.setScreen(new GameMenu(this));
+        //this.setScreen(new Nyxarion_planetTransition(this));
+        }
     }
 
     public void loadSettings() {
@@ -351,7 +351,7 @@ public class GameTransitions extends Game {
                         currentScreen = new BattleClass(
                             this, "AETHERIS",
                             new SkyLeviathan(),
-                            true, true, true,
+                            false, true, false,
                             "AETHERIS_BACKGROUND.png", "AETHERIS_TILES.png", "AETHERIS_MUSIC.wav",
                             () -> startNextSequence()
                         );
@@ -970,7 +970,7 @@ public class GameTransitions extends Game {
                         currentScreen = new BattleClass(
                             this, "NYXARION",
                             new UmbraFinalBoss(),
-                            true, true, true,
+                            false, true, true,
                             "NYXARION_BACKGROUND.png", "NYXARION_TILE.png", "NYXARION_MUSIC.wav",
                             () -> {
                                 setScreen(new EndCreditsScreen(this));
