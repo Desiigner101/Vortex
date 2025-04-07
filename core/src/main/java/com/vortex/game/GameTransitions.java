@@ -971,7 +971,7 @@ public class GameTransitions extends Game {
                         currentScreen = new BattleClass(
                             this, "NYXARION",
                             new UmbraFinalBoss(),
-                            true, true, true,
+                            false, true, true,
                             "NYXARION_BACKGROUND.png", "NYXARION_TILE.png", "NYXARION_MUSIC.wav",
                             () -> {
                                 setScreen(new EndCreditsScreen(this));

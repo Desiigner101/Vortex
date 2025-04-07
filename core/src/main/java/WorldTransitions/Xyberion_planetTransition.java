@@ -6,10 +6,7 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -27,6 +24,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.Timer;
 import com.vortex.game.GameTransitions;
 
 import java.util.Arrays;
@@ -122,6 +120,19 @@ public class Xyberion_planetTransition implements Screen {
 
     private Sound introSound;
 
+    // Transition animation fields
+    private Texture closeTransitionTexture;
+    private TextureRegion[] closeTransitionFrames;
+    private Animation<TextureRegion> closeTransitionAnimation;
+    private float closeTransitionStateTime = 0;
+    private boolean playCloseTransition = false;
+    private Texture openTransitionTexture;
+    private TextureRegion[] openTransitionFrames;
+    private Animation<TextureRegion> openTransitionAnimation;
+    private float openTransitionStateTime = 0;
+    private boolean playOpenTransition = true;
+    private boolean hasStarted = true;
+
 
 
     // Particle class for effects
@@ -158,7 +169,64 @@ public class Xyberion_planetTransition implements Screen {
         createButtons();
         calculateTextLayouts();
         introSound.play();
+
+
+        // In your constructor, modify the transition initialization:
+        this.closeTransitionTexture = new Texture(Gdx.files.internal("Backgrounds/closeTransitionspritesheet.png"));
+        TextureRegion[][] tmp = TextureRegion.split(closeTransitionTexture,
+            closeTransitionTexture.getWidth()/8,
+            closeTransitionTexture.getHeight());
+
+// Close animation (plays forward)
+        closeTransitionFrames = new TextureRegion[8];
+        for (int i = 0; i < 8; i++) {
+            closeTransitionFrames[i] = tmp[0][i];
+        }
+        closeTransitionAnimation = new Animation<>(0.05f, closeTransitionFrames);
+
+// Open animation (plays same frames in reverse, but starts from fully closed state)
+        openTransitionFrames = new TextureRegion[8];
+        for (int i = 0; i < 8; i++) {
+            openTransitionFrames[i] = tmp[0][7-i]; // Reverse order
+        }
+        openTransitionAnimation = new Animation<>(0.05f, openTransitionFrames);
+
     }
+    // Modify your renderOpenTransition method:
+    private void renderOpenTransition(float delta) {
+        openTransitionStateTime += delta;
+        batch.begin();
+        // Get the current frame but ensure we don't go past the animation duration
+        float animationTime = Math.min(openTransitionStateTime, openTransitionAnimation.getAnimationDuration());
+        TextureRegion currentFrame = openTransitionAnimation.getKeyFrame(animationTime, false);
+
+        // Draw the frame covering the whole screen
+        batch.draw(currentFrame, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        batch.end();
+
+        if (openTransitionAnimation.isAnimationFinished(openTransitionStateTime)) {
+            playOpenTransition = false;
+            openTransitionStateTime = 0;
+            hasStarted = false;
+        }
+    }
+
+    // Keep your existing renderCloseTransition method exactly as is:
+    private void renderCloseTransition(float delta) {
+        closeTransitionStateTime += delta;
+        batch.begin();
+        TextureRegion currentFrame = closeTransitionAnimation.getKeyFrame(closeTransitionStateTime, false);
+        batch.draw(currentFrame, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        batch.end();
+
+        if (closeTransitionAnimation.isAnimationFinished(closeTransitionStateTime)) {
+            playCloseTransition = false;
+            closeTransitionStateTime = 0;
+            game.startNextSequence();
+            dispose();
+        }
+    }
+
 
     private Texture createScanlineTexture() {
         Pixmap pixmap = new Pixmap(4, 4, Pixmap.Format.RGBA8888);
@@ -285,12 +353,12 @@ public class Xyberion_planetTransition implements Screen {
     private void fadeOutAllElements(Runnable onComplete) {
         // Fade out all stage actors
         for (Actor actor : stage.getActors()) {
-            actor.addAction(Actions.fadeOut(0.5f));
+            actor.addAction(Actions.fadeOut(0.3f));
         }
 
-        // Fade out other visual elements by setting a global fade
+        // Fade out other visual elements
         stage.addAction(Actions.sequence(
-            Actions.fadeOut(0.5f),
+            Actions.fadeOut(0.3f),
             Actions.run(onComplete)
         ));
     }
@@ -400,13 +468,11 @@ public class Xyberion_planetTransition implements Screen {
 
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
-                        // Fade out all elements
-                        fadeOutAllElements(new Runnable() {
-                            @Override
-                            public void run() {
-                                game.startNextSequence();
-                                dispose();
-                            }
+                        // Fade out elements first
+                        fadeOutAllElements(() -> {
+                            // Then play close transition
+                            playCloseTransition = true;
+                            closeTransitionStateTime = 0;
                         });
                     }
                 });
@@ -452,28 +518,54 @@ public class Xyberion_planetTransition implements Screen {
 
     @Override
     public void render(float delta) {
+        // Handle transition animations first
+        if (playCloseTransition) {
+            renderCloseTransition(delta);
+            return;
+        }
+
+        if (playOpenTransition) {
+            renderOpenTransition(delta);
+            return;
+        }
+
         // Clear screen with black
         ScreenUtils.clear(0, 0, 0, 1);
 
+        if(hasStarted) {
+            if (playOpenTransition) {
+                openTransitionStateTime += delta;
+                batch.begin();
+                TextureRegion currentFrame = openTransitionAnimation.getKeyFrame(openTransitionStateTime, false);
+                batch.draw(currentFrame, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+                batch.end();
 
-            updateTransition(delta);
-            updateAnimation(delta);
-            updateTypewriterEffect(delta);
-            updateWipeAnimation(delta);
-            updateReturnAnimation(delta);
-            updateParticles(delta);
-            updatePulseEffect(delta);
+                if (openTransitionAnimation.isAnimationFinished(openTransitionStateTime)) {
+                    playOpenTransition = false;
+                    openTransitionStateTime = 0;
+                }
+                return;
+            }
+            hasStarted=false;
+        }
 
-            // Render all elements
-            renderBackground();
-            renderParticles();
-            renderOverlay();
-            renderPlanet(delta);
-            renderInfoPanel();
-            renderScanlines();
+        updateTransition(delta);
+        updateAnimation(delta);
+        updateTypewriterEffect(delta);
+        updateWipeAnimation(delta);
+        updateReturnAnimation(delta);
+        updateParticles(delta);
+        updatePulseEffect(delta);
 
-            stage.act(delta);
-            stage.draw();
+        renderBackground();
+        renderParticles();
+        renderOverlay();
+        renderPlanet(delta);
+        renderInfoPanel();
+        renderScanlines();
+
+        stage.act(delta);
+        stage.draw();
 
 
 
@@ -908,3 +1000,4 @@ public class Xyberion_planetTransition implements Screen {
     @Override
     public void resume() {}
 }
+
