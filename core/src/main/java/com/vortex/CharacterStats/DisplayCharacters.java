@@ -622,7 +622,7 @@ public class DisplayCharacters implements Screen {
                 {
                     "Basic Attack: Shadow Strike",
                     "A stealthy attack from the shadows.",
-                    "Attack Power: 90",
+                    "Attack Power: 80",
                     "Skill Points (SP): +1",
                     "Deals basic attack damage."
                 },
@@ -630,7 +630,7 @@ public class DisplayCharacters implements Screen {
                     "Skill Attack: Distracting Illusion",
                     "Creates a decoy that draws",
                     "enemy attention.",
-                    "Magical Attack: 250",
+                    "Magical Attack: 300",
                     "Skill Points (SP): -3",
                     "Deals heavy skill attack damage."
                 },
@@ -638,8 +638,8 @@ public class DisplayCharacters implements Screen {
                     "Ultimate Attack: Veil of Shadows",
                     "Unleashes a flurry of shadow attacks,",
                     "damaging enemies.",
-                    "Ultimate Attack: 350",
-                    "Cooldown (CD): 4 turns",
+                    "Ultimate Attack: 680",
+                    "Cooldown (CD): 10 turns",
                     "Deals ultimate attack damage."
                 }
             };
@@ -655,23 +655,25 @@ public class DisplayCharacters implements Screen {
                 {
                     "Basic Attack: Energy Punch",
                     "A rapid punch focusing Nova's energy.",
-                    "Attack Power: 60",
+                    "Attack Power: 85",
                     "Skill Points (SP): +1",
                     "Deals basic attack damage."
                 },
                 {
                     "Skill Attack: Energy Blaster",
-                    "A powerful skill, dealing damage.",
-                    "Physical Attack: 150",
+                    "A powerful skill,",
+                    "dealing damage.",
+                    "Physical Attack: 200",
                     "Skill Points (SP): -1",
                     "Deals skill attack damage."
                 },
                 {
                     "Ultimate Attack: Multidimensional Blast",
-                    "Deals AoE damage, stuns enemies,",
-                    "grants an extra turn.",
-                    "Ultimate Attack: 250",
-                    "Cooldown (CD): 3 turns."
+                    "Deals AoE damage,",
+                    "using energy infused power",
+                    "and obliterates the enemy",
+                    "Ultimate Attack: 400",
+                    "Cooldown (CD): 6 turns."
                 },
             };
 
@@ -687,7 +689,7 @@ public class DisplayCharacters implements Screen {
                     "Basic Attack: Sledge Strike",
                     "A powerful melee strike with",
                     "reinforced gun.",
-                    "Attack Power: 50",
+                    "Attack Power: 68",
                     "Skill Points (SP): +1",
                     "Deals basic attack damage."
                 },
@@ -696,18 +698,19 @@ public class DisplayCharacters implements Screen {
                     "A calculated shot that pierces,",
                     "enemy defenses.",
                     "And heals allies.",
-                    "Physical Attack: 120",
+                    "Physical Attack: 130",
                     "Health Given: 350",
                     "Skill Points (SP): -2",
                     "Deals skill attack damage."
                 },
                 {
                     "Ultimate Attack: Vanguard's Resolve",
-                    "Unleashes a critical shot,",
-                    "boosting Jina's accuracy",
-                    "and granting an extra turn.",
-                    "Ultimate Attack: 200",
-                    "Cooldown (CD): 3 turns."
+                    "Smashes her hammer,",
+                    "and heals her allies",
+                    "inflicting damage to enemies",
+                    "Ultimate Attack: 170",
+                    "Heal Amount: 350",
+                    "Cooldown (CD): 9 turns."
                 },
                 {
                     "Character Info",

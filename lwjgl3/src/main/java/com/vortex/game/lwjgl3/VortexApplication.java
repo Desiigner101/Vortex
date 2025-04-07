@@ -29,7 +29,7 @@ public class VortexApplication {
         //1600 900 ( sopi 1500 and 800 ) please dont delete dis comment
         configuration.setWindowedMode(1600, 900);
         //// You can change these files; they are in lwjgl3/src/main/resources/ .
-        configuration.setWindowIcon("libgdx128.png");
+        configuration.setWindowIcon("VORTEX.png");
         return configuration;
     }
 }
