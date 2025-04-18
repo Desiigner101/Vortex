@@ -971,15 +971,59 @@ public class GameTransitions extends Game {
                         currentScreen = new BattleClass(
                             this, "NYXARION",
                             new UmbraFinalBoss(),
-                            false, true, true,
+                            true, true, true,
                             "NYXARION_BACKGROUND.png", "NYXARION_TILE.png", "NYXARION_MUSIC.wav",
-                            () -> {
-                                setScreen(new EndCreditsScreen(this));
-                            }
+                            () -> startNextSequence()
                         );
                         setScreen(currentScreen);
                     };
                     createBattle1.run();
+                });
+            setScreen(currentScreen);
+        }
+
+
+        else if(sequenceCount == 9) {
+            currentScreen = new StoryScene(this, new String[]{
+                // Nova's dialogue (observant)
+                "", "The battle rages, raw energy crackling through the air as Nova and Umbra clash with relentless force. Sparks dance between them, light against shadow, as the ground trembles beneath their power.", "NyxSwirl", WhiteText,
+                "", "Nova’s movements grow sharper, her strikes fueled not by anger, but by unyielding resolve. Umbra’s attacks, though fierce, begin to falter—her desperation seeping through the cracks in her defense.", "NyxSwirl", WhiteText,
+
+                // Umbra (strained)
+                "Umbra", "How… how can you still stand? I have every advantage…", "NyxSwirl", VioletText,
+
+                // Nova (steady, compassionate)
+                "Nova", "Because I never fought for power, Umbra. I fought for hope… for a future where I wouldn’t become you.", "NyxSwirl", NovaTextColor,
+
+                // Narration (Umbra weakening)
+                "", "Umbra’s expression wavers, her strength waning as her form flickers like a dying flame.", "NyxSwirl", WhiteText,
+
+                // Umbra (whispering, pleading)
+                "Umbra", "I only wanted to fix… what I lost.", "NyxSwirl", VioletText,
+
+                // Nova (softly, finality)
+                "Nova", "But you lost yourself trying to chase what’s already gone.", "NyxSwirl", NovaTextColor,
+
+                // Narration (Nova's final act)
+                "", "Nova channels the last surge of energy into her device, a radiant wave pulsing outward. The light engulfs Umbra, her shadow dissipating as the echoes of her pain fade into silence.", "NyxSwirl", WhiteText,
+                "", "Umbra’s form crumbles, not in violence, but in release—as if, for the first time, she is free from her own torment.", "NyxSwirl", WhiteText,
+
+                // Jina (quiet)
+                "Jina", "It’s over… you did it.", "NyxSwirl", OrangeText,
+
+                // Nova (trembling, reflective)
+                "Nova", "No, Jina… she did it. In the end… she let go.", "NyxSwirl", NovaTextColor,
+
+                // Narration (peace returns)
+                "", "As the darkness fades and light begins to return, the silence is heavy yet peaceful. Nyxarion, once twisted and corrupted, now feels… still.", "NyxSwirl", WhiteText,
+                "", "But the weight of what was lost lingers in the air—like a reminder etched into eternity.", "NyxSwirl", WhiteText,
+
+                // Narration (epilogue)
+                "", "In her final moments, Umbra didn’t lose… she found the strength to surrender her pain.", "NyxSwirl", WhiteText,
+                "", "And in doing so, she gave Nova something even more powerful—clarity. A path not just to save worlds… but to ensure she never loses herself in the process.", "NyxSwirl", WhiteText
+            },
+                () -> {
+                    this.setScreen(new EndCreditsScreen(this));
                 });
             setScreen(currentScreen);
         }
