@@ -5,6 +5,8 @@ A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://git
 This project was generated with a template including simple application launchers and an `ApplicationAdapter` extension that draws libGDX logo.
 
 <img width="1920" height="1080" alt="OOP2_PROJECT_VORTEX1" src="https://github.com/user-attachments/assets/109f1af7-0394-4cdf-9580-1c7f221b70ba" />
+<img width="1920" height="1080" alt="OOP2_PROJECT_VORTEX2" src="https://github.com/user-attachments/assets/4bda21c9-3abc-4e5c-8b86-7302660c5e6c" />
+
 
 ## Platforms
 
